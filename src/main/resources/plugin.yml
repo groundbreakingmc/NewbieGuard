@@ -1,0 +1,34 @@
+name: NewbieGuard
+version: '${project.version}'
+main: groundbreaking.newbieguard.NewbieGuard
+api-version: 1.16
+author: Groundbreaking
+description: '${project.description}'
+website: https://github.com/groundbreakingmc
+
+softdepend: [PlaceholderAPI]
+
+libraries:
+  - com.zaxxer:HikariCP:5.1.0
+  - org.mariadb.jdbc:mariadb-java-client:3.4.1
+
+commands:
+  newbieguard:
+    aliases:
+      - ng
+
+permissions:
+  newbieguard.reload:
+    default: op
+
+  newbieguard.bypass.chat:
+    default: op
+
+  newbieguard.bypass.commands:
+    default: op
+
+  newbieguard.bypass.columncommands:
+    default: op
+
+  newbieguard.updates:
+    default: op
