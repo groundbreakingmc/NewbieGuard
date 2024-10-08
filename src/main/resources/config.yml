@@ -122,7 +122,7 @@ messages:
     cooldown-title: '&cDenied'
     cooldown-subtitle: '&fLeft to play for %time% more'
 
-  blocked-command-use-messages:
+  column-command-use-messages:
     message: '&4(!) &cSorry, buy you don''t have access to use this command!'
     title: '&cDenied'
     subtitle: '&fUse /help to view allowed commands'

@@ -91,7 +91,7 @@ public final class ColumnCommandsListener implements Listener {
     }
 
     private void send(final Player player) {
-        player.sendMessage(configValues.getCommandUseDenyMessages());
+        player.sendMessage(configValues.getColumnCommandUseDenyMessages());
 
         if (!configValues.isColumnCommandUseDenyTitleEnabled()) {
             player.showTitle(configValues.getColumnCommandUseTitle());

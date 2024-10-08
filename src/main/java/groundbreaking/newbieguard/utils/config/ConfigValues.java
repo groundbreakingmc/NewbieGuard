@@ -168,7 +168,7 @@ public final class ConfigValues {
             reloadMessages = getMessage(messages, "reload", colorizer);
             messageSendDenyMessages = getMessage(messages, "chat-use-messages.cooldown-message", colorizer);
             commandUseDenyMessages = getMessage(messages, "command-use-messages.cooldown-message", colorizer);
-            columnCommandUseDenyMessages = getMessage(messages, "blocked-command-use-messages.message", colorizer);
+            columnCommandUseDenyMessages = getMessage(messages, "column-command-use-messages.message", colorizer);
 
             messageSendDenyTitle = colorizer.colorize(messages.getString("chat-use-messages.cooldown-title", "&cError"));
             messageSendDenySubTitle = colorizer.colorize(messages.getString("chat-use-messages.cooldown-subtitle", "&fCheck \"messages.chat-use-messages.cooldown-subtitle\""));
