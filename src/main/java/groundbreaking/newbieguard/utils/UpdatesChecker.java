@@ -75,8 +75,9 @@ public final class UpdatesChecker {
             }).join();
         }
         catch (Exception ex) {
-            logger.warning("\u001b[31mCheck was canceled with response code: \u001b[91m" + ex.getMessage() + "\u001b[31m.\u001b[0m");
+            logger.warning("\u001b[31mCheck was canceled with exception message: \u001b[91m" + ex.getMessage() + "\u001b[31m.\u001b[0m");
             logger.warning("\u001b[31mPlease create an issue here: \u001b[94mhttps://github.com/groundbreakingmc/NewbieGuard/issues\u001b[31m, and report this error.\u001b[0m");
+            ex.printStackTrace();
         }
     }
 
