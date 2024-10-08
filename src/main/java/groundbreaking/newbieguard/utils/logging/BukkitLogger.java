@@ -9,7 +9,7 @@ public final class BukkitLogger implements ILogger {
     private final Logger logger;
 
     public BukkitLogger(final NewbieGuard plugin) {
-        logger = plugin.getServer().getLogger();
+        logger = plugin.getLogger();
     }
 
     public void info(final String msg) {
