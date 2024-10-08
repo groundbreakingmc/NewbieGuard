@@ -45,8 +45,8 @@ public abstract class AbstractDB {
 
     public void close() {
         if (dataSource != null) {
-            try (Connection connection = dataSource.getConnection()) {
-                if (connection != null) {
+            try {
+                if (dataSource.getConnection() != null) {
                     dataSource.close();
                 }
             }

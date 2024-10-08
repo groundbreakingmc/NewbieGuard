@@ -13,18 +13,15 @@ public final class MariaDB extends AbstractDB {
 
     @Override
     public void createConnection() throws SQLException {
-        try (Connection connection = getConnection();
-                Statement statement = connection.createStatement()) {
+        try (final Statement statement = getConnection().createStatement()) {
             statement.execute("""
                         CREATE TABLE IF NOT EXISTS chat (
-                            id INT PRIMARY KEY AUTO_INCREMENT,
                             username VARCHAR(255) NOT NULL UNIQUE
                         )
                     """);
 
             statement.execute("""
                         CREATE TABLE IF NOT EXISTS commands (
-                            id INT PRIMARY KEY AUTO_INCREMENT,
                             username VARCHAR(255) NOT NULL UNIQUE
                         )
                     """);
@@ -32,17 +29,16 @@ public final class MariaDB extends AbstractDB {
     }
 
     @Override
-    public void addPlayerChatDatabase(Player p) {
-        if (p == null) {
+    public void addPlayerChatDatabase(final Player player) {
+        if (player == null) {
             return;
         }
 
-        try (Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("INSERT INTO chat (username) VALUES (?)")) {
-            statement.setString(1, p.getName());
+        try (final PreparedStatement statement = getConnection().prepareStatement("INSERT INTO chat (username) VALUES (?)")) {
+            statement.setString(1, player.getName());
             statement.executeUpdate();
         }
-        catch (SQLException ex) {
+        catch (final SQLException ex) {
             if (ex.getErrorCode() == 19) {
                 return;
             }
@@ -51,17 +47,16 @@ public final class MariaDB extends AbstractDB {
     }
 
     @Override
-    public void addPlayerCommandsDatabase(Player p) {
-        if (p == null) {
+    public void addPlayerCommandsDatabase(final Player player) {
+        if (player == null) {
             return;
         }
 
-        try (Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("INSERT INTO commands (username) VALUES (?)")) {
-            statement.setString(1, p.getName());
+        try (final PreparedStatement statement = getConnection().prepareStatement("INSERT INTO commands (username) VALUES (?)")) {
+            statement.setString(1, player.getName());
             statement.executeUpdate();
         }
-        catch (SQLException ex) {
+        catch (final SQLException ex) {
             if (ex.getErrorCode() == 19) {
                 return;
             }
@@ -70,36 +65,34 @@ public final class MariaDB extends AbstractDB {
     }
 
     @Override
-    public boolean chatDatabaseHasPlayer(Player p) {
-        if (p == null) {
+    public boolean chatDatabaseHasPlayer(final Player player) {
+        if (player == null) {
             return false;
         }
 
-        try (Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM commands WHERE username = ?")) {
-            statement.setString(1, p.getName());
+        try (final PreparedStatement statement = getConnection().prepareStatement("SELECT * FROM commands WHERE username = ?")) {
+            statement.setString(1, player.getName());
             ResultSet result = statement.executeQuery();
             return result.next();
         }
-        catch (SQLException ex) {
+        catch (final SQLException ex) {
             ex.printStackTrace();
             return false;
         }
     }
 
     @Override
-    public boolean commandsDatabaseHasPlayer(Player p) {
-        if (p == null) {
+    public boolean commandsDatabaseHasPlayer(final Player player) {
+        if (player == null) {
             return false;
         }
 
-        try (Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM chat WHERE username = ?")) {
-            statement.setString(1, p.getName());
+        try (final PreparedStatement statement = getConnection().prepareStatement("SELECT * FROM chat WHERE username = ?")) {
+            statement.setString(1, player.getName());
             ResultSet result = statement.executeQuery();
             return result.next();
         }
-        catch (SQLException ex) {
+        catch (final SQLException ex) {
             ex.printStackTrace();
             return false;
         }
