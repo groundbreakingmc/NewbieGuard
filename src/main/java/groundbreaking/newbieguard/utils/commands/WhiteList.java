@@ -6,6 +6,6 @@ public final class WhiteList implements IMode {
 
     @Override
     public boolean check(String sentCommand, String blockedCommand) {
-        return CommandChecker.isBlocked(sentCommand, blockedCommand);
+        return !CommandChecker.isBlocked(sentCommand, blockedCommand);
     }
 }

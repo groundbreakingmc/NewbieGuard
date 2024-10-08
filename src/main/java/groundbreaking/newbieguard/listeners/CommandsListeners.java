@@ -20,7 +20,6 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 public final class CommandsListeners implements Listener {
 
-    private final NewbieGuard plugin;
     private final ConfigValues configValues;
     private final AbstractDB db;
 
@@ -29,7 +28,6 @@ public final class CommandsListeners implements Listener {
     private static IMode mode;
 
     public CommandsListeners(NewbieGuard plugin) {
-        this.plugin = plugin;
         this.configValues = plugin.getConfigValues();
         this.db = plugin.getConnectionHandler();
         setTimeCounter(plugin);
