@@ -39,11 +39,11 @@ public abstract class AbstractDB {
 
     public abstract boolean commandsDatabaseHasPlayer(Player p);
 
-    protected Connection getConnection() throws SQLException {
+    protected final Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
 
-    public void close() {
+    public final void close() {
         if (dataSource != null) {
             try {
                 if (dataSource.getConnection() != null) {

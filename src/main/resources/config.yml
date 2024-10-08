@@ -72,7 +72,7 @@ settings:
     # How much time does a player need to play to get access to write commands
     need-time-played: 300
     # If true, then a player will be allowed to write only command from list until he plays enough time
-    use-whitelist: true
+    use-whitelist: false
     # Sound that plays if command was denied
     # (soundName;volume;pitch)
     # write "disabled" to disable (like this: "deny-sound: disabled")

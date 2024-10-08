@@ -47,6 +47,7 @@ public final class NewbieGuard extends JavaPlugin {
         if (!serverInfo.isPaperOrFork()) {
             logPaperWarning();
             Bukkit.getPluginManager().disablePlugin(this);
+            return;
         }
 
         setupLogger(serverInfo);

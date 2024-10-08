@@ -30,12 +30,17 @@ public final class ConfigLoader {
         }
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-        setDefaults(config, fileName);
         config = checkVersion(config, fileName, fileVersion);
+        setDefaults(config, fileName);
 
         final String password = config.getString("settings.database.maria-db.password");
         if (password == null || password.isEmpty() || password.isBlank()) {
             config.set("settings.database.maria-db.password", new PasswordUtil().generatePass());
+            try {
+                config.save(file);
+            } catch (final IOException ex) {
+                ex.printStackTrace();
+            }
         }
 
         return config;

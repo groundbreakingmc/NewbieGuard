@@ -2,7 +2,7 @@ package groundbreaking.newbieguard.utils.config;
 
 import java.security.SecureRandom;
 
-public class PasswordUtil {
+public final class PasswordUtil {
 
     public String generatePass() {
         final String letters = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
