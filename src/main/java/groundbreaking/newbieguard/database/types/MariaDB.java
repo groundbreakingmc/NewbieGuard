@@ -1,14 +1,14 @@
-package groundbreaking.newbieguard.utils.config.database.types;
+package groundbreaking.newbieguard.database.types;
 
-import groundbreaking.newbieguard.utils.config.database.AbstractDB;
+import groundbreaking.newbieguard.database.AbstractDB;
 import org.bukkit.entity.Player;
 
 import java.sql.*;
 
-public final class SQLite extends AbstractDB {
+public final class MariaDB extends AbstractDB {
 
-    public SQLite(String url) {
-        super(url, null, null);
+    public MariaDB(String url, String user, String password) {
+        super("jdbc:mariadb://" + url, user, password);
     }
 
     @Override
@@ -17,15 +17,15 @@ public final class SQLite extends AbstractDB {
                 Statement statement = connection.createStatement()) {
             statement.execute("""
                         CREATE TABLE IF NOT EXISTS chat (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            username TEXT NOT NULL UNIQUE
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            username VARCHAR(255) NOT NULL UNIQUE
                         )
                     """);
 
             statement.execute("""
                         CREATE TABLE IF NOT EXISTS commands (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            username TEXT NOT NULL UNIQUE
+                            id INT PRIMARY KEY AUTO_INCREMENT,
+                            username VARCHAR(255) NOT NULL UNIQUE
                         )
                     """);
         }
@@ -76,7 +76,7 @@ public final class SQLite extends AbstractDB {
         }
 
         try (Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM chat WHERE username = ?")) {
+                PreparedStatement statement = connection.prepareStatement("SELECT * FROM commands WHERE username = ?")) {
             statement.setString(1, p.getName());
             ResultSet result = statement.executeQuery();
             return result.next();
@@ -94,7 +94,7 @@ public final class SQLite extends AbstractDB {
         }
 
         try (Connection connection = getConnection();
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM commands WHERE username = ?")) {
+                PreparedStatement statement = connection.prepareStatement("SELECT * FROM chat WHERE username = ?")) {
             statement.setString(1, p.getName());
             ResultSet result = statement.executeQuery();
             return result.next();

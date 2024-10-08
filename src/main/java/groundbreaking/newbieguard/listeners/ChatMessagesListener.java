@@ -1,7 +1,7 @@
 package groundbreaking.newbieguard.listeners;
 
 import groundbreaking.newbieguard.NewbieGuard;
-import groundbreaking.newbieguard.utils.config.database.AbstractDB;
+import groundbreaking.newbieguard.database.AbstractDB;
 import groundbreaking.newbieguard.utils.TimeFormatter;
 import groundbreaking.newbieguard.utils.time.FirstEntryCounter;
 import groundbreaking.newbieguard.utils.time.ITimeCounter;

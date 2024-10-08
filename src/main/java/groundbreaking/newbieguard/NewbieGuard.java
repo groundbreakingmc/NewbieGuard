@@ -1,8 +1,8 @@
 package groundbreaking.newbieguard;
 
-import groundbreaking.newbieguard.utils.config.database.AbstractDB;
-import groundbreaking.newbieguard.utils.config.database.types.MariaDB;
-import groundbreaking.newbieguard.utils.config.database.types.SQLite;
+import groundbreaking.newbieguard.database.AbstractDB;
+import groundbreaking.newbieguard.database.types.MariaDB;
+import groundbreaking.newbieguard.database.types.SQLite;
 import groundbreaking.newbieguard.listeners.ChatMessagesListener;
 import groundbreaking.newbieguard.listeners.ColumnCommandsListener;
 import groundbreaking.newbieguard.listeners.CommandsListeners;

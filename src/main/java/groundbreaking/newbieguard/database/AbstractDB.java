@@ -1,4 +1,4 @@
-package groundbreaking.newbieguard.utils.config.database;
+package groundbreaking.newbieguard.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -11,13 +11,6 @@ public abstract class AbstractDB {
 
     protected HikariDataSource dataSource;
 
-    /**
-     * Конструктор для инициализации HikariCP.
-     *
-     * @param jdbcUrl  URL подключения к базе данных.
-     * @param user     Имя пользователя базы данных (может быть null для SQLite).
-     * @param password Пароль базы данных (может быть null для SQLite).
-     */
     public AbstractDB(String jdbcUrl, String user, String password) {
         final HikariConfig config = new HikariConfig();
         config.setJdbcUrl(jdbcUrl);
