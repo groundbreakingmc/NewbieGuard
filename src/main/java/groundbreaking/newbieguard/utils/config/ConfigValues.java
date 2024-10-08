@@ -1,7 +1,11 @@
 package groundbreaking.newbieguard.utils.config;
 
 import groundbreaking.newbieguard.NewbieGuard;
+import groundbreaking.newbieguard.utils.ServerInfo;
 import groundbreaking.newbieguard.utils.colorizer.IColorizer;
+import groundbreaking.newbieguard.utils.colorizer.LegacyColorizer;
+import groundbreaking.newbieguard.utils.colorizer.MiniMessagesColorizer;
+import groundbreaking.newbieguard.utils.colorizer.VanillaColorizer;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
@@ -128,11 +132,11 @@ public final class ConfigValues {
         this.plugin = plugin;
     }
 
-    public void setValues(final FileConfiguration config) {
+    public void setValues() {
+        final FileConfiguration config = plugin.getConfig();
         final ConfigurationSection settings = config.getConfigurationSection("settings");
         final ConfigurationSection messages = config.getConfigurationSection("messages");
-
-        final IColorizer colorizer = plugin.getColorizer();
+        final IColorizer colorizer = getColorizer();
 
         if (settings != null) {
             needTimePlayedToSendMessages = settings.getInt("chat-use.need-time-played");
@@ -421,6 +425,18 @@ public final class ConfigValues {
     }
 
     public String getMessage(ConfigurationSection section, String path, IColorizer colorizer) {
-        return colorizer.colorize(section.getString(path, "&4(!) &cFailed to get message on path: " + path));
+        final String message = section.getString(path, "&4(!) &cFailed to get message on path: " + path);
+        return colorizer.colorize(message);
+    }
+
+    public IColorizer getColorizer() {
+        final boolean useMiniMessages = plugin.getConfig().getBoolean("use-minimessage");
+        final boolean is16OrAbove = new ServerInfo(plugin).getSubVersion() >= 16;
+
+        return useMiniMessages
+                ? new MiniMessagesColorizer()
+                : is16OrAbove
+                ? new LegacyColorizer()
+                : new VanillaColorizer();
     }
 }

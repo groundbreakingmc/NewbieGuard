@@ -9,10 +9,6 @@ import groundbreaking.newbieguard.listeners.CommandsListeners;
 import groundbreaking.newbieguard.listeners.UpdatesNotify;
 import groundbreaking.newbieguard.utils.ServerInfo;
 import groundbreaking.newbieguard.utils.UpdatesChecker;
-import groundbreaking.newbieguard.utils.colorizer.IColorizer;
-import groundbreaking.newbieguard.utils.colorizer.LegacyColorizer;
-import groundbreaking.newbieguard.utils.colorizer.MiniMessagesColorizer;
-import groundbreaking.newbieguard.utils.colorizer.VanillaColorizer;
 import groundbreaking.newbieguard.utils.config.ConfigLoader;
 import groundbreaking.newbieguard.utils.config.ConfigValues;
 import groundbreaking.newbieguard.utils.logging.BukkitLogger;
@@ -36,10 +32,7 @@ public final class NewbieGuard extends JavaPlugin {
     private AbstractDB connectionHandler = null;
 
     @Getter
-    private IColorizer colorizer;
-
-    @Getter
-    private ConfigValues configValues;
+    private ConfigValues configValues = new ConfigValues(this);
 
     @Getter
     private ILogger myLogger;
@@ -60,12 +53,7 @@ public final class NewbieGuard extends JavaPlugin {
         logLoggerType();
 
         config = new ConfigLoader(this).loadAndGet("config", 1.0);
-
-        {
-            setupColorizer(serverInfo);
-            configValues = new ConfigValues(this);
-            configValues.setValues(getConfig());
-        }
+        configValues.setValues();
 
         setupDatabaseHandler();
         setupConnection();
@@ -161,14 +149,6 @@ public final class NewbieGuard extends JavaPlugin {
                 : new BukkitLogger(this);
     }
 
-    public void setupColorizer(final ServerInfo serverInfo) {
-        colorizer = getConfig().getBoolean("use-minimessage")
-                ? new MiniMessagesColorizer()
-                : serverInfo.isAbove16()
-                ? new LegacyColorizer()
-                : new VanillaColorizer();
-    }
-
     public void setupCommand() {
         getCommand("newbieguard").setExecutor((sender, command, label, args) -> {
             final long _startTime = System.currentTimeMillis();
@@ -195,9 +175,7 @@ public final class NewbieGuard extends JavaPlugin {
     @Override
     public void reloadConfig() {
         config = new ConfigLoader(this).loadAndGet("config", 1.0);
-        final ServerInfo serverInfo = new ServerInfo(this);
-        setupColorizer(serverInfo);
-        new ConfigValues(this).setValues(config);
+        configValues.setValues();
         setupDatabaseHandler();
         ChatMessagesListener.setTimeCounter(this);
         CommandsListeners.setTimeCounter(this);
