@@ -14,9 +14,9 @@ import java.util.logging.Logger;
 public final class UpdatesChecker {
 
     @Getter
-    private Boolean new_version = false;
+    private static boolean new_version = false;
     @Getter
-    private String currentVersion, latestVersion, downloadLink;
+    private static String currentVersion, latestVersion, downloadLink;
 
     private final NewbieGuard plugin;
     private final FileConfiguration config;
@@ -36,9 +36,9 @@ public final class UpdatesChecker {
 
         try {
             HttpClient httpClient = HttpClient.newHttpClient();
-            String VERSION_URL = "https://raw.githubusercontent.com/groundbreakingmc/NewbieGuard/main/version";
+            String versionUrl = "https://raw.githubusercontent.com/groundbreakingmc/NewbieGuard/main/version.txt";
             HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(VERSION_URL))
+                    .uri(URI.create(versionUrl))
                     .build();
 
             CompletableFuture<HttpResponse<String>> responseFuture = httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());
