@@ -81,7 +81,7 @@ public final class NewbieGuard extends JavaPlugin {
         pluginManager.registerEvents(new ChatMessagesListener(this), this);
         pluginManager.registerEvents(new CommandsListeners(this), this);
         pluginManager.registerEvents(new ColumnCommandsListener(this), this);
-        pluginManager.registerEvents(new UpdatesNotify(this, updatesChecker), this);
+        pluginManager.registerEvents(new UpdatesNotify(this), this);
 
         getLogger().info("Plugin was successfully started in: " + (System.currentTimeMillis() - startTime) + "ms.");
     }
@@ -103,7 +103,7 @@ public final class NewbieGuard extends JavaPlugin {
         if (myLogger instanceof PaperLogger) {
             myLogger.info("Plugin will use new ComponentLogger for logging.");
         }
-        else if (myLogger instanceof BukkitLogger) {
+        else {
             myLogger.info("Plugin will use default old BukkitLogger for logging. Because your server version is under 19!");
         }
     }
