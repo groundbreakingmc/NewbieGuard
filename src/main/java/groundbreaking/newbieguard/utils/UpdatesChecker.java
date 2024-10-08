@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 public final class UpdatesChecker {
 
     @Getter
-    private static boolean new_version = false;
+    private static boolean newVersion = false;
     @Getter
     private static String currentVersion, latestVersion, downloadLink;
 
@@ -55,11 +55,11 @@ public final class UpdatesChecker {
                         final int newVer = Integer.parseInt(newVersion[i]);
 
                         if (currVer < newVer) {
-                            new_version = true;
+                            UpdatesChecker.newVersion = true;
                         }
                     }
 
-                    if (new_version) {
+                    if (UpdatesChecker.newVersion) {
                         logger.info("\u001b[33m=========== NewbieGuard ===========\u001b[0m");
                         logger.info("\u001b[33mCurrent version: \u001b[93m" + currentVersion + "\u001b[0m");
                         logger.info("\u001b[33mNewest version: \u001b[92m" + latestVersion + "\u001b[0m");
