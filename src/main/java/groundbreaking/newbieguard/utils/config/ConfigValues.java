@@ -193,17 +193,24 @@ public final class ConfigValues {
             this.noPermMessages = this.getMessage(config, "plugin-messages.no-perm", colorizer);
             this.reloadMessages = this.getMessage(config, "plugin-messages.reload", colorizer);
 
-            final String timeDaysString = pluginMessages.getString("time.days", "&cError, check \"messages.time.days\"");
-            timeDays = colorizer.colorize(timeDaysString);
+            final ConfigurationSection time = config.getConfigurationSection("time");
+            if (time != null) {
+                final String timeDaysString = time.getString("days", "&cError, check \"messages.time.days\"");
+                timeDays = colorizer.colorize(timeDaysString);
 
-            final String timeHoursString = pluginMessages.getString("time.hours", "&cError, check \"messages.time.hours\"");
-            timeHours = colorizer.colorize(timeHoursString);
+                final String timeHoursString = time.getString("hours", "&cError, check \"messages.time.hours\"");
+                timeHours = colorizer.colorize(timeHoursString);
 
-            final String timeMinutesString = pluginMessages.getString("time.minutes", "&cError, check \"messages.time.minutes\"");
-            timeMinutes = colorizer.colorize(timeMinutesString);
+                final String timeMinutesString = time.getString("minutes", "&cError, check \"messages.time.minutes\"");
+                timeMinutes = colorizer.colorize(timeMinutesString);
 
-            final String timeSecondsString = pluginMessages.getString("time.seconds", "&cError, check \"messages.time.seconds\"");
-            timeSeconds = colorizer.colorize(timeSecondsString);
+                final String timeSecondsString = time.getString("seconds", "&cError, check \"messages.time.seconds\"");
+                timeSeconds = colorizer.colorize(timeSecondsString);
+            } else {
+                this.logger.warning("Failed to load section \"plugin-messages.time\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+                this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+                Bukkit.getPluginManager().disablePlugin(this.plugin);
+            }
         } else {
             this.logger.warning("Failed to load section \"plugin-messages\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
             this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
