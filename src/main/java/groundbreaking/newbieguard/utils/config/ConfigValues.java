@@ -128,7 +128,7 @@ public final class ConfigValues {
 
                 this.needTimePlayedToSendMessages = messagesSend.getInt("need-time-played");
 
-                this.messageSendCooldownMessages = this.getMessage(config, "messages-send.cooldown", colorizer);
+                this.messageSendCooldownMessages = this.getMessage(messagesSend, "cooldown", "messages-send.cooldown", colorizer);
 
                 this.setMessageSendDenySound(messagesSend);
                 this.setMessageSendDenyTitle(messagesSend, colorizer);
@@ -153,7 +153,7 @@ public final class ConfigValues {
 
                 this.needTimePlayedToUseCommands = commandUse.getInt("need-time-played");
 
-                this.commandUseCooldownMessages = this.getMessage(config, "commands-use.cooldown", colorizer);
+                this.commandUseCooldownMessages = this.getMessage(commandUse, "cooldown", "commands-use.cooldown", colorizer);
 
                 this.setupCommandUseDenySound(commandUse);
                 this.setCommandUseDenyTitle(commandUse, colorizer);
@@ -176,7 +176,7 @@ public final class ConfigValues {
             this.columnCommandsUseListenerPriority = columnCommandUse.getString("listener-priority").toUpperCase();
             this.columnCommandsUseIgnoreCancelled = columnCommandUse.getBoolean("ignore-cancelled");
 
-            this.columnCommandUseDenyMessages = this.getMessage(config, "column-commands-use.deny-message", colorizer);
+            this.columnCommandUseDenyMessages = this.getMessage(columnCommandUse, "deny-message", "column-commands-use.deny-message", colorizer);
 
             this.setColumnCommandUseDenySound(columnCommandUse);
             this.setColumnCommandUseDenyTitle(columnCommandUse, colorizer);
@@ -190,8 +190,8 @@ public final class ConfigValues {
     private void setupMessages(final FileConfiguration config, final IColorizer colorizer) {
         final ConfigurationSection pluginMessages = config.getConfigurationSection("plugin-messages");
         if (pluginMessages != null) {
-            this.noPermMessages = this.getMessage(config, "plugin-messages.no-perm", colorizer);
-            this.reloadMessages = this.getMessage(config, "plugin-messages.reload", colorizer);
+            this.noPermMessages = this.getMessage(pluginMessages, "no-perm", "plugin-messages.no-perm", colorizer);
+            this.reloadMessages = this.getMessage(pluginMessages, "reload", "plugin-messages.reload", colorizer);
 
             final ConfigurationSection time = config.getConfigurationSection("time");
             if (time != null) {
@@ -403,8 +403,8 @@ public final class ConfigValues {
         }
     }
 
-    private String getMessage(final FileConfiguration config, final String path, final IColorizer colorizer) {
-        final String message = config.getString(path, "&4(!) &cFailed to get message on path: " + path);
+    private String getMessage(final ConfigurationSection config, final String path, final String fullPath, final IColorizer colorizer) {
+        final String message = config.getString(path, "&4(!) &cFailed to get message on path: " + fullPath);
         return colorizer.colorize(message);
     }
 
