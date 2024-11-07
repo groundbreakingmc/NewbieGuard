@@ -1,8 +1,6 @@
 package groundbreaking.newbieguard;
 
 import groundbreaking.newbieguard.database.AbstractDB;
-import groundbreaking.newbieguard.database.types.MariaDB;
-import groundbreaking.newbieguard.database.types.SQLite;
 import groundbreaking.newbieguard.listeners.ChatMessagesListener;
 import groundbreaking.newbieguard.listeners.ColumnCommandsListener;
 import groundbreaking.newbieguard.listeners.CommandsListeners;
@@ -10,37 +8,29 @@ import groundbreaking.newbieguard.listeners.UpdatesNotify;
 import groundbreaking.newbieguard.utils.PlaceholdersUtil;
 import groundbreaking.newbieguard.utils.ServerInfo;
 import groundbreaking.newbieguard.utils.UpdatesChecker;
-import groundbreaking.newbieguard.utils.config.ConfigLoader;
 import groundbreaking.newbieguard.utils.config.ConfigValues;
 import groundbreaking.newbieguard.utils.logging.BukkitLogger;
 import groundbreaking.newbieguard.utils.logging.ILogger;
 import groundbreaking.newbieguard.utils.logging.PaperLogger;
-import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventPriority;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
 @Getter
 public final class NewbieGuard extends JavaPlugin {
 
-    private AbstractDB connectionHandler = null;
+    @Setter private AbstractDB connectionHandler = null;
 
     private ConfigValues configValues;
 
     private ILogger myLogger;
-
-    @Getter(AccessLevel.NONE)
-    private FileConfiguration config;
 
     private ChatMessagesListener chatListener;
     private CommandsListeners commandsListener;
@@ -60,11 +50,9 @@ public final class NewbieGuard extends JavaPlugin {
         this.setupLogger(serverInfo);
         this.logLoggerType();
 
-        this.config = new ConfigLoader(this).loadAndGet("config", 1.0);
         this.configValues = new ConfigValues(this);
         this.configValues.setValues();
 
-        this.setupDatabaseHandler();
         this.setupConnection();
 
         this.setupCommand();
@@ -77,7 +65,7 @@ public final class NewbieGuard extends JavaPlugin {
         final PluginManager pluginManager = server.getPluginManager();
         pluginManager.registerEvents(new UpdatesNotify(this), this);
 
-        loadClassesAndEvents();
+        this.loadClassesAndEvents();
 
         this.myLogger.info("Plugin was successfully started in: " + (System.currentTimeMillis() - startTime) + "ms.");
     }
@@ -104,33 +92,6 @@ public final class NewbieGuard extends JavaPlugin {
         }
     }
 
-    private void setupDatabaseHandler() {
-        final String dbType = this.config.getString("settings.database.type");
-
-        if (dbType.equalsIgnoreCase("sqlite")) {
-
-            final File dbFile = new File(getDataFolder() + File.separator + "database.db");
-            this.loadDatabaseFile(dbFile);
-
-            final String url = "jdbc:sqlite:" + dbFile;
-            this.connectionHandler = new SQLite(url);
-
-        } else if (dbType.equalsIgnoreCase("mariadb")) {
-
-            final String host = this.config.getString("settings.database.maria-db.host");
-            final String port = this.config.getString("settings.database.maria-db.port");
-            final String dbName = this.config.getString("settings.database.maria-db.database-name");
-            final String url = host + ":" + port + "/" + dbName;
-            final String user = this.config.getString("settings.database.maria-db.username");
-            final String pass = this.config.getString("settings.database.maria-db.password");
-
-            this.connectionHandler = new MariaDB(url, user, pass);
-
-        } else {
-            throw new UnsupportedOperationException("Please choose SQLite or MariaDB as database!");
-        }
-    }
-
     public void setupConnection() {
         try {
             this.connectionHandler.createConnection();
@@ -138,19 +99,6 @@ public final class NewbieGuard extends JavaPlugin {
             this.myLogger.warning("An error coursed while trying to open database connection.");
             ex.printStackTrace();
             Bukkit.getPluginManager().disablePlugin(this);
-        }
-    }
-
-    public void loadDatabaseFile(final File dbFile) {
-        if (!dbFile.exists()) {
-            try {
-                if (!dbFile.createNewFile()) {
-                    this.myLogger.warning("Database file wasn't created. Plugin may work not correctly!");
-                    this.myLogger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/GigaChat/issues");
-                }
-            } catch (final IOException ex) {
-                ex.printStackTrace();
-            }
         }
     }
 
@@ -191,17 +139,10 @@ public final class NewbieGuard extends JavaPlugin {
     }
 
     public void reload() {
-        this.config = new ConfigLoader(this).loadAndGet("config", 1.0);
         this.configValues.setValues();
-        this.setupDatabaseHandler();
         ChatMessagesListener.setTimeCounter(this);
         CommandsListeners.setTimeCounter(this);
         CommandsListeners.setMode(this);
-    }
-
-    @Override
-    public @NotNull FileConfiguration getConfig() {
-        return this.config;
     }
 
     public EventPriority getEventPriority(final String priority) {

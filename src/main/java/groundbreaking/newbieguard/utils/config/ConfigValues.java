@@ -1,6 +1,9 @@
 package groundbreaking.newbieguard.utils.config;
 
 import groundbreaking.newbieguard.NewbieGuard;
+import groundbreaking.newbieguard.database.AbstractDB;
+import groundbreaking.newbieguard.database.types.MariaDB;
+import groundbreaking.newbieguard.database.types.SQLite;
 import groundbreaking.newbieguard.listeners.ChatMessagesListener;
 import groundbreaking.newbieguard.listeners.ColumnCommandsListener;
 import groundbreaking.newbieguard.listeners.CommandsListeners;
@@ -16,6 +19,7 @@ import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,7 +97,7 @@ public final class ConfigValues {
     }
 
     public void setValues() {
-        final FileConfiguration config = this.plugin.getConfig();
+        final FileConfiguration config = new ConfigLoader(this.plugin).loadAndGet("config", 1.0);
         final IColorizer colorizer = this.getColorizer(config);
 
         if (colorizer == null) {
@@ -103,10 +107,39 @@ public final class ConfigValues {
             return;
         }
 
+        this.setupDatabaseHandler(config);
         this.setupMessagesSend(config, colorizer);
         this.setupCommandsUseValues(config, colorizer);
         this.setupColumnCommandsUseValues(config, colorizer);
         this.setupMessages(config, colorizer);
+    }
+
+    private void setupDatabaseHandler(final FileConfiguration config) {
+        final ConfigurationSection database = config.getConfigurationSection("settings.database");
+        if (database != null) {
+            final String type = database.getString("type");
+            if (type.equalsIgnoreCase("sqlite")) {
+                final File dbFile = new File(this.plugin.getDataFolder() + File.separator + "database.db");
+                final String url = "jdbc:sqlite:" + dbFile;
+                final AbstractDB connectionHandler = new SQLite(url);
+                this.plugin.setConnectionHandler(connectionHandler);
+            } else if (type.equalsIgnoreCase("mariadb")) {
+                final ConfigurationSection mariaDb = database.getConfigurationSection("maria-db");
+                if (mariaDb != null) {
+                    final String host = mariaDb.getString("host");
+                    final String port = mariaDb.getString("port");
+                    final String dbName = mariaDb.getString("database-name");
+                    final String user = mariaDb.getString("username");
+                    final String pass = mariaDb.getString("password");
+
+                    final String url = host + ":" + port + "/" + dbName;
+                    final AbstractDB connectionHandler = new MariaDB(url, user, pass);
+                    this.plugin.setConnectionHandler(connectionHandler);
+                }
+            } else {
+                throw new UnsupportedOperationException("Please choose SQLite or MariaDB as database!");
+            }
+        }
     }
 
     private void setupMessagesSend(final FileConfiguration config, final IColorizer colorizer) {
