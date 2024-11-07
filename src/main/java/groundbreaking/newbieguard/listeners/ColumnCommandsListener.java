@@ -1,7 +1,7 @@
 package groundbreaking.newbieguard.listeners;
 
 import groundbreaking.newbieguard.NewbieGuard;
-import groundbreaking.newbieguard.utils.Placeholders;
+import groundbreaking.newbieguard.utils.PlaceholdersUtil;
 import groundbreaking.newbieguard.utils.config.ConfigValues;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
@@ -15,14 +15,14 @@ public final class ColumnCommandsListener implements Listener {
 
     private final NewbieGuard plugin;
     private final ConfigValues configValues;
-    private final Placeholders placeholders;
+    private final PlaceholdersUtil placeholdersUtil;
 
     private boolean isRegistered = false;
 
     public ColumnCommandsListener(NewbieGuard plugin) {
         this.plugin = plugin;
         this.configValues = plugin.getConfigValues();
-        this.placeholders = plugin.getPlaceholders();
+        this.placeholdersUtil = plugin.getPlaceholdersUtil();
 
         this.registerEvent();
     }
@@ -96,7 +96,7 @@ public final class ColumnCommandsListener implements Listener {
 
         final String message = this.configValues.getColumnCommandUseDenyMessages();
         if (!message.isEmpty()) {
-            final String formattedMessage = placeholders.parse(player, message);
+            final String formattedMessage = placeholdersUtil.parse(player, message);
             player.sendMessage(formattedMessage);
         }
 

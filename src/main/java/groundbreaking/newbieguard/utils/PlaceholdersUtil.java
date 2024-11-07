@@ -1,19 +1,12 @@
 package groundbreaking.newbieguard.utils;
 
-import groundbreaking.newbieguard.NewbieGuard;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class Placeholders {
+public final class PlaceholdersUtil {
 
-    private final NewbieGuard plugin;
-
-    public Placeholders(final NewbieGuard plugin) {
-        this.plugin = plugin;
-    }
-
-    public String parse(final CommandSender sender, final String message) {
+    public static String parse(final CommandSender sender, final String message) {
         if (sender instanceof Player player) {
             return PlaceholderAPI.setPlaceholders(player, message);
         } else {

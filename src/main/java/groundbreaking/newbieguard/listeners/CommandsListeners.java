@@ -2,7 +2,7 @@ package groundbreaking.newbieguard.listeners;
 
 import groundbreaking.newbieguard.NewbieGuard;
 import groundbreaking.newbieguard.database.AbstractDB;
-import groundbreaking.newbieguard.utils.Placeholders;
+import groundbreaking.newbieguard.utils.PlaceholdersUtil;
 import groundbreaking.newbieguard.utils.TimeFormatter;
 import groundbreaking.newbieguard.utils.commands.BlackList;
 import groundbreaking.newbieguard.utils.commands.IMode;
@@ -26,7 +26,7 @@ public final class CommandsListeners implements Listener {
     private final NewbieGuard plugin;
     private final ConfigValues configValues;
     private final AbstractDB database;
-    private final Placeholders placeholders;
+    private final PlaceholdersUtil placeholdersUtil;
 
     private boolean isRegistered = false;
 
@@ -38,7 +38,7 @@ public final class CommandsListeners implements Listener {
         this.plugin = plugin;
         this.configValues = plugin.getConfigValues();
         this.database = plugin.getConnectionHandler();
-        this.placeholders = plugin.getPlaceholders();
+        this.placeholdersUtil = plugin.getPlaceholdersUtil();
 
         this.registerEvent();
 
@@ -115,7 +115,7 @@ public final class CommandsListeners implements Listener {
 
         final String message = configValues.getCommandUseCooldownMessages();
         if (!message.isEmpty()) {
-            final String formattedMessage = placeholders.parse(player, message.replace("%time%", formattedTime));
+            final String formattedMessage = placeholdersUtil.parse(player, message.replace("%time%", formattedTime));
             player.sendMessage(formattedMessage);
         }
 

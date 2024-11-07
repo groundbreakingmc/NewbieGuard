@@ -7,7 +7,7 @@ import groundbreaking.newbieguard.listeners.ChatMessagesListener;
 import groundbreaking.newbieguard.listeners.ColumnCommandsListener;
 import groundbreaking.newbieguard.listeners.CommandsListeners;
 import groundbreaking.newbieguard.listeners.UpdatesNotify;
-import groundbreaking.newbieguard.utils.Placeholders;
+import groundbreaking.newbieguard.utils.PlaceholdersUtil;
 import groundbreaking.newbieguard.utils.ServerInfo;
 import groundbreaking.newbieguard.utils.UpdatesChecker;
 import groundbreaking.newbieguard.utils.config.ConfigLoader;
@@ -45,7 +45,7 @@ public final class NewbieGuard extends JavaPlugin {
     private ChatMessagesListener chatListener;
     private CommandsListeners commandsListener;
     private ColumnCommandsListener columnCommandsListener;
-    private Placeholders placeholders;
+    private PlaceholdersUtil placeholdersUtil;
 
     @Override
     public void onEnable() {
@@ -167,7 +167,7 @@ public final class NewbieGuard extends JavaPlugin {
 
             if (!sender.hasPermission("newbieguard.reload")) {
                 final String message = this.configValues.getNoPermMessages();
-                final String formattedMessage = this.placeholders.parse(sender, message);
+                final String formattedMessage = this.placeholdersUtil.parse(sender, message);
                 sender.sendMessage(formattedMessage);
                 return true;
             }
@@ -180,7 +180,7 @@ public final class NewbieGuard extends JavaPlugin {
             final long reloadFinishTime = System.currentTimeMillis();
             final String timeLeft = String.valueOf(reloadFinishTime - reloadStartTime);
             final String message = this.configValues.getReloadMessages().replace("%time%", timeLeft);
-            final String formattedMessage = this.placeholders.parse(sender, message);
+            final String formattedMessage = this.placeholdersUtil.parse(sender, message);
             sender.sendMessage(formattedMessage);
 
             return true;
