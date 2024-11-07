@@ -13,14 +13,11 @@ public class Placeholders {
         this.plugin = plugin;
     }
 
-    public String parse(final CommandSender sender, String message) {
-
+    public String parse(final CommandSender sender, final String message) {
         if (sender instanceof Player player) {
-            message = PlaceholderAPI.setPlaceholders(player, message);
+            return PlaceholderAPI.setPlaceholders(player, message);
         } else {
-            message = PlaceholderAPI.setPlaceholders(null, message);
+            return PlaceholderAPI.setPlaceholders(null, message);
         }
-
-        return message;
     }
 }
