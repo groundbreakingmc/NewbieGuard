@@ -21,7 +21,7 @@ public final class ColumnCommandsListener implements Listener {
     }
 
     @EventHandler
-    public void onCommandSend(final PlayerCommandPreprocessEvent event) {
+    public void onEvent(final PlayerCommandPreprocessEvent event) {
         final Player player = event.getPlayer();
         if (player.hasPermission("newbieguard.bypass.columncommands")) {
             return;

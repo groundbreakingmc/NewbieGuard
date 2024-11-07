@@ -18,6 +18,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.plugin.EventExecutor;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,17 +33,9 @@ public final class ConfigValues {
     private int needTimePlayedToSendMessages;
     private int needTimePlayedToUseCommands;
 
-    private String messageSendListenerPriority;
-    private String commandsUseListenerPriority;
-    private String columnCommandsUseListenerPriority;
-
     private boolean messageSendCheckEnabled;
     private boolean commandsSendCheckEnabled;
     private boolean columnCommandsSendCheckEnabled;
-
-    private boolean messageSendIgnoreCancelled;
-    private boolean commandsUseIgnoreCancelled;
-    private boolean columnCommandsUseIgnoreCancelled;
 
     private boolean isMessageSendDenySoundEnabled;
     private boolean isCommandUseDenySoundEnabled;
@@ -148,8 +144,8 @@ public final class ConfigValues {
             this.messageSendCheckEnabled = messagesSend.getBoolean("enable");
             final ChatMessagesListener chatMessagesListener = this.plugin.getChatListener();
             if (this.messageSendCheckEnabled) {
-                this.messageSendListenerPriority = messagesSend.getString("listener-priority").toUpperCase();
-                this.messageSendIgnoreCancelled = messagesSend.getBoolean("ignore-cancelled");
+                final String listenerPriorityString = messagesSend.getString("listener-priority").toUpperCase();
+                final boolean ignoreCancelled = messagesSend.getBoolean("ignore-cancelled");
 
                 this.needTimePlayedToSendMessages = messagesSend.getInt("need-time-played");
 
@@ -161,7 +157,9 @@ public final class ConfigValues {
                 this.blockedWordsForChat.clear();
                 this.blockedWordsForChat.addAll(messagesSend.getStringList("blocked-words"));
 
-                RegisterUtil.register(this.plugin, chatMessagesListener);
+                final EventExecutor eventExecutor = (listener, event) -> chatMessagesListener.onEvent((AsyncPlayerChatEvent) event);
+                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString);
+                RegisterUtil.register(this.plugin, chatMessagesListener, AsyncPlayerChatEvent.class, eventPriority, ignoreCancelled, eventExecutor);
             } else {
                 RegisterUtil.unregister(chatMessagesListener);
             }
@@ -178,8 +176,8 @@ public final class ConfigValues {
             this.commandsSendCheckEnabled = commandUse.getBoolean("enable");
             final CommandsListeners commandsListeners = this.plugin.getCommandsListener();
             if (this.messageSendCheckEnabled) {
-                this.commandsUseListenerPriority = commandUse.getString("listener-priority").toUpperCase();
-                this.commandsUseIgnoreCancelled = commandUse.getBoolean("ignore-cancelled");
+                final String listenerPriorityString = commandUse.getString("listener-priority").toUpperCase();
+                final boolean ignoreCancelled = commandUse.getBoolean("ignore-cancelled");
 
                 this.needTimePlayedToUseCommands = commandUse.getInt("need-time-played");
 
@@ -191,7 +189,9 @@ public final class ConfigValues {
                 this.blockedCommands.clear();
                 this.blockedCommands.addAll(commandUse.getStringList("list"));
 
-                RegisterUtil.register(this.plugin, commandsListeners);
+                final EventExecutor eventExecutor = (listener, event) -> commandsListeners.onEvent((PlayerCommandPreprocessEvent) event);
+                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString);
+                RegisterUtil.register(this.plugin, commandsListeners, PlayerCommandPreprocessEvent.class, eventPriority, ignoreCancelled, eventExecutor);
             } else {
                 RegisterUtil.unregister(commandsListeners);
             }
@@ -208,16 +208,17 @@ public final class ConfigValues {
             this.columnCommandsSendCheckEnabled = columnCommandUse.getBoolean("enable");
             final ColumnCommandsListener columnCommandsListener = this.plugin.getColumnCommandsListener();
             if (columnCommandsSendCheckEnabled) {
-
-                this.columnCommandsUseListenerPriority = columnCommandUse.getString("listener-priority").toUpperCase();
-                this.columnCommandsUseIgnoreCancelled = columnCommandUse.getBoolean("ignore-cancelled");
+                final String listenerPriorityString = columnCommandUse.getString("listener-priority").toUpperCase();
+                final boolean ignoreCancelled = columnCommandUse.getBoolean("ignore-cancelled");
 
                 this.columnCommandUseDenyMessages = this.getMessage(columnCommandUse, "deny-message", "column-commands-use.deny-message", colorizer);
 
                 this.setColumnCommandUseDenySound(columnCommandUse);
                 this.setColumnCommandUseDenyTitle(columnCommandUse, colorizer);
 
-                RegisterUtil.register(this.plugin, columnCommandsListener);
+                final EventExecutor eventExecutor = (listener, event) -> columnCommandsListener.onEvent((PlayerCommandPreprocessEvent) event);
+                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString);
+                RegisterUtil.register(this.plugin, columnCommandsListener, PlayerCommandPreprocessEvent.class, eventPriority, ignoreCancelled, eventExecutor);
             } else {
                 RegisterUtil.unregister(columnCommandsListener);
             }

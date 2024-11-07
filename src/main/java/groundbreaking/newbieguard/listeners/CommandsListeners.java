@@ -41,7 +41,7 @@ public final class CommandsListeners implements Listener {
     }
 
     @EventHandler
-    public void onCommandSend(final PlayerCommandPreprocessEvent event) {
+    public void onEvent(final PlayerCommandPreprocessEvent event) {
         final Player player = event.getPlayer();
         if (player.hasPermission("newbieguard.bypass.commands") || this.database.commandsDatabaseHasPlayer(player)) {
             return;

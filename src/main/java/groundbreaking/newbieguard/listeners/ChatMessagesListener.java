@@ -34,7 +34,7 @@ public final class ChatMessagesListener implements Listener {
     }
 
     @EventHandler
-    public void onMessageSend(final AsyncPlayerChatEvent event) {
+    public void onEvent(final AsyncPlayerChatEvent event) {
         final Player player = event.getPlayer();
         if (player.hasPermission("newbieguard.bypass.chat") || this.database.chatDatabaseHasPlayer(player)) {
             return;
