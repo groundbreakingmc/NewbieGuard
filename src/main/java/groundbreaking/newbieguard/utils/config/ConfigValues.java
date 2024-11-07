@@ -229,18 +229,9 @@ public final class ConfigValues {
             this.isMessageSendDenySoundEnabled = false;
         } else {
             final String[] params = soundString.split(";");
-
-            this.messageSendDenySound = params.length == 1 && params[0] != null && !params[0].isEmpty() && !params[0].isBlank()
-                    ? Sound.valueOf(params[0].toUpperCase(Locale.ENGLISH))
-                    : Sound.ITEM_SHIELD_BREAK;
-
-            this.messageSendSoundVolume = params.length == 2 && params[1] != null && !params[1].isEmpty() && !params[1].isBlank()
-                    ? Float.parseFloat(params[1])
-                    : 1.0f;
-
-            this.messageSendSoundPitch = params.length == 3 && params[2] != null && !params[2].isEmpty() && !params[2].isBlank()
-                    ? Float.parseFloat(params[2])
-                    : 1.0f;
+            this.messageSendDenySound = params.length >= 1 ? Sound.valueOf(params[0].toUpperCase()) : Sound.ITEM_SHIELD_BREAK;
+            this.messageSendSoundVolume = params.length >= 2 ? Float.parseFloat(params[1]) : 1.0f;
+            this.messageSendSoundPitch = params.length >= 3 ? Float.parseFloat(params[2]) : 1.0f;
 
             this.isMessageSendDenySoundEnabled = true;
         }
@@ -257,18 +248,9 @@ public final class ConfigValues {
             this.isCommandUseDenySoundEnabled = false;
         } else {
             final String[] params = soundString.split(";");
-
-            this.commandUseDenySound = params.length == 1 && params[0] != null && !params[0].isEmpty() && !params[0].isBlank()
-                    ? Sound.valueOf(params[0].toUpperCase(Locale.ENGLISH))
-                    : Sound.ITEM_SHIELD_BREAK;
-
-            this.commandUseSoundVolume = params.length == 2 && params[1] != null && !params[1].isEmpty() && !params[1].isBlank()
-                    ? Float.parseFloat(params[1])
-                    : 1.0f;
-
-            this.commandUseSoundPitch = params.length == 3 && params[2] != null && !params[2].isEmpty() && !params[2].isBlank()
-                    ? Float.parseFloat(params[2])
-                    : 1.0f;
+            this.commandUseDenySound = params.length >= 1 ? Sound.valueOf(params[0].toUpperCase()) : Sound.ITEM_SHIELD_BREAK;
+            this.commandUseSoundVolume = params.length >= 2 ? Float.parseFloat(params[1]) : 1.0f;
+            this.commandUseSoundPitch = params.length >= 3 ? Float.parseFloat(params[2]) : 1.0f;
 
             this.isCommandUseDenySoundEnabled = true;
         }
@@ -285,18 +267,9 @@ public final class ConfigValues {
             this.isColumnCommandUseDenySoundEnabled = false;
         } else {
             final String[] params = soundString.split(";");
-
-            this.columnCommandUseDenySound = params.length == 1 && params[0] != null  && !params[0].isEmpty() && !params[0].isBlank()
-                    ? Sound.valueOf(params[0].toUpperCase(Locale.ENGLISH))
-                    : Sound.ITEM_SHIELD_BREAK;
-
-            this.columnCommandUseSoundVolume = params.length == 2 && params[1] != null  && !params[1].isEmpty() && !params[1].isBlank()
-                    ? Float.parseFloat(params[1])
-                    : 1.0f;
-
-            this.columnCommandUseSoundPitch = params.length == 3 && params[2] != null  && !params[2].isEmpty() && !params[2].isBlank()
-                    ? Float.parseFloat(params[2])
-                    : 1.0f;
+            this.columnCommandUseDenySound = params.length >= 1 ? Sound.valueOf(params[0].toUpperCase()) : Sound.ITEM_SHIELD_BREAK;
+            this.columnCommandUseSoundVolume = params.length >= 2 ? Float.parseFloat(params[1]) : 1.0f;
+            this.columnCommandUseSoundPitch = params.length >= 3 ? Float.parseFloat(params[2]) : 1.0f;
 
             this.isColumnCommandUseDenySoundEnabled = true;
         }
