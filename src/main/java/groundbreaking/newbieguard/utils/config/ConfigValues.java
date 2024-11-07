@@ -1,6 +1,10 @@
 package groundbreaking.newbieguard.utils.config;
 
 import groundbreaking.newbieguard.NewbieGuard;
+import groundbreaking.newbieguard.listeners.ChatMessagesListener;
+import groundbreaking.newbieguard.listeners.ColumnCommandsListener;
+import groundbreaking.newbieguard.listeners.CommandsListeners;
+import groundbreaking.newbieguard.listeners.RegisterUtil;
 import groundbreaking.newbieguard.utils.colorizer.*;
 import groundbreaking.newbieguard.utils.logging.ILogger;
 import lombok.Getter;
@@ -109,6 +113,7 @@ public final class ConfigValues {
         final ConfigurationSection messagesSend = config.getConfigurationSection("messages-send");
         if (messagesSend != null) {
             this.messageSendCheckEnabled = messagesSend.getBoolean("enable");
+            final ChatMessagesListener chatMessagesListener = this.plugin.getChatListener();
             if (this.messageSendCheckEnabled) {
                 this.messageSendListenerPriority = messagesSend.getString("listener-priority").toUpperCase();
                 this.messageSendIgnoreCancelled = messagesSend.getBoolean("ignore-cancelled");
@@ -122,6 +127,10 @@ public final class ConfigValues {
 
                 this.blockedWordsForChat.clear();
                 this.blockedWordsForChat.addAll(messagesSend.getStringList("blocked-words"));
+
+                RegisterUtil.register(this.plugin, chatMessagesListener);
+            } else {
+                RegisterUtil.unregister(chatMessagesListener);
             }
         } else {
             this.logger.warning("Failed to load section \"messages-send\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
@@ -134,6 +143,7 @@ public final class ConfigValues {
         final ConfigurationSection commandUse = config.getConfigurationSection("commands-use");
         if (commandUse != null) {
             this.commandsSendCheckEnabled = commandUse.getBoolean("enable");
+            final CommandsListeners commandsListeners = this.plugin.getCommandsListener();
             if (this.messageSendCheckEnabled) {
                 this.commandsUseListenerPriority = commandUse.getString("listener-priority").toUpperCase();
                 this.commandsUseIgnoreCancelled = commandUse.getBoolean("ignore-cancelled");
@@ -147,6 +157,10 @@ public final class ConfigValues {
 
                 this.blockedCommands.clear();
                 this.blockedCommands.addAll(commandUse.getStringList("list"));
+
+                RegisterUtil.register(this.plugin, commandsListeners);
+            } else {
+                RegisterUtil.unregister(commandsListeners);
             }
         } else {
             this.logger.warning("Failed to load section \"commands-use\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
@@ -159,14 +173,21 @@ public final class ConfigValues {
         final ConfigurationSection columnCommandUse = config.getConfigurationSection("column-commands-use");
         if (columnCommandUse != null) {
             this.columnCommandsSendCheckEnabled = columnCommandUse.getBoolean("enable");
+            final ColumnCommandsListener columnCommandsListener = this.plugin.getColumnCommandsListener();
+            if (columnCommandsSendCheckEnabled) {
 
-            this.columnCommandsUseListenerPriority = columnCommandUse.getString("listener-priority").toUpperCase();
-            this.columnCommandsUseIgnoreCancelled = columnCommandUse.getBoolean("ignore-cancelled");
+                this.columnCommandsUseListenerPriority = columnCommandUse.getString("listener-priority").toUpperCase();
+                this.columnCommandsUseIgnoreCancelled = columnCommandUse.getBoolean("ignore-cancelled");
 
-            this.columnCommandUseDenyMessages = this.getMessage(columnCommandUse, "deny-message", "column-commands-use.deny-message", colorizer);
+                this.columnCommandUseDenyMessages = this.getMessage(columnCommandUse, "deny-message", "column-commands-use.deny-message", colorizer);
 
-            this.setColumnCommandUseDenySound(columnCommandUse);
-            this.setColumnCommandUseDenyTitle(columnCommandUse, colorizer);
+                this.setColumnCommandUseDenySound(columnCommandUse);
+                this.setColumnCommandUseDenyTitle(columnCommandUse, colorizer);
+
+                RegisterUtil.register(this.plugin, columnCommandsListener);
+            } else {
+                RegisterUtil.unregister(columnCommandsListener);
+            }
         } else {
             this.logger.warning("Failed to load section \"column-commands-use\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
             this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
