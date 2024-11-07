@@ -9,7 +9,7 @@ import org.bukkit.plugin.EventExecutor;
 
 import java.lang.reflect.Field;
 
-public class RegisterUtil {
+public final class RegisterUtil {
 
     private RegisterUtil() {
 
