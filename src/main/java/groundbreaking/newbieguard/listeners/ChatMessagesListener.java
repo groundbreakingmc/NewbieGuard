@@ -18,10 +18,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public final class ChatMessagesListener implements Listener {
 
-    private final NewbieGuard plugin;
     private final ConfigValues configValues;
     private final AbstractDB database;
-    private final PlaceholdersUtil placeholdersUtil;
 
     private boolean isRegistered = false;
 
@@ -29,10 +27,8 @@ public final class ChatMessagesListener implements Listener {
     private static ITimeCounter timeCounter;
 
     public ChatMessagesListener(NewbieGuard plugin) {
-        this.plugin = plugin;
         this.configValues = plugin.getConfigValues();
         this.database = plugin.getConnectionHandler();
-        this.placeholdersUtil = plugin.getPlaceholdersUtil();
 
         setTimeCounter(plugin);
     }
@@ -40,7 +36,6 @@ public final class ChatMessagesListener implements Listener {
     @EventHandler
     public void onMessageSend(final AsyncPlayerChatEvent event) {
         final Player player = event.getPlayer();
-
         if (player.hasPermission("newbieguard.bypass.chat") || this.database.chatDatabaseHasPlayer(player)) {
             return;
         }
@@ -48,43 +43,34 @@ public final class ChatMessagesListener implements Listener {
         final long playedTime = timeCounter.count(player);
 
         if (playedTime <= this.configValues.getNeedTimePlayedToSendMessages()) {
-
             event.setCancelled(true);
-
             final long requiredTime = this.configValues.getNeedTimePlayedToSendMessages();
             final long leftTime = requiredTime - playedTime;
-
             this.send(player, leftTime);
-
         } else {
             this.database.addPlayerChatDatabase(player);
         }
     }
 
     private void send(final Player player, final long time) {
-
         final String formattedTime = this.timeFormatter.getTime(time);
 
         final String message = this.configValues.getMessageSendCooldownMessages();
-
         if (!message.isEmpty()) {
-            final String formattedMessage = placeholdersUtil.parse(player, message.replace("%time%", formattedTime));
+            final String formattedMessage = PlaceholdersUtil.parse(player, message.replace("%time%", formattedTime));
             player.sendMessage(formattedMessage);
         }
 
         if (!this.configValues.isMessageSendDenyTitleEnabled()) {
-
             final Component titleText = Component.text(this.configValues.getMessageSendDenyTitle().replace("%time%", formattedTime));
             final Component subtitleText = Component.text(this.configValues.getMessageSendDenySubtitle().replace("%time%", formattedTime));
             final Title.Times titleTimes = this.configValues.getMessageSendTitleTimes();
 
             final Title title = Title.title(titleText, subtitleText, titleTimes);
-
             player.showTitle(title);
         }
 
         if (!this.configValues.isMessageSendDenySoundEnabled()) {
-
             final Location playerLocation = player.getLocation();
             final Sound sound = this.configValues.getMessageSendDenySound();
             final float volume = this.configValues.getMessageSendSoundVolume();
@@ -96,9 +82,6 @@ public final class ChatMessagesListener implements Listener {
     
     public static void setTimeCounter(final NewbieGuard plugin) {
         final boolean countFromFirstJoin = plugin.getConfig().getBoolean("settings.messages-send.count-time-from-first-join");
-
-        timeCounter = countFromFirstJoin
-                ? new FirstEntryCounter()
-                : new OnlineCounter();
+        timeCounter = countFromFirstJoin ? new FirstEntryCounter() : new OnlineCounter();
     }
 }

@@ -45,7 +45,6 @@ public final class NewbieGuard extends JavaPlugin {
     private ChatMessagesListener chatListener;
     private CommandsListeners commandsListener;
     private ColumnCommandsListener columnCommandsListener;
-    private PlaceholdersUtil placeholdersUtil;
 
     @Override
     public void onEnable() {
@@ -167,7 +166,7 @@ public final class NewbieGuard extends JavaPlugin {
 
             if (!sender.hasPermission("newbieguard.reload")) {
                 final String message = this.configValues.getNoPermMessages();
-                final String formattedMessage = this.placeholdersUtil.parse(sender, message);
+                final String formattedMessage = PlaceholdersUtil.parse(sender, message);
                 sender.sendMessage(formattedMessage);
                 return true;
             }
@@ -175,12 +174,10 @@ public final class NewbieGuard extends JavaPlugin {
             this.connectionHandler.close();
             this.reload();
 
-            this.reloadEvents();
-
             final long reloadFinishTime = System.currentTimeMillis();
             final String timeLeft = String.valueOf(reloadFinishTime - reloadStartTime);
             final String message = this.configValues.getReloadMessages().replace("%time%", timeLeft);
-            final String formattedMessage = this.placeholdersUtil.parse(sender, message);
+            final String formattedMessage = PlaceholdersUtil.parse(sender, message);
             sender.sendMessage(formattedMessage);
 
             return true;
@@ -197,21 +194,9 @@ public final class NewbieGuard extends JavaPlugin {
         this.config = new ConfigLoader(this).loadAndGet("config", 1.0);
         this.configValues.setValues();
         this.setupDatabaseHandler();
-        this.reloadEvents();
         ChatMessagesListener.setTimeCounter(this);
         CommandsListeners.setTimeCounter(this);
         CommandsListeners.setMode(this);
-    }
-
-    public void reloadEvents() {
-        chatListener.unregisterEvent();
-        chatListener.registerEvent();
-
-        commandsListener.unregisterEvent();
-        commandsListener.registerEvent();
-
-        columnCommandsListener.unregisterEvent();
-        columnCommandsListener.registerEvent();
     }
 
     @Override

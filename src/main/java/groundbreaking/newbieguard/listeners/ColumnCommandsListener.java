@@ -10,19 +10,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
-
 public final class ColumnCommandsListener implements Listener {
 
-    private final NewbieGuard plugin;
     private final ConfigValues configValues;
-    private final PlaceholdersUtil placeholdersUtil;
 
     private boolean isRegistered = false;
 
-    public ColumnCommandsListener(NewbieGuard plugin) {
-        this.plugin = plugin;
+    public ColumnCommandsListener(final NewbieGuard plugin) {
         this.configValues = plugin.getConfigValues();
-        this.placeholdersUtil = plugin.getPlaceholdersUtil();
     }
 
     @EventHandler
@@ -55,10 +50,9 @@ public final class ColumnCommandsListener implements Listener {
     }
 
     private void send(final Player player) {
-
         final String message = this.configValues.getColumnCommandUseDenyMessages();
         if (!message.isEmpty()) {
-            final String formattedMessage = placeholdersUtil.parse(player, message);
+            final String formattedMessage = PlaceholdersUtil.parse(player, message);
             player.sendMessage(formattedMessage);
         }
 
@@ -68,7 +62,6 @@ public final class ColumnCommandsListener implements Listener {
         }
 
         if (!this.configValues.isColumnCommandUseDenySoundEnabled()) {
-
             final Location playerLocation = player.getLocation();
             final Sound sound = this.configValues.getColumnCommandUseDenySound();
             final float volume = this.configValues.getColumnCommandUseSoundVolume();

@@ -23,10 +23,8 @@ import java.util.List;
 
 public final class CommandsListeners implements Listener {
 
-    private final NewbieGuard plugin;
     private final ConfigValues configValues;
     private final AbstractDB database;
-    private final PlaceholdersUtil placeholdersUtil;
 
     private boolean isRegistered = false;
 
@@ -35,10 +33,8 @@ public final class CommandsListeners implements Listener {
     private static IMode mode;
 
     public CommandsListeners(final NewbieGuard plugin) {
-        this.plugin = plugin;
         this.configValues = plugin.getConfigValues();
         this.database = plugin.getConnectionHandler();
-        this.placeholdersUtil = plugin.getPlaceholdersUtil();
 
         setTimeCounter(plugin);
         setMode(plugin);
@@ -57,12 +53,10 @@ public final class CommandsListeners implements Listener {
             final String sentCommand = event.getMessage();
 
             final List<String> blockedCommands = this.configValues.getBlockedCommands();
-
             for (int i = 0; i < blockedCommands.size(); i++) {
                 final String blockedCommand = blockedCommands.get(i);
                 if (mode.check(sentCommand, blockedCommand)) {
                     event.setCancelled(true);
-
                     final long leftTime = requiredTime - playedTime;
                     this.send(player, leftTime);
                 }
@@ -77,12 +71,11 @@ public final class CommandsListeners implements Listener {
 
         final String message = configValues.getCommandUseCooldownMessages();
         if (!message.isEmpty()) {
-            final String formattedMessage = placeholdersUtil.parse(player, message.replace("%time%", formattedTime));
+            final String formattedMessage = PlaceholdersUtil.parse(player, message.replace("%time%", formattedTime));
             player.sendMessage(formattedMessage);
         }
 
         if (!this.configValues.isCommandUseDenyTitleEnabled()) {
-
             final Component titleText = Component.text(this.configValues.getCommandUseDenyTitle().replace("%time%", formattedTime));
             final Component subtitleText = Component.text(this.configValues.getCommandUseDenySubtitle().replace("%time%", formattedTime));
             final Title.Times titleTimes = this.configValues.getCommandUseTitleTimes();
@@ -93,7 +86,6 @@ public final class CommandsListeners implements Listener {
         }
 
         if (!this.configValues.isCommandUseDenySoundEnabled()) {
-
             final Location playerLocation = player.getLocation();
             final Sound sound = this.configValues.getCommandUseDenySound();
             final float volume = this.configValues.getCommandUseSoundVolume();
