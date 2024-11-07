@@ -34,50 +34,11 @@ public final class ChatMessagesListener implements Listener {
         this.database = plugin.getConnectionHandler();
         this.placeholdersUtil = plugin.getPlaceholdersUtil();
 
-        this.registerEvent();
-
         setTimeCounter(plugin);
     }
 
     @EventHandler
     public void onMessageSend(final AsyncPlayerChatEvent event) {
-        this.processEvent(event);
-    }
-
-    public void registerEvent() {
-        if (this.isRegistered) {
-            return;
-        }
-
-        final Class<? extends Event> eventClass = AsyncPlayerChatEvent.class;
-
-        final String priorityString = this.configValues.getMessageSendListenerPriority();
-        final EventPriority eventPriority = this.plugin.getEventPriority(priorityString);
-
-        final boolean ignoreCanceled = this.configValues.isMessageSendIgnoreCancelled();
-
-        this.plugin.getServer().getPluginManager().registerEvent(eventClass, this, eventPriority, (listener, event) -> {
-
-            if (event instanceof AsyncPlayerChatEvent chatEvent) {
-                this.onMessageSend(chatEvent);
-            }
-
-        }, this.plugin, ignoreCanceled);
-
-        this.isRegistered = true;
-    }
-
-    public void unregisterEvent() {
-        if (!this.isRegistered) {
-            return;
-        }
-
-        HandlerList.unregisterAll(this);
-        this.isRegistered = false;
-    }
-
-    public void processEvent(final AsyncPlayerChatEvent event) {
-
         final Player player = event.getPlayer();
 
         if (player.hasPermission("newbieguard.bypass.chat") || this.database.chatDatabaseHasPlayer(player)) {

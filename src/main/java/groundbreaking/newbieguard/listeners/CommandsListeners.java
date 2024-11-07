@@ -40,50 +40,12 @@ public final class CommandsListeners implements Listener {
         this.database = plugin.getConnectionHandler();
         this.placeholdersUtil = plugin.getPlaceholdersUtil();
 
-        this.registerEvent();
-
         setTimeCounter(plugin);
         setMode(plugin);
     }
 
     @EventHandler
     public void onCommandSend(final PlayerCommandPreprocessEvent event) {
-        this.processEvent(event);
-    }
-
-    public void registerEvent() {
-        if (this.isRegistered) {
-            return;
-        }
-
-        final Class<? extends Event> eventClass = PlayerCommandPreprocessEvent.class;
-
-        final String priorityString = this.configValues.getCommandsUseListenerPriority();
-        final EventPriority eventPriority = this.plugin.getEventPriority(priorityString);
-
-        final boolean ignoreCanceled = this.configValues.isCommandsUseIgnoreCancelled();
-
-        this.plugin.getServer().getPluginManager().registerEvent(eventClass, this, eventPriority, (listener, event) -> {
-
-            if (event instanceof PlayerCommandPreprocessEvent commandPreprocessEvent) {
-                this.onCommandSend(commandPreprocessEvent);
-            }
-
-        }, this.plugin, ignoreCanceled);
-
-        this.isRegistered = true;
-    }
-
-    public void unregisterEvent() {
-        if (!this.isRegistered) {
-            return;
-        }
-
-        HandlerList.unregisterAll(this);
-        this.isRegistered = false;
-    }
-    
-    public void processEvent(final PlayerCommandPreprocessEvent event) {
         final Player player = event.getPlayer();
         if (player.hasPermission("newbieguard.bypass.commands") || this.database.commandsDatabaseHasPlayer(player)) {
             return;

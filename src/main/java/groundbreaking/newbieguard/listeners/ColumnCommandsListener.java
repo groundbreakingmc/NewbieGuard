@@ -23,48 +23,10 @@ public final class ColumnCommandsListener implements Listener {
         this.plugin = plugin;
         this.configValues = plugin.getConfigValues();
         this.placeholdersUtil = plugin.getPlaceholdersUtil();
-
-        this.registerEvent();
     }
 
     @EventHandler
     public void onCommandSend(final PlayerCommandPreprocessEvent event) {
-        this.processEvent(event);
-    }
-
-    public void registerEvent() {
-        if (this.isRegistered) {
-            return;
-        }
-
-        final Class<? extends Event> eventClass = PlayerCommandPreprocessEvent.class;
-
-        final String priorityString = this.configValues.getColumnCommandsUseListenerPriority();
-        final EventPriority eventPriority = this.plugin.getEventPriority(priorityString);
-
-        final boolean ignoreCanceled = this.configValues.isColumnCommandsUseIgnoreCancelled();
-
-        this.plugin.getServer().getPluginManager().registerEvent(eventClass, this, eventPriority, (listener, event) -> {
-
-            if (event instanceof PlayerCommandPreprocessEvent commandPreprocessEvent) {
-                this.onCommandSend(commandPreprocessEvent);
-            }
-
-        }, this.plugin, ignoreCanceled);
-
-        this.isRegistered = true;
-    }
-
-    public void unregisterEvent() {
-        if (!this.isRegistered) {
-            return;
-        }
-
-        HandlerList.unregisterAll(this);
-        this.isRegistered = false;
-    }
-
-    private void processEvent(final PlayerCommandPreprocessEvent event) {
         final Player player = event.getPlayer();
         if (player.hasPermission("newbieguard.bypass.columncommands")) {
             return;
