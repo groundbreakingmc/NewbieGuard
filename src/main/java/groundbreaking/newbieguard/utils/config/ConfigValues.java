@@ -18,79 +18,67 @@ import java.util.List;
 @Getter
 public final class ConfigValues {
 
-    private int
-            needTimePlayedToSendMessages,
-            needTimePlayedToUseCommands;
+    private int needTimePlayedToSendMessages;
+    private int needTimePlayedToUseCommands;
 
-    private String
-            messageSendListenerPriority,
-            commandsUseListenerPriority,
-            columnCommandsUseListenerPriority;
+    private String messageSendListenerPriority;
+    private String commandsUseListenerPriority;
+    private String columnCommandsUseListenerPriority;
 
-    private boolean
-            messageSendCheckEnabled,
-            commandsSendCheckEnabled,
-            columnCommandsSendCheckEnabled,
+    private boolean messageSendCheckEnabled;
+    private boolean commandsSendCheckEnabled;
+    private boolean columnCommandsSendCheckEnabled;
 
-            messageSendIgnoreCancelled,
-            commandsUseIgnoreCancelled,
-            columnCommandsUseIgnoreCancelled,
-            
-            isMessageSendDenySoundEnabled,
-            isCommandUseDenySoundEnabled,
-            isColumnCommandUseDenySoundEnabled,
+    private boolean messageSendIgnoreCancelled;
+    private boolean commandsUseIgnoreCancelled;
+    private boolean columnCommandsUseIgnoreCancelled;
 
-            isMessageSendDenyTitleEnabled,
-            isCommandUseDenyTitleEnabled,
-            isColumnCommandUseDenyTitleEnabled;
+    private boolean isMessageSendDenySoundEnabled;
+    private boolean isCommandUseDenySoundEnabled;
+    private boolean isColumnCommandUseDenySoundEnabled;
 
-    private Sound
-            messageSendDenySound,
-            commandUseDenySound,
-            columnCommandUseDenySound;
+    private boolean isMessageSendDenyTitleEnabled;
+    private boolean isCommandUseDenyTitleEnabled;
+    private boolean isColumnCommandUseDenyTitleEnabled;
 
-    private float
-            messageSendSoundVolume,
-            messageSendSoundPitch,
+    private Sound messageSendDenySound;
+    private Sound commandUseDenySound;
+    private Sound columnCommandUseDenySound;
 
-            commandUseSoundVolume,
-            commandUseSoundPitch,
+    private float messageSendSoundVolume;
+    private float commandUseSoundVolume;
 
-            columnCommandUseSoundVolume,
-            columnCommandUseSoundPitch;
+    private float messageSendSoundPitch;
+    private float commandUseSoundPitch;
 
-    private Title.Times
-            messageSendTitleTimes,
-            commandUseTitleTimes;
+    private float columnCommandUseSoundVolume;
+    private float columnCommandUseSoundPitch;
 
-    private Title
-            columnCommandUseDenyTitle;
+    private Title.Times messageSendTitleTimes;
+    private Title.Times commandUseTitleTimes;
 
-    private final List<String>
-            blockedWordsForChat = new ArrayList<>(),
-            blockedCommands = new ArrayList<>(),
-            blockedCommandsWithColumns = new ArrayList<>();
+    private Title columnCommandUseDenyTitle;
 
-    private String
-            noPermMessages,
-            reloadMessages,
-            messageSendCooldownMessages,
-            commandUseCooldownMessages,
-            columnCommandUseDenyMessages;
+    private final List<String> blockedWordsForChat = new ArrayList<>();
+    private final List<String> blockedCommands = new ArrayList<>();
+    private final List<String> blockedCommandsWithColumns = new ArrayList<>();
 
-    public String
-            messageSendDenyTitle,
-            messageSendDenySubtitle,
+    private String noPermMessages;
+    private String reloadMessages;
+    private String messageSendCooldownMessages;
+    private String commandUseCooldownMessages;
+    private String columnCommandUseDenyMessages;
 
-            commandUseDenyTitle,
-            commandUseDenySubtitle;
+    private String messageSendDenyTitle;
+    private String messageSendDenySubtitle;
 
-    @Getter
-    public static String
-            timeDays,
-            timeHours,
-            timeMinutes,
-            timeSeconds;
+    private String commandUseDenyTitle;
+    private String commandUseDenySubtitle;
+
+    @Getter private static String timeDays;
+    @Getter private static String timeHours;
+    @Getter private static String timeMinutes;
+    @Getter private static String timeSeconds;
 
     private final NewbieGuard plugin;
     private final ILogger logger;
