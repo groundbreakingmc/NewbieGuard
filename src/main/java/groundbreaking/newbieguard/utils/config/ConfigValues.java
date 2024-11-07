@@ -285,9 +285,9 @@ public final class ConfigValues {
             }
 
             final String[] params = durationString.split(";");
-            final int fadeIn = params.length == 1 && params[0] != null ? Integer.parseInt(params[0]) : 10;
-            final int stay = params.length == 2 && params[1] != null ? Integer.parseInt(params[1]) : 40;
-            final int fadeOut = params.length == 3 && params[2] != null ? Integer.parseInt(params[2]) : 20;
+            final int fadeIn = params.length >= 1 ? Integer.parseInt(params[0]) : 10;
+            final int stay = params.length >= 2 ? Integer.parseInt(params[1]) : 40;
+            final int fadeOut = params.length >= 3 ? Integer.parseInt(params[2]) : 20;
 
             this.messageSendTitleTimes = Title.Times.of(
                     Ticks.duration(fadeIn),
@@ -327,9 +327,9 @@ public final class ConfigValues {
             }
 
             final String[] params = durationString.split(";");
-            final int fadeIn = params.length == 1 && params[0] != null ? Integer.parseInt(params[0]) : 10;
-            final int stay = params.length == 2 && params[1] != null ? Integer.parseInt(params[1]) : 40;
-            final int fadeOut = params.length == 3 && params[2] != null ? Integer.parseInt(params[2]) : 20;
+            final int fadeIn = params.length >= 1 ? Integer.parseInt(params[0]) : 10;
+            final int stay = params.length >= 2 ? Integer.parseInt(params[1]) : 40;
+            final int fadeOut = params.length >= 3 ? Integer.parseInt(params[2]) : 20;
 
             this.commandUseTitleTimes = Title.Times.of(
                     Ticks.duration(fadeIn),
@@ -369,9 +369,9 @@ public final class ConfigValues {
             }
 
             final String[] params = durationString.split(";");
-            final int fadeIn = params.length == 1 && params[0] != null ? Integer.parseInt(params[0]) : 10;
-            final int stay = params.length == 2 && params[1] != null ? Integer.parseInt(params[1]) : 40;
-            final int fadeOut = params.length == 3 && params[2] != null ? Integer.parseInt(params[2]) : 20;
+            final int fadeIn = params.length >= 1 ? Integer.parseInt(params[0]) : 10;
+            final int stay = params.length >= 2 ? Integer.parseInt(params[1]) : 40;
+            final int fadeOut = params.length >= 3 ? Integer.parseInt(params[2]) : 20;
 
             final Title.Times titleTimes = Title.Times.of(
                     Ticks.duration(fadeIn),
