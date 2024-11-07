@@ -4,13 +4,7 @@ import groundbreaking.newbieguard.NewbieGuard;
 
 public final class ServerInfo {
 
-    private final NewbieGuard plugin;
-
-    public ServerInfo(NewbieGuard plugin) {
-        this.plugin = plugin;
-    }
-
-    public int getSubVersion() {
+    public int getSubVersion(final NewbieGuard plugin) {
         try {
             return Integer.parseInt(plugin.getServer().getMinecraftVersion().split("\\.", 3)[1]);
         } catch (NumberFormatException ex) {

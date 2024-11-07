@@ -1,13 +1,13 @@
 package groundbreaking.newbieguard.listeners;
 
 import groundbreaking.newbieguard.NewbieGuard;
+import groundbreaking.newbieguard.utils.Placeholders;
 import groundbreaking.newbieguard.utils.config.ConfigValues;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 
@@ -15,52 +15,53 @@ public final class ColumnCommandsListener implements Listener {
 
     private final NewbieGuard plugin;
     private final ConfigValues configValues;
+    private final Placeholders placeholders;
+
+    private boolean isRegistered = false;
 
     public ColumnCommandsListener(NewbieGuard plugin) {
         this.plugin = plugin;
         this.configValues = plugin.getConfigValues();
+        this.placeholders = plugin.getPlaceholders();
+
+        this.registerEvent();
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onCommandSendLowest(final PlayerCommandPreprocessEvent event) {
-        if (configValues.isColumnCommandsUsePriorityLowest() && isValid(event)) {
-            processEvent(event);
+    @EventHandler
+    public void onCommandSend(final PlayerCommandPreprocessEvent event) {
+        this.processEvent(event);
+    }
+
+    public void registerEvent() {
+        if (this.isRegistered) {
+            return;
         }
+
+        final Class<? extends Event> eventClass = PlayerCommandPreprocessEvent.class;
+
+        final String priorityString = this.configValues.getColumnCommandsUseListenerPriority();
+        final EventPriority eventPriority = this.plugin.getEventPriority(priorityString);
+
+        final boolean ignoreCanceled = this.configValues.isColumnCommandsUseIgnoreCancelled();
+
+        this.plugin.getServer().getPluginManager().registerEvent(eventClass, this, eventPriority, (listener, event) -> {
+
+            if (event instanceof PlayerCommandPreprocessEvent commandPreprocessEvent) {
+                this.onCommandSend(commandPreprocessEvent);
+            }
+
+        }, this.plugin, ignoreCanceled);
+
+        this.isRegistered = true;
     }
 
-    @EventHandler(priority = EventPriority.LOW)
-    public void onCommandSendLow(final PlayerCommandPreprocessEvent event) {
-        if (configValues.isColumnCommandsUsePriorityLow() && isValid(event)) {
-            processEvent(event);
+    public void unregisterEvent() {
+        if (!this.isRegistered) {
+            return;
         }
-    }
 
-    @EventHandler(priority = EventPriority.NORMAL)
-    public void onCommandSendNormal(final PlayerCommandPreprocessEvent event) {
-        if (configValues.isColumnCommandsUsePriorityNormal() && isValid(event)) {
-            processEvent(event);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onCommandSendHigh(final PlayerCommandPreprocessEvent event) {
-        if (configValues.isColumnCommandsUsePriorityHigh() && isValid(event)) {
-            processEvent(event);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCommandSendHighest(final PlayerCommandPreprocessEvent event) {
-        if (configValues.isColumnCommandsUsePriorityHighest() && isValid(event)) {
-            processEvent(event);
-        }
-    }
-
-    private boolean isValid(final PlayerCommandPreprocessEvent event) {
-        return configValues.isColumnCommandsIgnoreCancelled()
-                ? configValues.isColumnCommandsSendCheckEnabled()
-                : configValues.isColumnCommandsSendCheckEnabled()
-                && !event.isCancelled();
+        HandlerList.unregisterAll(this);
+        this.isRegistered = false;
     }
 
     private void processEvent(final PlayerCommandPreprocessEvent event) {
@@ -70,9 +71,10 @@ public final class ColumnCommandsListener implements Listener {
         }
 
         final String sentCommand = event.getMessage();
-        if (isBlocked(sentCommand)) {
+        if (this.isBlocked(sentCommand)) {
             event.setCancelled(true);
-            send(player);
+
+            this.send(player);
         }
     }
 
@@ -82,26 +84,35 @@ public final class ColumnCommandsListener implements Listener {
             char currentChar = chars[i];
             if (currentChar == ' ') {
                 return false;
-            }
-            else if (currentChar == ':') {
+            } else if (currentChar == ':') {
                 return true;
             }
         }
+
         return false;
     }
 
     private void send(final Player player) {
-        player.sendMessage(configValues.getColumnCommandUseDenyMessages());
 
-        if (!configValues.isColumnCommandUseDenyTitleEnabled()) {
-            player.showTitle(configValues.getColumnCommandUseTitle());
+        final String message = this.configValues.getColumnCommandUseDenyMessages();
+        if (!message.isEmpty()) {
+            final String formattedMessage = placeholders.parse(player, message);
+            player.sendMessage(formattedMessage);
         }
 
-        if (!configValues.isColumnCommandUseDenySoundEnabled()) {
-            player.playSound(player.getLocation(),
-                    configValues.getColumnCommandUseDenySound(),
-                    configValues.getColumnCommandUseSoundVolume(),
-                    configValues.getColumnCommandUseSoundPitch());
+        if (!this.configValues.isColumnCommandUseDenyTitleEnabled()) {
+            final Title title = this.configValues.getColumnCommandUseDenyTitle();
+            player.showTitle(title);
+        }
+
+        if (!this.configValues.isColumnCommandUseDenySoundEnabled()) {
+
+            final Location playerLocation = player.getLocation();
+            final Sound sound = this.configValues.getColumnCommandUseDenySound();
+            final float volume = this.configValues.getColumnCommandUseSoundVolume();
+            final float pitch = this.configValues.getColumnCommandUseSoundPitch();
+
+            player.playSound(playerLocation, sound, volume, pitch);
         }
     }
 }

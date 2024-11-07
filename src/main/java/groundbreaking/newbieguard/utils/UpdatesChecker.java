@@ -30,7 +30,7 @@ public final class UpdatesChecker {
 
     public void startCheck() {
         if (!config.getBoolean("settings.check-updates", true)) {
-            logger.info("\u001b[33mUpdates checker were disabled, but it's not recomend by author to do it!\u001b[0m");
+            logger.info("\u001b[33mUpdates checker were disabled, but it's not recommend by author to do it!\u001b[0m");
             return;
         }
 

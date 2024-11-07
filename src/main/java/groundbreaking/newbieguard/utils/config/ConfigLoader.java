@@ -18,9 +18,9 @@ public final class ConfigLoader {
     }
 
     public FileConfiguration loadAndGet(final String fileName, final double fileVersion) {
-        final File file = new File(plugin.getDataFolder(), fileName + ".yml");
+        final File file = new File(this.plugin.getDataFolder(), fileName + ".yml");
         if (!file.exists()) {
-            plugin.saveResource(fileName + ".yml", false);
+            this.plugin.saveResource(fileName + ".yml", false);
         }
 
         try {
@@ -30,29 +30,19 @@ public final class ConfigLoader {
         }
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-        config = checkVersion(config, fileName, fileVersion);
-        setDefaults(config, fileName);
-
-        final String password = config.getString("settings.database.maria-db.password");
-        if (password == null || password.isEmpty() || password.isBlank()) {
-            config.set("settings.database.maria-db.password", new PasswordUtil().generatePass());
-            try {
-                config.save(file);
-            } catch (final IOException ex) {
-                ex.printStackTrace();
-            }
-        }
+        config = this.checkVersion(config, fileName, fileVersion);
+        this.setDefaults(config, fileName);
 
         return config;
     }
 
     private void setDefaults(final FileConfiguration config, final String fileName) {
-        try (final InputStream defConfigStream = plugin.getResource(fileName + ".yml")) {
+        try (final InputStream defConfigStream = this.plugin.getResource(fileName + ".yml")) {
             if (defConfigStream != null) {
                 config.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream, Charsets.UTF_8)));
             }
         } catch (IOException e) {
-            plugin.getMyLogger().warning("Error loading default configuration: " + e.getMessage());
+            this.plugin.getMyLogger().warning("Error loading default configuration: " + e.getMessage());
         }
     }
 
@@ -60,7 +50,7 @@ public final class ConfigLoader {
         final double configVersion = config.getDouble("settings.config-version", 0);
 
         if (configVersion != fileVersion) {
-            createBackupAndUpdate(fileName);
+            this.createBackupAndUpdate(fileName);
             return loadAndGet(fileName, fileVersion);
         }
 
@@ -68,9 +58,9 @@ public final class ConfigLoader {
     }
 
     private void createBackupAndUpdate(final String fileName) {
-        final File folder = plugin.getDataFolder();
+        final File folder = this.plugin.getDataFolder();
         if (!folder.exists() && !folder.mkdirs()) {
-            plugin.getMyLogger().warning("An error occurred while creating the backups folder!");
+            this.plugin.getMyLogger().warning("An error occurred while creating the backups folder!");
             return;
         }
 
@@ -79,9 +69,9 @@ public final class ConfigLoader {
         final File backupFile = new File(folder, fileName + "_backup_" + backupNumber + ".yml");
 
         if (file.renameTo(backupFile)) {
-            plugin.saveResource(fileName + ".yml", true);
+            this.plugin.saveResource(fileName + ".yml", true);
         } else {
-            plugin.getMyLogger().warning("Your configuration file \"" + fileName + ".yml\" is outdated, but creating a new one isn't possible.");
+            this.plugin.getMyLogger().warning("Your configuration file \"" + fileName + ".yml\" is outdated, but creating a new one isn't possible.");
         }
     }
 }

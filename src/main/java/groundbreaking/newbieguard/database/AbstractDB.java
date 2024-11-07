@@ -5,54 +5,93 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.entity.Player;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public abstract class AbstractDB {
 
     protected HikariDataSource dataSource;
 
-    public AbstractDB(String jdbcUrl, String user, String password) {
+    public AbstractDB(final String jdbcUrl, final String user, final String password) {
         final HikariConfig config = new HikariConfig();
         config.setJdbcUrl(jdbcUrl);
-        if (user != null && !user.isEmpty()) {
+        if (user != null) {
             config.setUsername(user);
         }
-        if (password != null && !password.isEmpty()) {
+        if (password != null) {
             config.setPassword(password);
         }
-        config.setMaximumPoolSize(30);
+        config.setMaximumPoolSize(15);
         config.setMinimumIdle(2);
         config.setConnectionTimeout(30000);
         config.setIdleTimeout(600000);
         config.setMaxLifetime(1800000);
 
-        dataSource = new HikariDataSource(config);
+        this.dataSource = new HikariDataSource(config);
     }
 
     public abstract void createConnection() throws SQLException;
 
-    public abstract void addPlayerChatDatabase(Player p);
+    public void addPlayerChatDatabase(final Player player) {
+        final String sqlQuery = "INSERT INTO chat (username) VALUES (?)";
+        try (final PreparedStatement statement = getConnection().prepareStatement(sqlQuery)) {
+            statement.setString(1, player.getName());
+            statement.executeUpdate();
+        } catch (final SQLException ex) {
+            if (ex.getErrorCode() != 19) {
+                ex.printStackTrace();
+            }
+        }
+    }
 
-    public abstract void addPlayerCommandsDatabase(Player p);
+    public void addPlayerCommandsDatabase(final Player player) {
+        final String sqlQuery = "INSERT INTO commands (username) VALUES (?)";
+        try (final PreparedStatement statement = getConnection().prepareStatement(sqlQuery)) {
+            statement.setString(1, player.getName());
+            statement.executeUpdate();
+        } catch (final SQLException ex) {
+            if (ex.getErrorCode() != 19) {
+                ex.printStackTrace();
+            }
+        }
+    }
 
-    public abstract boolean chatDatabaseHasPlayer(Player p);
+    public boolean chatDatabaseHasPlayer(final Player player) {
+        final String sqlQuery = "SELECT * FROM commands WHERE username = ?";
+        try (final PreparedStatement statement = getConnection().prepareStatement(sqlQuery)) {
+            statement.setString(1, player.getName());
+            final ResultSet result = statement.executeQuery();
+            return result.next();
+        } catch (final SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
 
-    public abstract boolean commandsDatabaseHasPlayer(Player p);
+    public boolean commandsDatabaseHasPlayer(final Player player) {
+        final String sqlQuery = "SELECT * FROM chat WHERE username = ?";
+        try (final PreparedStatement statement = getConnection().prepareStatement(sqlQuery)) {
+            statement.setString(1, player.getName());
+            final ResultSet result = statement.executeQuery();
+            return result.next();
+        } catch (final SQLException ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
 
     protected final Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+        return this.dataSource.getConnection();
     }
 
     public final void close() {
-        if (dataSource != null) {
-            try {
-                if (dataSource.getConnection() != null) {
-                    dataSource.close();
-                }
+        try {
+            if (this.dataSource != null && dataSource.getConnection() != null) {
+                dataSource.close();
             }
-            catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+        } catch (final SQLException ex) {
+            ex.printStackTrace();
         }
     }
 }

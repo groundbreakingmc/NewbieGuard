@@ -1,54 +1,41 @@
 package groundbreaking.newbieguard.utils.config;
 
 import groundbreaking.newbieguard.NewbieGuard;
-import groundbreaking.newbieguard.utils.ServerInfo;
-import groundbreaking.newbieguard.utils.colorizer.IColorizer;
-import groundbreaking.newbieguard.utils.colorizer.LegacyColorizer;
-import groundbreaking.newbieguard.utils.colorizer.MiniMessagesColorizer;
-import groundbreaking.newbieguard.utils.colorizer.VanillaColorizer;
+import groundbreaking.newbieguard.utils.colorizer.*;
+import groundbreaking.newbieguard.utils.logging.ILogger;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.util.Ticks;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
+@Getter
 public final class ConfigValues {
 
-    @Getter
     private int
             needTimePlayedToSendMessages,
             needTimePlayedToUseCommands;
 
-    @Getter
+    private String
+            messageSendListenerPriority,
+            commandsUseListenerPriority,
+            columnCommandsUseListenerPriority;
+
     private boolean
             messageSendCheckEnabled,
             commandsSendCheckEnabled,
             columnCommandsSendCheckEnabled,
 
             messageSendIgnoreCancelled,
-            messageSendPriorityLowest,
-            messageSendPriorityLow,
-            messageSendPriorityNormal,
-            messageSendPriorityHigh,
-            messageSendPriorityHighest,
-    
-            commandsIgnoreCancelled,
-            commandsUsePriorityLowest,
-            commandsUsePriorityLow,
-            commandsUsePriorityNormal,
-            commandsUsePriorityHigh,
-            commandsUsePriorityHighest,
-
-            columnCommandsIgnoreCancelled,
-            columnCommandsUsePriorityLowest,
-            columnCommandsUsePriorityLow,
-            columnCommandsUsePriorityNormal,
-            columnCommandsUsePriorityHigh,
-            columnCommandsUsePriorityHighest,
+            commandsUseIgnoreCancelled,
+            columnCommandsUseIgnoreCancelled,
             
             isMessageSendDenySoundEnabled,
             isCommandUseDenySoundEnabled,
@@ -58,13 +45,11 @@ public final class ConfigValues {
             isCommandUseDenyTitleEnabled,
             isColumnCommandUseDenyTitleEnabled;
 
-    @Getter
     private Sound
             messageSendDenySound,
             commandUseDenySound,
             columnCommandUseDenySound;
 
-    @Getter
     private float
             messageSendSoundVolume,
             messageSendSoundPitch,
@@ -75,49 +60,31 @@ public final class ConfigValues {
             columnCommandUseSoundVolume,
             columnCommandUseSoundPitch;
 
-    @Getter
-    private int
-            messageSendTitleFadeIn,
-            messageSendTitleStay,
-            messageSendTitleFadeOut,
-
-            commandUseTitleFadeIn,
-            commandUseTitleStay,
-            commandUseTitleFadeOut,
-
-            columnCommandUseTitleFadeIn,
-            columnCommandUseTitleStay,
-            columnCommandUseTitleFadeOut;
-
-    @Getter
     private Title.Times
             messageSendTitleTimes,
             commandUseTitleTimes;
 
-    @Getter
-    private Title columnCommandUseTitle;
+    private Title
+            columnCommandUseDenyTitle;
 
-    @Getter
-    private final Set<String>
-            blockedWordsForChat = new HashSet<>(),
-            blockedCommands = new HashSet<>(),
-            blockedCommandsWithColumns = new HashSet<>();
+    private final List<String>
+            blockedWordsForChat = new ArrayList<>(),
+            blockedCommands = new ArrayList<>(),
+            blockedCommandsWithColumns = new ArrayList<>();
 
-    @Getter
     private String
             noPermMessages,
             reloadMessages,
-            messageSendDenyMessages,
-            commandUseDenyMessages,
+            messageSendCooldownMessages,
+            commandUseCooldownMessages,
             columnCommandUseDenyMessages;
 
-    @Getter
     public String
             messageSendDenyTitle,
-            messageSendDenySubTitle,
+            messageSendDenySubtitle,
 
             commandUseDenyTitle,
-            commandUseDenySubTitle;
+            commandUseDenySubtitle;
 
     @Getter
     public static String
@@ -127,316 +94,352 @@ public final class ConfigValues {
             timeSeconds;
 
     private final NewbieGuard plugin;
+    private final ILogger logger;
 
-    public ConfigValues(NewbieGuard plugin) {
+    public ConfigValues(final NewbieGuard plugin) {
         this.plugin = plugin;
+        this.logger = plugin.getMyLogger();
     }
 
     public void setValues() {
-        final FileConfiguration config = plugin.getConfig();
-        final ConfigurationSection settings = config.getConfigurationSection("settings");
-        final ConfigurationSection messages = config.getConfigurationSection("messages");
-        final IColorizer colorizer = getColorizer();
+        final FileConfiguration config = this.plugin.getConfig();
+        final IColorizer colorizer = this.getColorizer(config);
 
-        if (settings != null) {
-            needTimePlayedToSendMessages = settings.getInt("chat-use.need-time-played");
-            needTimePlayedToUseCommands = settings.getInt("commands-use.need-time-played");
+        if (colorizer == null) {
+            this.logger.warning("Failed to load colorizer from path \"settings.serializer-for-formats\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+            Bukkit.getPluginManager().disablePlugin(this.plugin);
+            return;
+        }
 
-            messageSendCheckEnabled = settings.getBoolean("chat-use.enable");
-            commandsSendCheckEnabled = settings.getBoolean("commands-use.enable");
-            columnCommandsSendCheckEnabled = settings.getBoolean("column-commands-use.enable");
+        this.setupMessagesSend(config, colorizer);
+        this.setupCommandsUseValues(config, colorizer);
+        this.setupColumnCommandsUseValues(config, colorizer);
+        this.setupMessages(config, colorizer);
+    }
 
-            setMessagesSendPriority(settings);
-            setCommandsUsePriority(settings);
-            setColumnCommandsUsePriority(settings);
+    private void setupMessagesSend(final FileConfiguration config, final IColorizer colorizer) {
+        final ConfigurationSection messagesSend = config.getConfigurationSection("messages-send");
+        if (messagesSend != null) {
+            this.messageSendCheckEnabled = messagesSend.getBoolean("enable");
+            if (this.messageSendCheckEnabled) {
+                this.messageSendListenerPriority = messagesSend.getString("listener-priority").toUpperCase();
+                this.messageSendIgnoreCancelled = messagesSend.getBoolean("ignore-cancelled");
 
-            setMessageSendDenySound(settings);
-            setCommandUseDenySound(settings);
-            setColumnCommandUseDenySound(settings);
+                this.needTimePlayedToSendMessages = messagesSend.getInt("need-time-played");
 
-            setMessageSendDenyTitle(settings);
-            setCommandUseDenyTitle(settings);
-            setColumnCommandUseDenyTitle(colorizer);
+                this.messageSendCooldownMessages = this.getMessage(config, "messages-send.cooldown", colorizer);
 
-            blockedWordsForChat.clear();
-            blockedWordsForChat.addAll(settings.getStringList("chat-use.blocked-words"));
-            blockedCommands.clear();
-            blockedCommands.addAll(settings.getStringList("commands-use.list"));
+                this.setMessageSendDenySound(messagesSend);
+                this.setMessageSendDenyTitle(messagesSend, colorizer);
+
+                this.blockedWordsForChat.clear();
+                this.blockedWordsForChat.addAll(messagesSend.getStringList("blocked-words"));
+            }
         } else {
-            plugin.getMyLogger().warning("Failed to load section \"settings\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
-            plugin.getMyLogger().warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+            this.logger.warning("Failed to load section \"messages-send\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+            Bukkit.getPluginManager().disablePlugin(this.plugin);
         }
+    }
 
-        if (messages != null) {
-            noPermMessages = getMessage(messages, "no-perm", colorizer);
-            reloadMessages = getMessage(messages, "reload", colorizer);
-            messageSendDenyMessages = getMessage(messages, "chat-use-messages.cooldown-message", colorizer);
-            commandUseDenyMessages = getMessage(messages, "command-use-messages.cooldown-message", colorizer);
-            columnCommandUseDenyMessages = getMessage(messages, "column-command-use-messages.message", colorizer);
+    private void setupCommandsUseValues(final FileConfiguration config, final IColorizer colorizer) {
+        final ConfigurationSection commandUse = config.getConfigurationSection("commands-use");
+        if (commandUse != null) {
+            this.commandsSendCheckEnabled = commandUse.getBoolean("enable");
+            if (this.messageSendCheckEnabled) {
+                this.commandsUseListenerPriority = commandUse.getString("listener-priority").toUpperCase();
+                this.commandsUseIgnoreCancelled = commandUse.getBoolean("ignore-cancelled");
 
-            messageSendDenyTitle = colorizer.colorize(messages.getString("chat-use-messages.cooldown-title", "&cError"));
-            messageSendDenySubTitle = colorizer.colorize(messages.getString("chat-use-messages.cooldown-subtitle", "&fCheck \"messages.chat-use-messages.cooldown-subtitle\""));
-            commandUseDenyTitle = colorizer.colorize(messages.getString("command-use-messages.cooldown-title", "&cError"));
-            commandUseDenySubTitle = colorizer.colorize(messages.getString("command-use-messages.cooldown-subtitle", "&fCheck \"messages.blocked-command-use-messages.cooldown-subtitle\""));
+                this.needTimePlayedToUseCommands = commandUse.getInt("need-time-played");
 
-            timeDays = colorizer.colorize(messages.getString("time.days", "&cError, check \"messages.time.days\""));
-            timeHours = colorizer.colorize(messages.getString("time.hours", "&cError, check \"messages.time.hours\""));
-            timeMinutes = colorizer.colorize(messages.getString("time.minutes", "&cError, check \"messages.time.minutes\""));
-            timeSeconds = colorizer.colorize(messages.getString("time.seconds", "&cError, check \"messages.time.seconds\""));
+                this.commandUseCooldownMessages = this.getMessage(config, "commands-use.cooldown", colorizer);
+
+                this.setupCommandUseDenySound(commandUse);
+                this.setCommandUseDenyTitle(commandUse, colorizer);
+
+                this.blockedCommands.clear();
+                this.blockedCommands.addAll(commandUse.getStringList("list"));
+            }
         } else {
-            plugin.getMyLogger().warning("Failed to load section \"messages\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
-            plugin.getMyLogger().warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+            this.logger.warning("Failed to load section \"commands-use\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+            Bukkit.getPluginManager().disablePlugin(this.plugin);
         }
     }
 
-    public void setMessagesSendPriority(ConfigurationSection settings) {
-        final String chatPriority = settings.getString("chat-use.listener-priority").toUpperCase();
-        switch(chatPriority) {
-            case "LOWEST" -> {
-                messageSendPriorityLowest = true;
-                messageSendPriorityLow = false;
-                messageSendPriorityNormal = false;
-                messageSendPriorityHigh = false;
-                messageSendPriorityHighest = false;
-            }
-            case "LOW" -> {
-                messageSendPriorityLowest = false;
-                messageSendPriorityLow = true;
-                messageSendPriorityNormal = false;
-                messageSendPriorityHigh = false;
-                messageSendPriorityHighest = false;
-            }
-            case "NORMAL" -> {
-                messageSendPriorityLowest = false;
-                messageSendPriorityLow = false;
-                messageSendPriorityNormal = true;
-                messageSendPriorityHigh = false;
-                messageSendPriorityHighest = false;
-            }
-            case "HIGH" -> {
-                messageSendPriorityLowest = false;
-                messageSendPriorityLow = false;
-                messageSendPriorityNormal = false;
-                messageSendPriorityHigh = true;
-                messageSendPriorityHighest = false;
-            }
-            default -> {
-                messageSendPriorityLowest = false;
-                messageSendPriorityLow = false;
-                messageSendPriorityNormal = false;
-                messageSendPriorityHigh = false;
-                messageSendPriorityHighest = true;
-            }
+    private void setupColumnCommandsUseValues(final FileConfiguration config, final IColorizer colorizer) {
+        final ConfigurationSection columnCommandUse = config.getConfigurationSection("column-commands-use");
+        if (columnCommandUse != null) {
+            this.columnCommandsSendCheckEnabled = columnCommandUse.getBoolean("enable");
+
+            this.columnCommandsUseListenerPriority = columnCommandUse.getString("listener-priority").toUpperCase();
+            this.columnCommandsUseIgnoreCancelled = columnCommandUse.getBoolean("ignore-cancelled");
+
+            this.columnCommandUseDenyMessages = this.getMessage(config, "column-commands-use.deny-message", colorizer);
+
+            this.setColumnCommandUseDenySound(columnCommandUse);
+            this.setColumnCommandUseDenyTitle(columnCommandUse, colorizer);
+        } else {
+            this.logger.warning("Failed to load section \"column-commands-use\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+            Bukkit.getPluginManager().disablePlugin(this.plugin);
         }
     }
 
-    public void setCommandsUsePriority(ConfigurationSection settings) {
-        final String commandsPriority = settings.getString("commands-use.listener-priority").toUpperCase();
-        switch(commandsPriority) {
-            case "LOWEST" -> {
-                commandsUsePriorityLowest = true;
-                commandsUsePriorityLow = false;
-                commandsUsePriorityNormal = false;
-                commandsUsePriorityHigh = false;
-                commandsUsePriorityHighest = false;
-            }
-            case "LOW" -> {
-                commandsUsePriorityLowest = false;
-                commandsUsePriorityLow = true;
-                commandsUsePriorityNormal = false;
-                commandsUsePriorityHigh = false;
-                commandsUsePriorityHighest = false;
-            }
-            case "NORMAL" -> {
-                commandsUsePriorityLowest = false;
-                commandsUsePriorityLow = false;
-                commandsUsePriorityNormal = true;
-                commandsUsePriorityHigh = false;
-                commandsUsePriorityHighest = false;
-            }
-            case "HIGH" ->  {
-                commandsUsePriorityLowest = false;
-                commandsUsePriorityLow = false;
-                commandsUsePriorityNormal = false;
-                commandsUsePriorityHigh = true;
-                commandsUsePriorityHighest = false;
-            }
-            default ->  {
-                commandsUsePriorityLowest = false;
-                commandsUsePriorityLow = false;
-                commandsUsePriorityNormal = false;
-                commandsUsePriorityHigh = false;
-                commandsUsePriorityHighest = true;
-            }
+    private void setupMessages(final FileConfiguration config, final IColorizer colorizer) {
+        final ConfigurationSection pluginMessages = config.getConfigurationSection("plugin-messages");
+        if (pluginMessages != null) {
+            this.noPermMessages = this.getMessage(config, "plugin-messages.no-perm", colorizer);
+            this.reloadMessages = this.getMessage(config, "plugin-messages.reload", colorizer);
+
+            final String timeDaysString = pluginMessages.getString("time.days", "&cError, check \"messages.time.days\"");
+            timeDays = colorizer.colorize(timeDaysString);
+
+            final String timeHoursString = pluginMessages.getString("time.hours", "&cError, check \"messages.time.hours\"");
+            timeHours = colorizer.colorize(timeHoursString);
+
+            final String timeMinutesString = pluginMessages.getString("time.minutes", "&cError, check \"messages.time.minutes\"");
+            timeMinutes = colorizer.colorize(timeMinutesString);
+
+            final String timeSecondsString = pluginMessages.getString("time.seconds", "&cError, check \"messages.time.seconds\"");
+            timeSeconds = colorizer.colorize(timeSecondsString);
+        } else {
+            this.logger.warning("Failed to load section \"plugin-messages\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+            Bukkit.getPluginManager().disablePlugin(this.plugin);
         }
     }
 
-    public void setColumnCommandsUsePriority(ConfigurationSection settings) {
-        final String columnCommandsPriority = settings.getString("column-commands-use.listener-priority").toUpperCase();
-        switch(columnCommandsPriority) {
-            case "LOWEST" -> {
-                columnCommandsUsePriorityLowest = true;
-                columnCommandsUsePriorityLow = false;
-                columnCommandsUsePriorityNormal = false;
-                columnCommandsUsePriorityHigh = false;
-                columnCommandsUsePriorityHighest = false;
-            }
-            case "LOW" -> {
-                columnCommandsUsePriorityLowest = false;
-                columnCommandsUsePriorityLow = true;
-                columnCommandsUsePriorityNormal = false;
-                columnCommandsUsePriorityHigh = false;
-                columnCommandsUsePriorityHighest = false;
-            }
-            case "NORMAL" -> {
-                columnCommandsUsePriorityLowest = false;
-                columnCommandsUsePriorityLow = false;
-                columnCommandsUsePriorityNormal = true;
-                columnCommandsUsePriorityHigh = false;
-                columnCommandsUsePriorityHighest = false;
-            }
-            case "HIGH" -> {
-                columnCommandsUsePriorityLowest = false;
-                columnCommandsUsePriorityLow = false;
-                columnCommandsUsePriorityNormal = false;
-                columnCommandsUsePriorityHigh = true;
-                columnCommandsUsePriorityHighest = false;
-            }
-            default -> {
-                columnCommandsUsePriorityLowest = false;
-                columnCommandsUsePriorityLow = false;
-                columnCommandsUsePriorityNormal = false;
-                columnCommandsUsePriorityHigh = false;
-                columnCommandsUsePriorityHighest = true;
-            }
-        }
-    }
-
-    public void setMessageSendDenySound(ConfigurationSection settings) {
-        final String soundString = settings.getString("chat-use.deny-sound");
+    private void setMessageSendDenySound(final ConfigurationSection section) {
+        final String soundString = section.getString("deny-sound");
         if (soundString == null) {
-            plugin.getMyLogger().warning("Failed to load sound \"settings.chat-use.deny-sound\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
-            plugin.getMyLogger().warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
-            isMessageSendDenySoundEnabled = false;
+            this.logger.warning("Failed to load sound \"messages-send.deny-sound\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+
+            this.isMessageSendDenySoundEnabled = false;
         } else if (soundString.equalsIgnoreCase("disabled")) {
-            isMessageSendDenySoundEnabled = false;
+            this.isMessageSendDenySoundEnabled = false;
         } else {
-            isMessageSendDenySoundEnabled = true;
             final String[] params = soundString.split(";");
-            messageSendDenySound = params.length == 1 && params[0] != null ? Sound.valueOf(params[0].toUpperCase(Locale.ENGLISH)) : Sound.BLOCK_BREWING_STAND_BREW;
-            messageSendSoundVolume = params.length == 2 && params[1] != null ? Float.parseFloat(params[1]) : 1.0f;
-            messageSendSoundPitch = params.length == 3 && params[2] != null ? Float.parseFloat(params[2]) : 1.0f;
+
+            this.messageSendDenySound = params.length == 1 && params[0] != null && !params[0].isEmpty() && !params[0].isBlank()
+                    ? Sound.valueOf(params[0].toUpperCase(Locale.ENGLISH))
+                    : Sound.ITEM_SHIELD_BREAK;
+
+            this.messageSendSoundVolume = params.length == 2 && params[1] != null && !params[1].isEmpty() && !params[1].isBlank()
+                    ? Float.parseFloat(params[1])
+                    : 1.0f;
+
+            this.messageSendSoundPitch = params.length == 3 && params[2] != null && !params[2].isEmpty() && !params[2].isBlank()
+                    ? Float.parseFloat(params[2])
+                    : 1.0f;
+
+            this.isMessageSendDenySoundEnabled = true;
         }
     }
 
-    public void setCommandUseDenySound(ConfigurationSection settings) {
-        final String soundString = settings.getString("commands-use.deny-sound");
+    private void setupCommandUseDenySound(final ConfigurationSection section) {
+        final String soundString = section.getString("deny-sound");
         if (soundString == null) {
-            plugin.getMyLogger().warning("Failed to load sound \"settings.commands-use.deny-sound\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
-            plugin.getMyLogger().warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
-            isCommandUseDenySoundEnabled = false;
+            this.logger.warning("Failed to load sound \"commands-use.deny-sound\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+
+            this.isCommandUseDenySoundEnabled = false;
         } else if (soundString.equalsIgnoreCase("disabled")) {
-            isCommandUseDenySoundEnabled = false;
+            this.isCommandUseDenySoundEnabled = false;
         } else {
-            isCommandUseDenySoundEnabled = true;
             final String[] params = soundString.split(";");
-            commandUseDenySound = params.length == 1 && params[0] != null ? Sound.valueOf(params[0].toUpperCase(Locale.ENGLISH)) : Sound.BLOCK_BREWING_STAND_BREW;
-            commandUseSoundVolume = params.length == 2 && params[1] != null ? Float.parseFloat(params[1]) : 1.0f;
-            commandUseSoundPitch = params.length == 3 && params[2] != null ? Float.parseFloat(params[2]) : 1.0f;
+
+            this.commandUseDenySound = params.length == 1 && params[0] != null && !params[0].isEmpty() && !params[0].isBlank()
+                    ? Sound.valueOf(params[0].toUpperCase(Locale.ENGLISH))
+                    : Sound.ITEM_SHIELD_BREAK;
+
+            this.commandUseSoundVolume = params.length == 2 && params[1] != null && !params[1].isEmpty() && !params[1].isBlank()
+                    ? Float.parseFloat(params[1])
+                    : 1.0f;
+
+            this.commandUseSoundPitch = params.length == 3 && params[2] != null && !params[2].isEmpty() && !params[2].isBlank()
+                    ? Float.parseFloat(params[2])
+                    : 1.0f;
+
+            this.isCommandUseDenySoundEnabled = true;
         }
     }
 
-    public void setColumnCommandUseDenySound(ConfigurationSection settings) {
-        final String soundString = settings.getString("column-commands-use.deny-sound");
+    private void setColumnCommandUseDenySound(final ConfigurationSection section) {
+        final String soundString = section.getString("deny-sound");
         if (soundString == null) {
-            plugin.getMyLogger().warning("Failed to load sound \"settings.column-commands-use.deny-sound\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
-            plugin.getMyLogger().warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
-            isColumnCommandUseDenySoundEnabled = false;
+            this.logger.warning("Failed to load sound \"column-commands-use.deny-sound\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+
+            this.isColumnCommandUseDenySoundEnabled = false;
         } else if (soundString.equalsIgnoreCase("disabled")) {
-            isColumnCommandUseDenySoundEnabled = false;
+            this.isColumnCommandUseDenySoundEnabled = false;
         } else {
-            isColumnCommandUseDenySoundEnabled = true;
             final String[] params = soundString.split(";");
-            columnCommandUseDenySound = params.length == 1 && params[0] != null ? Sound.valueOf(params[0].toUpperCase(Locale.ENGLISH)) : Sound.BLOCK_BREWING_STAND_BREW;
-            columnCommandUseSoundVolume = params.length == 2 && params[1] != null ? Float.parseFloat(params[1]) : 1.0f;
-            columnCommandUseSoundPitch = params.length == 3 && params[2] != null ? Float.parseFloat(params[2]) : 1.0f;
+
+            this.columnCommandUseDenySound = params.length == 1 && params[0] != null  && !params[0].isEmpty() && !params[0].isBlank()
+                    ? Sound.valueOf(params[0].toUpperCase(Locale.ENGLISH))
+                    : Sound.ITEM_SHIELD_BREAK;
+
+            this.columnCommandUseSoundVolume = params.length == 2 && params[1] != null  && !params[1].isEmpty() && !params[1].isBlank()
+                    ? Float.parseFloat(params[1])
+                    : 1.0f;
+
+            this.columnCommandUseSoundPitch = params.length == 3 && params[2] != null  && !params[2].isEmpty() && !params[2].isBlank()
+                    ? Float.parseFloat(params[2])
+                    : 1.0f;
+
+            this.isColumnCommandUseDenySoundEnabled = true;
         }
     }
 
-    public void setMessageSendDenyTitle(ConfigurationSection settings) {
-        final String titleString = settings.getString("chat-use.deny-title");
-        if (titleString == null) {
-            plugin.getMyLogger().warning("Failed to load title \"settings.chat-use.deny-title\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
-            plugin.getMyLogger().warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
-            isMessageSendDenyTitleEnabled = false;
-        } else if (titleString.equalsIgnoreCase("disabled")) {
-            isMessageSendDenyTitleEnabled = false;
-        } else {
-            isMessageSendDenyTitleEnabled = true;
-            final String[] params = titleString.split(";");
+    private void setMessageSendDenyTitle(final ConfigurationSection section, final IColorizer colorizer) {
+        final ConfigurationSection denyTitle = section.getConfigurationSection("deny-title");
+        if (denyTitle != null) {
+            final String durationString = denyTitle.getString("duration");
+            if (durationString.equalsIgnoreCase("disabled")) {
+                this.isMessageSendDenyTitleEnabled = false;
+                return;
+            }
+
+            final String[] params = durationString.split(";");
             final int fadeIn = params.length == 1 && params[0] != null ? Integer.parseInt(params[0]) : 10;
             final int stay = params.length == 2 && params[1] != null ? Integer.parseInt(params[1]) : 40;
             final int fadeOut = params.length == 3 && params[2] != null ? Integer.parseInt(params[2]) : 20;
-            messageSendTitleTimes = Title.Times.of(Ticks.duration(fadeIn), Ticks.duration(stay), Ticks.duration(fadeOut));
-        }
-    }
 
-    public void setCommandUseDenyTitle(ConfigurationSection settings) {
-        final String titleString = settings.getString("commands-use.deny-title");
-        if (titleString == null) {
-            plugin.getMyLogger().warning("Failed to load title \"settings.commands-use.deny-title\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
-            plugin.getMyLogger().warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
-            isCommandUseDenyTitleEnabled = false;
-        } else if (titleString.equalsIgnoreCase("disabled")) {
-            isCommandUseDenyTitleEnabled = false;
-        } else {
-            isCommandUseDenyTitleEnabled = true;
-            final String[] params = titleString.split(";");
-            final int fadeIn = params.length == 1 && params[0] != null ? Integer.parseInt(params[0]) : 10;
-            final int stay = params.length == 2 && params[1] != null ? Integer.parseInt(params[1]) : 40;
-            final int fadeOut = params.length == 3 && params[2] != null ? Integer.parseInt(params[2]) : 20;
-            commandUseTitleTimes = Title.Times.of(Ticks.duration(fadeIn), Ticks.duration(stay), Ticks.duration(fadeOut));
-        }
-    }
-
-    public void setColumnCommandUseDenyTitle(IColorizer colorizer) {
-        final String titleString = plugin.getConfig().getString("settings.column-commands-use.deny-title");
-        if (titleString == null) {
-            plugin.getMyLogger().warning("Failed to load title \"settings.column-commands-use.deny-title\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
-            plugin.getMyLogger().warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
-            isColumnCommandUseDenyTitleEnabled = false;
-        } else if (titleString.equalsIgnoreCase("disabled")) {
-            isColumnCommandUseDenyTitleEnabled = false;
-        } else {
-            isColumnCommandUseDenyTitleEnabled = true;
-            final String[] params = titleString.split(";");
-            final int fadeIn = params.length == 1 && params[0] != null ? Integer.parseInt(params[0]) : 10;
-            final int stay = params.length == 2 && params[1] != null ? Integer.parseInt(params[1]) : 40;
-            final int fadeOut = params.length == 3 && params[2] != null ? Integer.parseInt(params[2]) : 20;
-            final String columnCommandUseDenyTitle = colorizer.colorize(
-                    plugin.getConfig().getString("messages.blocked-command-use-messages.title", "&cError")
+            this.messageSendTitleTimes = Title.Times.of(
+                    Ticks.duration(fadeIn),
+                    Ticks.duration(stay),
+                    Ticks.duration(fadeOut)
             );
-            final String columnCommandUseDenySubTitle = colorizer.colorize(
-                    plugin.getConfig().getString("messages.blocked-command-use-messages.subtitle", "&fCheck \"messages.blocked-command-use-messages.cooldown-subtitle\"")
-            );
-            final Title.Times columnCommandUseTitleTimes = Title.Times.of(Ticks.duration(fadeIn), Ticks.duration(stay), Ticks.duration(fadeOut));
-            columnCommandUseTitle = Title.title(Component.text(columnCommandUseDenyTitle), Component.text(columnCommandUseDenySubTitle), columnCommandUseTitleTimes);
+
+            String denyTitleText = section.getString("title-text");
+            String denySubtitleText = section.getString("subtitle-text");
+            if (denyTitleText == null) {
+                denyTitleText = "&cError";
+                denySubtitleText = "&fCheck \"messages-send.dent-title.title-text\"";
+            } else if (denySubtitleText == null) {
+                denyTitleText = "&cError";
+                denySubtitleText = "&fCheck \"messages-send.dent-title.subtitle-text\"";
+            }
+
+            this.messageSendDenyTitle = colorizer.colorize(denyTitleText);
+            this.messageSendDenySubtitle = colorizer.colorize(denySubtitleText);
+
+            this.isMessageSendDenyTitleEnabled = true;
+        } else {
+            this.logger.warning("Failed to load title \"messages-send.deny-title\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+
+            this.isMessageSendDenyTitleEnabled = false;
         }
     }
 
-    public String getMessage(ConfigurationSection section, String path, IColorizer colorizer) {
-        final String message = section.getString(path, "&4(!) &cFailed to get message on path: " + path);
+    private void setCommandUseDenyTitle(final ConfigurationSection section, final IColorizer colorizer) {
+        final ConfigurationSection denyTitle = section.getConfigurationSection("deny-title");
+        if (denyTitle != null) {
+            final String durationString = denyTitle.getString("duration");
+            if (durationString.equalsIgnoreCase("disabled")) {
+                this.isCommandUseDenyTitleEnabled = false;
+                return;
+            }
+
+            final String[] params = durationString.split(";");
+            final int fadeIn = params.length == 1 && params[0] != null ? Integer.parseInt(params[0]) : 10;
+            final int stay = params.length == 2 && params[1] != null ? Integer.parseInt(params[1]) : 40;
+            final int fadeOut = params.length == 3 && params[2] != null ? Integer.parseInt(params[2]) : 20;
+
+            this.commandUseTitleTimes = Title.Times.of(
+                    Ticks.duration(fadeIn),
+                    Ticks.duration(stay),
+                    Ticks.duration(fadeOut)
+            );
+
+            String denyTitleText = section.getString("title-text");
+            String denySubtitleText = section.getString("subtitle-text");
+            if (denyTitleText == null) {
+                denyTitleText = "&cError";
+                denySubtitleText = "&fCheck \"commands-use.dent-title.title-text\"";
+            } else if (denySubtitleText == null) {
+                denyTitleText = "&cError";
+                denySubtitleText = "&fCheck \"commands-use.dent-title.subtitle-text\"";
+            }
+
+            this.commandUseDenyTitle = colorizer.colorize(denyTitleText);
+            this.commandUseDenySubtitle = colorizer.colorize(denySubtitleText);
+
+            this.isCommandUseDenyTitleEnabled = true;
+        } else {
+            this.logger.warning("Failed to load title \"commands-use.deny-title\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+
+            this.isCommandUseDenyTitleEnabled = false;
+        }
+    }
+
+    private void setColumnCommandUseDenyTitle(final ConfigurationSection section, final IColorizer colorizer) {
+        final ConfigurationSection denyTitle = section.getConfigurationSection("deny-title");
+        if (denyTitle != null) {
+            final String durationString = denyTitle.getString("duration");
+            if (durationString.equalsIgnoreCase("disabled")) {
+                this.isCommandUseDenyTitleEnabled = false;
+                return;
+            }
+
+            final String[] params = durationString.split(";");
+            final int fadeIn = params.length == 1 && params[0] != null ? Integer.parseInt(params[0]) : 10;
+            final int stay = params.length == 2 && params[1] != null ? Integer.parseInt(params[1]) : 40;
+            final int fadeOut = params.length == 3 && params[2] != null ? Integer.parseInt(params[2]) : 20;
+
+            final Title.Times titleTimes = Title.Times.of(
+                    Ticks.duration(fadeIn),
+                    Ticks.duration(stay),
+                    Ticks.duration(fadeOut)
+            );
+
+            String denyTitleText = section.getString("title-text");
+            String denySubtitleText = section.getString("subtitle-text");
+            if (denyTitleText == null) {
+                denyTitleText = "&cError";
+                denySubtitleText = "&fCheck \"commands-use.dent-title.title-text\"";
+            } else if (denySubtitleText == null) {
+                denyTitleText = "&cError";
+                denySubtitleText = "&fCheck \"commands-use.dent-title.subtitle-text\"";
+            }
+
+            final Component titleText = Component.text( colorizer.colorize(denyTitleText) );
+            final Component subtitleText = Component.text( colorizer.colorize(denySubtitleText) );
+
+            this.columnCommandUseDenyTitle = Title.title(titleText, subtitleText, titleTimes);
+
+            this.isColumnCommandUseDenyTitleEnabled = true;
+        } else {
+            this.logger.warning("Failed to load title \"commands-use.deny-title\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+
+            this.isColumnCommandUseDenyTitleEnabled = false;
+        }
+    }
+
+    private String getMessage(final FileConfiguration config, final String path, final IColorizer colorizer) {
+        final String message = config.getString(path, "&4(!) &cFailed to get message on path: " + path);
         return colorizer.colorize(message);
     }
 
-    public IColorizer getColorizer() {
-        final boolean useMiniMessages = plugin.getConfig().getBoolean("use-minimessage");
-        final boolean is16OrAbove = new ServerInfo(plugin).getSubVersion() >= 16;
+    private IColorizer getColorizer(final FileConfiguration config) {
+        final String colorizerMode = config.getString("settings.serializer-for-formats");
 
-        return useMiniMessages
-                ? new MiniMessagesColorizer()
-                : is16OrAbove
-                ? new LegacyColorizer()
-                : new VanillaColorizer();
+        if (colorizerMode == null) {
+            return null;
+        }
+
+        return switch (colorizerMode.toUpperCase()) {
+            case "MINIMESSAGE" -> new MiniMessageColorizer();
+            case "LEGACY" -> new LegacyColorizer();
+            case "LEGACY_ADVANCED" -> new LegacyAdvancedColorizer();
+            default -> new VanillaColorizer();
+        };
     }
 }

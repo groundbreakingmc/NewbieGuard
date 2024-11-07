@@ -17,10 +17,10 @@ public final class UpdatesNotify implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onAdminJoin(PlayerJoinEvent event) {
+    public void onAdminJoin(final PlayerJoinEvent event) {
         final Player player = event.getPlayer();
         if ((player.isOp() || player.hasPermission("newbieguard.updates")) && UpdatesChecker.isNewVersion()) {
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
                 player.sendMessage("");
                 player.sendMessage("§c[NewbieGuard] §6New update is available to download!");
                 player.sendMessage("§c[NewbieGuard] §fDownload link: " + UpdatesChecker.getDownloadLink());

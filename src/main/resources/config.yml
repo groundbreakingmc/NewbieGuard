@@ -15,8 +15,14 @@
 settings:
   # Do not touch it!
   config-version: 1.0
-  # If yes plugin will use <color></color> format for colors
-  use-minimessage: false
+
+  # Форматирование текста.
+  # LEGACY - цвет через & и hex &# (Работает только на: 1.16+)
+  # LEGACY_ADVANCED - улучшенный аналог legacy с поддержкой &## формата hex (&##123 = &#112233) (Работает только на: 1.16+)
+  # MINIMESSAGE - цвет через <цвет></цвет> (Работает только на: 1.17+)
+  # VANILLA - дефолтное форматирование через &
+  serializer-for-formats: LEGACY
+
   # Does plugin need to check for new updates after server starts? (Async)
   # Author doesn't recommend disabling it.
   check-updates: true
@@ -28,79 +34,118 @@ settings:
       port: 12345
       database-name: NewbieGuard
       username: groundbreakingmc
-      # Generated randomly!
       password: ''
 
-  # Messages writing settings
-  chat-use:
-    # Is the message sending check enabled?
-    enable: true
-    # Available: LOWEST / LOW / NORMAL / HIGH / HIGHEST
-    # (don't change it if you don't know was it is)
-    listener-priority: LOWEST
-    # May be useful if some other plugins can block messages send for any reason
-    ignore-cancelled: false
-    # If 'false' only time spent online will be count
-    # If 'true' will be count the time from the player's first server entry
-    count-time-from-first-join: false
-    # How much time does a player need to play to get access to write in the chat
-    need-time-played: 300
-    # Sound that plays if command was denied
-    # (soundName;volume;pitch)
-    # write "disabled" to disable (like this: "deny-sound: disabled")
-    deny-sound: ITEM_SHIELD_BREAK;1.0;1.0
-    # Display Title settings that are displayed if entered command was denied
-    # (fade-in;stay;fade-out)
-    # write "disabled" to disable (like this: "deny-title: disabled")
-    deny-title: 10;40;20
-    # Doesn't work now
-    blocked-words:
-      - 'Писька'
+# Messages writing settings
+messages-send:
+  # Is the message sending check enabled?
+  enable: true
 
-  # Commands writing settings
-  commands-use:
-    # Is the commands sending check enabled?
-    enable: true
-    # Available: LOWEST / LOW / NORMAL / HIGH / HIGHEST
-    # (don't change it if you don't know was it is)
-    listener-priority: LOWEST
-    # May be useful if some other plugins can block commands send for any reason
-    ignore-cancelled: false
-    # If 'false' only time spent online will be count
-    # If 'true' will be count the time from the player's first server entry
-    count-time-from-first-join: false
-    # How much time does a player need to play to get access to write commands
-    need-time-played: 300
-    # If true, then a player will be allowed to write only command from list until he plays enough time
-    use-whitelist: false
-    # Sound that plays if command was denied
-    # (soundName;volume;pitch)
-    # write "disabled" to disable (like this: "deny-sound: disabled")
-    deny-sound: ITEM_SHIELD_BREAK;1.0;1.0
-    # Display Title settings that are displayed if entered command was denied
-    # (fade-in;stay;fade-out)
-    # write "disabled" to disable (like this: "deny-title: disabled")
-    deny-title: 10;40;20
-    # list of command that will be blacklisted/whitelisted
-    list:
-      - 'kit'
+  # Available: LOWEST / LOW / NORMAL / HIGH / HIGHEST
+  # (don't change it if you don't know was it is)
+  listener-priority: LOWEST
 
-  column-commands-use:
-    # Is the column commands sending check enabled?
-    enable: true
-    # Available: LOWEST / LOW / NORMAL / HIGH / HIGHEST
-    # (don't change it if you don't know was it is)
-    listener-priority: LOWEST
-    # May be useful if some other plugins can block commands with colon send for any reason
-    ignore-cancelled: true
-    # Sound that plays if command was denied
-    # (soundName;volume;pitch)
-    # write "disabled" to disable (like this: "deny-sound: disabled")
-    deny-sound: ITEM_SHIELD_BREAK;1.0;1.0
-    # Display Title settings that are displayed if entered command was denied
-    # (fade-in;stay;fade-out)
-    # write "disabled" to disable (like this: "deny-title: disabled")
-    deny-title: 10;40;20
+  # May be useful if some other plugins can block messages send for any reason
+  ignore-cancelled: false
+
+  # If 'false' only time spent online will be count
+  # If 'true' will be count the time from the player's first server entry
+  count-time-from-first-join: false
+
+  # How much time does a player need to play to get access to write in the chat
+  need-time-played: 300
+
+  # Sound that plays if command was denied
+  # (soundName;volume;pitch)
+  # write "disabled" to disable (like this: "deny-sound: disabled")
+  deny-sound: ITEM_SHIELD_BREAK;1.0;1.0
+
+  # Deny message if player has not played enough time
+  # Leave empty to disable
+  cooldown: '&4(!) &cYou gotta to play for %time% more to use the chat.'
+
+  # Display Title settings that are displayed if entered command was denied
+  # (fade-in;stay;fade-out)
+  # write "disabled" to disable (like this: "deny-title: disabled")
+  deny-title:
+    duration: 10;40;20
+    title-text: '&cDenied'
+    subtitle-text: '&fLeft to play for %time% more'
+
+  # Doesn't work now
+  blocked-words:
+    - 'Писька'
+
+# Commands writing settings
+commands-use:
+  # Is the commands sending check enabled?
+  enable: true
+
+  # Available: LOWEST / LOW / NORMAL / HIGH / HIGHEST
+  # (don't change it if you don't know was it is)
+  listener-priority: LOWEST
+
+  # May be useful if some other plugins can block commands send for any reason
+  ignore-cancelled: false
+
+  # If 'false' only time spent online will be count
+  # If 'true' will be count the time from the player's first server entry
+  count-time-from-first-join: false
+    
+  # How much time does a player need to play to get access to write commands
+  need-time-played: 300
+    
+  # If true, then a player will be allowed to write only command from list until he plays enough time
+  use-whitelist: false
+    
+  # Sound that plays if command was denied
+  # (soundName;volume;pitch)
+  # write "disabled" to disable (like this: "deny-sound: disabled")
+  deny-sound: ITEM_SHIELD_BREAK;1.0;1.0
+
+  # Deny message if player has not played enough time
+  # Leave empty to disable
+  cooldown: '&4(!) &cYou gotta to play for %time% more to use this command.'
+    
+  # Display Title settings that are displayed if entered command was denied
+  # (fade-in;stay;fade-out)
+  # write "disabled" to disable (like this: "deny-title: disabled")
+  deny-title:
+    duration: 10;40;20
+    title-text: '&cDenied'
+    subtitle-text: '&fUse /help to view allowed commands'
+    
+  # list of command that will be blacklisted/whitelisted
+  list:
+    - 'kit'
+
+column-commands-use:
+  # Is the column commands sending check enabled?
+  enable: true
+
+  # Available: LOWEST / LOW / NORMAL / HIGH / HIGHEST
+  # (don't change it if you don't know was it is)
+  listener-priority: LOWEST
+    
+  # May be useful if some other plugins can block commands with colon send for any reason
+  ignore-cancelled: true
+    
+  # Sound that plays if command was denied
+  # (soundName;volume;pitch)
+  # write "disabled" to disable (like this: "deny-sound: disabled")
+  deny-sound: ITEM_SHIELD_BREAK;1.0;1.0
+
+  # Deny message if player has no access
+  # Leave empty to disable
+  deny-message: '&4(!) &cSorry, buy you don''t have access to use this command!'
+    
+  # Display Title settings that are displayed if entered command was denied
+  # (fade-in;stay;fade-out)
+  # write "disabled" to disable (like this: "deny-title: disabled")
+  deny-title:
+    duration: 10;40;20
+    title-text: '&cDenied'
+    subtitle-text: '&fLeft to play for %time% more'
 
 # To send empty message use &f, to disable message just let it be empty
 #
@@ -108,24 +153,9 @@ settings:
 # And also you can use %time% to display how more time left (Time will format to dd hh mm ss, and all zero values will not be displayed)
 #
 # Hex colors and minimessage(enable settings.use-minimessages, to use them) are supported by the plugin
-messages:
+plugin-messages:
   no-perm: '&4(!) &cSorry, buy you don''t have permission to use this command!'
   reload: '&2(!) &aPlugin was successfully reloaded in &2%time%ms&a!'
-
-  chat-use-messages:
-    cooldown-message: '&4(!) &cYou gotta to play for %time% more to use the chat.'
-    cooldown-title: '&cDenied'
-    cooldown-subtitle: '&fLeft to play for %time% more'
-
-  command-use-messages:
-    cooldown-message: '&4(!) &cYou gotta to play for %time% more to use this command.'
-    cooldown-title: '&cDenied'
-    cooldown-subtitle: '&fLeft to play for %time% more'
-
-  column-command-use-messages:
-    message: '&4(!) &cSorry, buy you don''t have access to use this command!'
-    title: '&cDenied'
-    subtitle: '&fUse /help to view allowed commands'
 
   time:
     days: 'd '
