@@ -6,6 +6,10 @@ import org.bukkit.entity.Player;
 
 public final class PlaceholdersUtil {
 
+    private PlaceholdersUtil() {
+
+    }
+
     public static String parse(final CommandSender sender, final String message) {
         if (sender instanceof Player player) {
             return PlaceholderAPI.setPlaceholders(player, message);
