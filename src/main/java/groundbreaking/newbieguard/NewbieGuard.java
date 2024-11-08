@@ -9,7 +9,6 @@ import groundbreaking.newbieguard.utils.config.ConfigValues;
 import groundbreaking.newbieguard.utils.logging.BukkitLogger;
 import groundbreaking.newbieguard.utils.logging.ILogger;
 import groundbreaking.newbieguard.utils.logging.PaperLogger;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -19,13 +18,13 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
-import java.util.List;
 import java.util.logging.Logger;
 
 @Getter
 public final class NewbieGuard extends JavaPlugin {
 
-    @Setter private DatabaseHandler databaseHandler = null;
+    @Setter
+    private DatabaseHandler databaseHandler = null;
 
     private ConfigValues configValues;
 
@@ -155,7 +154,7 @@ public final class NewbieGuard extends JavaPlugin {
             default -> {
                 this.myLogger.warning("Failed to parse value from \"settings.listener-priority\" from config file. Please check your configuration file, or delete it and restart your server!");
                 this.myLogger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/GigaChat/issues");
-                throw new RuntimeException("Failed to get event priority, please check your configuration files!");
+                throw new IllegalArgumentException("Failed to get event priority, please check your configuration files!");
             }
         };
     }
