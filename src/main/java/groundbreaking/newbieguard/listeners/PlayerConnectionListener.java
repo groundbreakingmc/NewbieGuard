@@ -7,7 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public class PlayerConnectionListener implements Listener {
+public final class PlayerConnectionListener implements Listener {
 
     private final NewbieGuard plugin;
     private final DatabaseHandler database;
