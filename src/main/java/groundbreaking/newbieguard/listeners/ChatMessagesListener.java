@@ -8,6 +8,7 @@ import groundbreaking.newbieguard.utils.config.ConfigValues;
 import groundbreaking.newbieguard.utils.time.FirstEntryCounter;
 import groundbreaking.newbieguard.utils.time.ITimeCounter;
 import groundbreaking.newbieguard.utils.time.OnlineCounter;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
@@ -17,6 +18,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
+import java.util.List;
+
 public final class ChatMessagesListener implements Listener {
 
     private final NewbieGuard plugin;
@@ -25,6 +28,7 @@ public final class ChatMessagesListener implements Listener {
 
     private boolean isRegistered = false;
 
+    public static final List<String> MESSAGES = new ObjectArrayList<>();
     private final TimeFormatter timeFormatter = new TimeFormatter();
     private static ITimeCounter timeCounter;
 
@@ -39,7 +43,7 @@ public final class ChatMessagesListener implements Listener {
     @EventHandler
     public void onEvent(final AsyncPlayerChatEvent event) {
         final Player player = event.getPlayer();
-        if (player.hasPermission("newbieguard.bypass.chat") || !NewbieGuard.MESSAGES.contains(player.getName())) {
+        if (player.hasPermission("newbieguard.bypass.chat") || !MESSAGES.contains(player.getName())) {
             return;
         }
         
@@ -50,7 +54,7 @@ public final class ChatMessagesListener implements Listener {
             final long leftTime = requiredTime - playedTime;
             this.send(player, leftTime);
         } else {
-            NewbieGuard.MESSAGES.remove(player.getName());
+            MESSAGES.remove(player.getName());
             this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
                 this.database.addPlayerChatDatabase(player)
             );

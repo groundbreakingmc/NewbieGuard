@@ -11,6 +11,7 @@ import groundbreaking.newbieguard.utils.config.ConfigValues;
 import groundbreaking.newbieguard.utils.time.FirstEntryCounter;
 import groundbreaking.newbieguard.utils.time.ITimeCounter;
 import groundbreaking.newbieguard.utils.time.OnlineCounter;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
@@ -30,6 +31,7 @@ public final class CommandsListeners implements Listener {
 
     private boolean isRegistered = false;
 
+    public static final List<String> COMMANDS = new ObjectArrayList<>();
     private final TimeFormatter timeFormatter = new TimeFormatter();
     private static ITimeCounter timeCounter;
     private static IMode mode;
@@ -46,7 +48,7 @@ public final class CommandsListeners implements Listener {
     @EventHandler
     public void onEvent(final PlayerCommandPreprocessEvent event) {
         final Player player = event.getPlayer();
-        if (player.hasPermission("newbieguard.bypass.commands") || !NewbieGuard.COMMANDS.contains(player.getName())) {
+        if (player.hasPermission("newbieguard.bypass.commands") || !COMMANDS.contains(player.getName())) {
             return;
         }
 
@@ -64,7 +66,7 @@ public final class CommandsListeners implements Listener {
                 }
             }
         } else {
-            NewbieGuard.COMMANDS.remove(player.getName());
+            COMMANDS.remove(player.getName());
             this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
                     this.database.addPlayerCommandsDatabase(player)
             );

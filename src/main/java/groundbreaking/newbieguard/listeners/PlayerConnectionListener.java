@@ -22,10 +22,10 @@ public class PlayerConnectionListener implements Listener {
         final String playerName = event.getPlayer().getName();
         this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
            if (!this.database.chatDatabaseHasPlayer(playerName)) {
-               NewbieGuard.MESSAGES.add(playerName);
+               ChatMessagesListener.MESSAGES.add(playerName);
            }
            if (!this.database.commandsDatabaseHasPlayer(playerName)) {
-               NewbieGuard.COMMANDS.add(playerName);
+               CommandsListeners.COMMANDS.add(playerName);
            }
         });
     }
@@ -33,7 +33,7 @@ public class PlayerConnectionListener implements Listener {
     @EventHandler
     public void onQuit(final PlayerQuitEvent event) {
         final String playerName = event.getPlayer().getName();
-        NewbieGuard.MESSAGES.remove(playerName);
-        NewbieGuard.COMMANDS.remove(playerName);
+        ChatMessagesListener.MESSAGES.remove(playerName);
+        CommandsListeners.COMMANDS.remove(playerName);
     }
 }

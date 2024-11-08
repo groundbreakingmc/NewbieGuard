@@ -35,9 +35,6 @@ public final class NewbieGuard extends JavaPlugin {
     private CommandsListeners commandsListener;
     private ColumnCommandsListener columnCommandsListener;
 
-    public static final List<String> MESSAGES = new ObjectArrayList<>();
-    public static final List<String> COMMANDS = new ObjectArrayList<>();
-
     @Override
     public void onEnable() {
         final long startTime = System.currentTimeMillis();
