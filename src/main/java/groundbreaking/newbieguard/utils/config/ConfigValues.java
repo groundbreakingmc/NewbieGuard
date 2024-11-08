@@ -1,7 +1,7 @@
 package groundbreaking.newbieguard.utils.config;
 
 import groundbreaking.newbieguard.NewbieGuard;
-import groundbreaking.newbieguard.database.AbstractDB;
+import groundbreaking.newbieguard.database.DatabaseHandler;
 import groundbreaking.newbieguard.database.types.MariaDB;
 import groundbreaking.newbieguard.database.types.SQLite;
 import groundbreaking.newbieguard.listeners.ChatMessagesListener;
@@ -117,7 +117,7 @@ public final class ConfigValues {
             if (type.equalsIgnoreCase("sqlite")) {
                 final File dbFile = new File(this.plugin.getDataFolder() + File.separator + "database.db");
                 final String url = "jdbc:sqlite:" + dbFile;
-                final AbstractDB connectionHandler = new SQLite(url);
+                final DatabaseHandler connectionHandler = new SQLite(url);
                 this.plugin.setConnectionHandler(connectionHandler);
             } else if (type.equalsIgnoreCase("mariadb")) {
                 final ConfigurationSection mariaDb = database.getConfigurationSection("maria-db");
@@ -129,7 +129,7 @@ public final class ConfigValues {
                     final String pass = mariaDb.getString("password");
 
                     final String url = host + ":" + port + "/" + dbName;
-                    final AbstractDB connectionHandler = new MariaDB(url, user, pass);
+                    final DatabaseHandler connectionHandler = new MariaDB(url, user, pass);
                     this.plugin.setConnectionHandler(connectionHandler);
                 }
             } else {

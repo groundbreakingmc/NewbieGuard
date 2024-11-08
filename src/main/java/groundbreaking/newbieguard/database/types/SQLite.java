@@ -1,11 +1,11 @@
 package groundbreaking.newbieguard.database.types;
 
-import groundbreaking.newbieguard.database.AbstractDB;
+import groundbreaking.newbieguard.database.DatabaseHandler;
 
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public final class SQLite extends AbstractDB {
+public final class SQLite extends DatabaseHandler {
 
     public SQLite(String url) {
         super(url, null, null);

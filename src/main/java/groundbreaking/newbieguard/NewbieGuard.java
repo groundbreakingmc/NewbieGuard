@@ -1,6 +1,6 @@
 package groundbreaking.newbieguard;
 
-import groundbreaking.newbieguard.database.AbstractDB;
+import groundbreaking.newbieguard.database.DatabaseHandler;
 import groundbreaking.newbieguard.listeners.ChatMessagesListener;
 import groundbreaking.newbieguard.listeners.ColumnCommandsListener;
 import groundbreaking.newbieguard.listeners.CommandsListeners;
@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 @Getter
 public final class NewbieGuard extends JavaPlugin {
 
-    @Setter private AbstractDB connectionHandler = null;
+    @Setter private DatabaseHandler connectionHandler = null;
 
     private ConfigValues configValues;
 

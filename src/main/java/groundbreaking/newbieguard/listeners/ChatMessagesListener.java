@@ -1,7 +1,7 @@
 package groundbreaking.newbieguard.listeners;
 
 import groundbreaking.newbieguard.NewbieGuard;
-import groundbreaking.newbieguard.database.AbstractDB;
+import groundbreaking.newbieguard.database.DatabaseHandler;
 import groundbreaking.newbieguard.utils.PlaceholdersUtil;
 import groundbreaking.newbieguard.utils.TimeFormatter;
 import groundbreaking.newbieguard.utils.config.ConfigValues;
@@ -19,7 +19,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 public final class ChatMessagesListener implements Listener {
 
     private final ConfigValues configValues;
-    private final AbstractDB database;
+    private final DatabaseHandler database;
 
     private boolean isRegistered = false;
 

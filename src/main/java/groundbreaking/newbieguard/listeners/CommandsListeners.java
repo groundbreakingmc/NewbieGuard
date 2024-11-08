@@ -1,7 +1,7 @@
 package groundbreaking.newbieguard.listeners;
 
 import groundbreaking.newbieguard.NewbieGuard;
-import groundbreaking.newbieguard.database.AbstractDB;
+import groundbreaking.newbieguard.database.DatabaseHandler;
 import groundbreaking.newbieguard.utils.PlaceholdersUtil;
 import groundbreaking.newbieguard.utils.TimeFormatter;
 import groundbreaking.newbieguard.utils.commands.BlackList;
@@ -24,7 +24,7 @@ import java.util.List;
 public final class CommandsListeners implements Listener {
 
     private final ConfigValues configValues;
-    private final AbstractDB database;
+    private final DatabaseHandler database;
 
     private boolean isRegistered = false;
 

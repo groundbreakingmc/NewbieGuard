@@ -9,11 +9,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public abstract class AbstractDB {
+public abstract class DatabaseHandler {
 
     protected HikariDataSource dataSource;
 
-    public AbstractDB(final String jdbcUrl, final String user, final String password) {
+    public DatabaseHandler(final String jdbcUrl, final String user, final String password) {
         final HikariConfig config = new HikariConfig();
         config.setJdbcUrl(jdbcUrl);
         if (user != null) {

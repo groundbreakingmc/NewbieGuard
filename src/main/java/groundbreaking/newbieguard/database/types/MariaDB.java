@@ -1,11 +1,11 @@
 package groundbreaking.newbieguard.database.types;
 
-import groundbreaking.newbieguard.database.AbstractDB;
+import groundbreaking.newbieguard.database.DatabaseHandler;
 
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public final class MariaDB extends AbstractDB {
+public final class MariaDB extends DatabaseHandler {
 
     public MariaDB(final String url, final String user, final String password) {
         super("jdbc:mariadb://" + url, user, password);
