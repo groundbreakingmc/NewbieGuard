@@ -57,10 +57,10 @@ public abstract class DatabaseHandler {
         }
     }
 
-    public boolean chatDatabaseHasPlayer(final Player player) {
+    public boolean chatDatabaseHasPlayer(final String playerName) {
         final String sqlQuery = "SELECT * FROM commands WHERE username = ?";
         try (final PreparedStatement statement = getConnection().prepareStatement(sqlQuery)) {
-            statement.setString(1, player.getName());
+            statement.setString(1, playerName);
             final ResultSet result = statement.executeQuery();
             return result.next();
         } catch (final SQLException ex) {
@@ -69,10 +69,10 @@ public abstract class DatabaseHandler {
         }
     }
 
-    public boolean commandsDatabaseHasPlayer(final Player player) {
+    public boolean commandsDatabaseHasPlayer(final String playerName) {
         final String sqlQuery = "SELECT * FROM chat WHERE username = ?";
         try (final PreparedStatement statement = getConnection().prepareStatement(sqlQuery)) {
-            statement.setString(1, player.getName());
+            statement.setString(1, playerName);
             final ResultSet result = statement.executeQuery();
             return result.next();
         } catch (final SQLException ex) {

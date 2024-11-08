@@ -13,11 +13,13 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public final class ChatMessagesListener implements Listener {
 
+    private final NewbieGuard plugin;
     private final ConfigValues configValues;
     private final DatabaseHandler database;
 
@@ -26,7 +28,8 @@ public final class ChatMessagesListener implements Listener {
     private final TimeFormatter timeFormatter = new TimeFormatter();
     private static ITimeCounter timeCounter;
 
-    public ChatMessagesListener(NewbieGuard plugin) {
+    public ChatMessagesListener(final NewbieGuard plugin) {
+        this.plugin = plugin;
         this.configValues = plugin.getConfigValues();
         this.database = plugin.getDatabaseHandler();
 
@@ -36,19 +39,21 @@ public final class ChatMessagesListener implements Listener {
     @EventHandler
     public void onEvent(final AsyncPlayerChatEvent event) {
         final Player player = event.getPlayer();
-        if (player.hasPermission("newbieguard.bypass.chat") || this.database.chatDatabaseHasPlayer(player)) {
+        if (player.hasPermission("newbieguard.bypass.chat") || !NewbieGuard.MESSAGES.contains(player.getName())) {
             return;
         }
         
         final long playedTime = timeCounter.count(player);
-
-        if (playedTime <= this.configValues.getNeedTimePlayedToSendMessages()) {
+        final long requiredTime = this.configValues.getNeedTimePlayedToSendMessages();
+        if (playedTime <= requiredTime) {
             event.setCancelled(true);
-            final long requiredTime = this.configValues.getNeedTimePlayedToSendMessages();
             final long leftTime = requiredTime - playedTime;
             this.send(player, leftTime);
         } else {
-            this.database.addPlayerChatDatabase(player);
+            NewbieGuard.MESSAGES.remove(player.getName());
+            this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
+                this.database.addPlayerChatDatabase(player)
+            );
         }
     }
 

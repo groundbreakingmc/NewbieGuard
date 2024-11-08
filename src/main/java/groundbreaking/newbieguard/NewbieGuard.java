@@ -1,10 +1,7 @@
 package groundbreaking.newbieguard;
 
 import groundbreaking.newbieguard.database.DatabaseHandler;
-import groundbreaking.newbieguard.listeners.ChatMessagesListener;
-import groundbreaking.newbieguard.listeners.ColumnCommandsListener;
-import groundbreaking.newbieguard.listeners.CommandsListeners;
-import groundbreaking.newbieguard.listeners.UpdatesNotify;
+import groundbreaking.newbieguard.listeners.*;
 import groundbreaking.newbieguard.utils.PlaceholdersUtil;
 import groundbreaking.newbieguard.utils.ServerInfo;
 import groundbreaking.newbieguard.utils.UpdatesChecker;
@@ -12,6 +9,7 @@ import groundbreaking.newbieguard.utils.config.ConfigValues;
 import groundbreaking.newbieguard.utils.logging.BukkitLogger;
 import groundbreaking.newbieguard.utils.logging.ILogger;
 import groundbreaking.newbieguard.utils.logging.PaperLogger;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -21,6 +19,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Logger;
 
 @Getter
@@ -35,6 +34,9 @@ public final class NewbieGuard extends JavaPlugin {
     private ChatMessagesListener chatListener;
     private CommandsListeners commandsListener;
     private ColumnCommandsListener columnCommandsListener;
+
+    public static final List<String> MESSAGES = new ObjectArrayList<>();
+    public static final List<String> COMMANDS = new ObjectArrayList<>();
 
     @Override
     public void onEnable() {
@@ -64,6 +66,7 @@ public final class NewbieGuard extends JavaPlugin {
 
         final PluginManager pluginManager = server.getPluginManager();
         pluginManager.registerEvents(new UpdatesNotify(this), this);
+        pluginManager.registerEvents(new PlayerConnectionListener(this), this);
 
         this.loadClassesAndEvents();
 

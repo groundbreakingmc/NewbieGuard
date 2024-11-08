@@ -16,13 +16,15 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.event.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.util.List;
 
 public final class CommandsListeners implements Listener {
 
+    private final NewbieGuard plugin;
     private final ConfigValues configValues;
     private final DatabaseHandler database;
 
@@ -33,6 +35,7 @@ public final class CommandsListeners implements Listener {
     private static IMode mode;
 
     public CommandsListeners(final NewbieGuard plugin) {
+        this.plugin = plugin;
         this.configValues = plugin.getConfigValues();
         this.database = plugin.getDatabaseHandler();
 
@@ -43,7 +46,7 @@ public final class CommandsListeners implements Listener {
     @EventHandler
     public void onEvent(final PlayerCommandPreprocessEvent event) {
         final Player player = event.getPlayer();
-        if (player.hasPermission("newbieguard.bypass.commands") || this.database.commandsDatabaseHasPlayer(player)) {
+        if (player.hasPermission("newbieguard.bypass.commands") || !NewbieGuard.COMMANDS.contains(player.getName())) {
             return;
         }
 
@@ -51,7 +54,6 @@ public final class CommandsListeners implements Listener {
         final long requiredTime = this.configValues.getNeedTimePlayedToUseCommands();
         if (playedTime <= requiredTime) {
             final String sentCommand = event.getMessage();
-
             final List<String> blockedCommands = this.configValues.getBlockedCommands();
             for (int i = 0; i < blockedCommands.size(); i++) {
                 final String blockedCommand = blockedCommands.get(i);
@@ -62,7 +64,10 @@ public final class CommandsListeners implements Listener {
                 }
             }
         } else {
-            this.database.addPlayerCommandsDatabase(player);
+            NewbieGuard.COMMANDS.remove(player.getName());
+            this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
+                    this.database.addPlayerCommandsDatabase(player)
+            );
         }
     }
 
