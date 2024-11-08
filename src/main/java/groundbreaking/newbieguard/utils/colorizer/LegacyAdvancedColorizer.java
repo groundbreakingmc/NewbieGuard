@@ -13,7 +13,9 @@ public final class LegacyAdvancedColorizer implements IColorizer {
         final StringBuilder builder = new StringBuilder();
         final char[] messageChars = message.toCharArray();
 
-        boolean isColor = false, isHashtag = false, isDoubleTag = false;
+        boolean isColor = false;
+        boolean isHashtag = false;
+        boolean isDoubleTag = false;
 
         for (int index = 0; index < messageChars.length; ) {
             final char currentChar = messageChars[index];
