@@ -1,5 +1,6 @@
 package groundbreaking.newbieguard;
 
+import groundbreaking.newbieguard.command.CommandHandler;
 import groundbreaking.newbieguard.database.DatabaseHandler;
 import groundbreaking.newbieguard.listeners.*;
 import groundbreaking.newbieguard.utils.PlaceholdersUtil;
@@ -13,6 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.event.EventPriority;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -108,27 +110,12 @@ public final class NewbieGuard extends JavaPlugin {
     }
 
     public void setupCommand() {
-        super.getCommand("newbieguard").setExecutor((sender, command, label, args) -> {
-            final long reloadStartTime = System.currentTimeMillis();
-
-            if (!sender.hasPermission("newbieguard.reload")) {
-                final String message = this.configValues.getNoPermMessages();
-                final String formattedMessage = PlaceholdersUtil.parse(sender, message);
-                sender.sendMessage(formattedMessage);
-                return true;
-            }
-
-            this.databaseHandler.close();
-            this.reload();
-
-            final long reloadFinishTime = System.currentTimeMillis();
-            final String timeLeft = String.valueOf(reloadFinishTime - reloadStartTime);
-            final String message = this.configValues.getReloadMessages().replace("%time%", timeLeft);
-            final String formattedMessage = PlaceholdersUtil.parse(sender, message);
-            sender.sendMessage(formattedMessage);
-
-            return true;
-        });
+        final CommandHandler commandHandler = new CommandHandler(this);
+        final PluginCommand pluginCommand = super.getCommand("newbieguard");
+        if (pluginCommand != null) {
+            pluginCommand.setExecutor(commandHandler);
+            pluginCommand.setTabCompleter(commandHandler);
+        }
     }
 
     public void loadClassesAndEvents() {

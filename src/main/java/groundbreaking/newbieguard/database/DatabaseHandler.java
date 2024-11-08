@@ -33,32 +33,50 @@ public abstract class DatabaseHandler {
 
     public abstract void createConnection() throws SQLException;
 
-    public void addPlayerChatDatabase(final Player player) {
-        final String sqlQuery = "INSERT INTO chat (username) VALUES (?)";
+    public abstract void clear();
+
+    public void addPlayerToChatTable(final String playerName) {
+        final String sqlQuery = "INSERT OR IGNORE INTO chat (username) VALUES (?)";
         try (final PreparedStatement statement = getConnection().prepareStatement(sqlQuery)) {
-            statement.setString(1, player.getName());
+            statement.setString(1, playerName);
             statement.executeUpdate();
         } catch (final SQLException ex) {
-            if (ex.getErrorCode() != 19) {
-                ex.printStackTrace();
-            }
+            ex.printStackTrace();
         }
     }
 
-    public void addPlayerCommandsDatabase(final Player player) {
-        final String sqlQuery = "INSERT INTO commands (username) VALUES (?)";
+    public void removePlayerFromChatTable(final String playerName) {
+        final String sqlQuery = "DELETE FROM chat WHERE username = ? LIMIT 1";
         try (final PreparedStatement statement = getConnection().prepareStatement(sqlQuery)) {
-            statement.setString(1, player.getName());
+            statement.setString(1, playerName);
             statement.executeUpdate();
         } catch (final SQLException ex) {
-            if (ex.getErrorCode() != 19) {
-                ex.printStackTrace();
-            }
+            ex.printStackTrace();
+        }
+    }
+
+    public void addPlayerCommandsDatabase(final String playerName) {
+        final String sqlQuery = "INSERT OR IGNORE INTO commands (username) VALUES (?)";
+        try (final PreparedStatement statement = getConnection().prepareStatement(sqlQuery)) {
+            statement.setString(1, playerName);
+            statement.executeUpdate();
+        } catch (final SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void removePlayerFromCommandsTable(final String playerName) {
+        final String sqlQuery = "DELETE FROM chat WHERE commands = ? LIMIT 1";
+        try (final PreparedStatement statement = getConnection().prepareStatement(sqlQuery)) {
+            statement.setString(1, playerName);
+            statement.executeUpdate();
+        } catch (final SQLException ex) {
+            ex.printStackTrace();
         }
     }
 
     public boolean chatDatabaseHasPlayer(final String playerName) {
-        final String sqlQuery = "SELECT * FROM commands WHERE username = ?";
+        final String sqlQuery = "SELECT 1 FROM commands WHERE username = ? LIMIT 1";
         try (final PreparedStatement statement = getConnection().prepareStatement(sqlQuery)) {
             statement.setString(1, playerName);
             final ResultSet result = statement.executeQuery();
@@ -70,7 +88,7 @@ public abstract class DatabaseHandler {
     }
 
     public boolean commandsDatabaseHasPlayer(final String playerName) {
-        final String sqlQuery = "SELECT * FROM chat WHERE username = ?";
+        final String sqlQuery = "SELECT 1 FROM chat WHERE username = ? LIMIT 1";
         try (final PreparedStatement statement = getConnection().prepareStatement(sqlQuery)) {
             statement.setString(1, playerName);
             final ResultSet result = statement.executeQuery();

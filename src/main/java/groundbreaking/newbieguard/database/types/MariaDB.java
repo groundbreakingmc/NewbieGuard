@@ -20,4 +20,18 @@ public final class MariaDB extends DatabaseHandler {
             statement.execute(commandsTable);
         }
     }
+
+    @Override
+    public void clear() {
+        try {
+            final String chatTable = "TRUNCATE FROM chat";
+            final String commandsTable = "TRUNCATE FROM commands";
+            try (final Statement statement = getConnection().createStatement()) {
+                statement.execute(chatTable);
+                statement.execute(commandsTable);
+            }
+        } catch(final SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 }

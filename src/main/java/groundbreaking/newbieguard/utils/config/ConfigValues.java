@@ -67,11 +67,16 @@ public final class ConfigValues {
     private final List<String> blockedCommands = new ArrayList<>();
     private final List<String> blockedCommandsWithColumns = new ArrayList<>();
 
-    private String noPermMessages;
-    private String reloadMessages;
-    private String messageSendCooldownMessages;
-    private String commandUseCooldownMessages;
-    private String columnCommandUseDenyMessages;
+    private String noPermMessage;
+    private String reloadMessage;
+    private String playerNotFound;
+    private String removedFromMessagesMessage;
+    private String removedFromCommandsMessage;
+    private String usageErrorMessage;
+    private String helpMessage;
+    private String messageSendCooldownMessage;
+    private String commandUseCooldownMessage;
+    private String columnCommandUseDenyMessage;
 
     private String messageSendDenyTitle;
     private String messageSendDenySubtitle;
@@ -149,7 +154,7 @@ public final class ConfigValues {
 
                 this.needTimePlayedToSendMessages = messagesSend.getInt("need-time-played");
 
-                this.messageSendCooldownMessages = this.getMessage(messagesSend, "cooldown", "messages-send.cooldown", colorizer);
+                this.messageSendCooldownMessage = this.getMessage(messagesSend, "cooldown", "messages-send.cooldown", colorizer);
 
                 this.setMessageSendDenySound(messagesSend);
                 this.setMessageSendDenyTitle(messagesSend, colorizer);
@@ -181,7 +186,7 @@ public final class ConfigValues {
 
                 this.needTimePlayedToUseCommands = commandUse.getInt("need-time-played");
 
-                this.commandUseCooldownMessages = this.getMessage(commandUse, "cooldown", "commands-use.cooldown", colorizer);
+                this.commandUseCooldownMessage = this.getMessage(commandUse, "cooldown", "commands-use.cooldown", colorizer);
 
                 this.setupCommandUseDenySound(commandUse);
                 this.setCommandUseDenyTitle(commandUse, colorizer);
@@ -211,7 +216,7 @@ public final class ConfigValues {
                 final String listenerPriorityString = columnCommandUse.getString("listener-priority").toUpperCase();
                 final boolean ignoreCancelled = columnCommandUse.getBoolean("ignore-cancelled");
 
-                this.columnCommandUseDenyMessages = this.getMessage(columnCommandUse, "deny-message", "column-commands-use.deny-message", colorizer);
+                this.columnCommandUseDenyMessage = this.getMessage(columnCommandUse, "deny-message", "column-commands-use.deny-message", colorizer);
 
                 this.setColumnCommandUseDenySound(columnCommandUse);
                 this.setColumnCommandUseDenyTitle(columnCommandUse, colorizer);
@@ -232,8 +237,13 @@ public final class ConfigValues {
     private void setupMessages(final FileConfiguration config, final IColorizer colorizer) {
         final ConfigurationSection pluginMessages = config.getConfigurationSection("plugin-messages");
         if (pluginMessages != null) {
-            this.noPermMessages = this.getMessage(pluginMessages, "no-perm", "plugin-messages.no-perm", colorizer);
-            this.reloadMessages = this.getMessage(pluginMessages, "reload", "plugin-messages.reload", colorizer);
+            this.noPermMessage = this.getMessage(pluginMessages, "no-permission", "plugin-messages.no-perm", colorizer);
+            this.reloadMessage = this.getMessage(pluginMessages, "reload", "plugin-messages.reload", colorizer);
+            this.playerNotFound = this.getMessage(pluginMessages, "player-not-found", "plugin-messages.player-not-found", colorizer);
+            this.removedFromMessagesMessage = this.getMessage(pluginMessages, "removed-from-messages", "plugin-messages.removed-from-messages", colorizer);
+            this.removedFromCommandsMessage = this.getMessage(pluginMessages, "removed-from-commands", "plugin-messages.removed-from-commands", colorizer);
+            this.usageErrorMessage = this.getMessage(pluginMessages, "usage-error", "plugin-messages.usage-error", colorizer);
+            this.helpMessage = this.getMessage(pluginMessages, "help", "plugin-messages.help", colorizer);
 
             final ConfigurationSection time = config.getConfigurationSection("time");
             if (time != null) {

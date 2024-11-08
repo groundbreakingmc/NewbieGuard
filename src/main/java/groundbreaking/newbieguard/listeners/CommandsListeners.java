@@ -68,7 +68,7 @@ public final class CommandsListeners implements Listener {
         } else {
             COMMANDS.remove(player.getName());
             this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
-                    this.database.addPlayerCommandsDatabase(player)
+                    this.database.addPlayerCommandsDatabase(player.getName())
             );
         }
     }
@@ -76,7 +76,7 @@ public final class CommandsListeners implements Listener {
     private void send(final Player player, final long time) {
         final String formattedTime = this.timeFormatter.getTime(time);
 
-        final String message = configValues.getCommandUseCooldownMessages();
+        final String message = configValues.getCommandUseCooldownMessage();
         if (!message.isEmpty()) {
             final String formattedMessage = PlaceholdersUtil.parse(player, message.replace("%time%", formattedTime));
             player.sendMessage(formattedMessage);

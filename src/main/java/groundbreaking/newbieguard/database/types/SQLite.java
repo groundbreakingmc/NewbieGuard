@@ -20,4 +20,18 @@ public final class SQLite extends DatabaseHandler {
             statement.execute(commandsTable);
         }
     }
+
+    @Override
+    public void clear() {
+        try {
+            final String chatTable = "DELETE FROM chat";
+            final String commandsTable = "DELETE FROM commands";
+            try (final Statement statement = getConnection().createStatement()) {
+                statement.execute(chatTable);
+                statement.execute(commandsTable);
+            }
+        } catch(final SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
 }

@@ -154,8 +154,22 @@ column-commands-use:
 #
 # Hex colors and minimessage(enable settings.use-minimessages, to use them) are supported by the plugin
 plugin-messages:
-  no-perm: '&4(!) &cSorry, buy you don''t have permission to use this command!'
+  no-permission: '&4(!) &cSorry, buy you don''t have permission to use this command!'
   reload: '&2(!) &aPlugin was successfully reloaded in &2%time%ms&a!'
+
+  player-not-found: '&4(!) &cPlayer {player} not found!'
+
+  removed-from-messages: '&2(!) &aPlayer {player} was successfully removed from messages table.'
+  removed-from-commands: '&2(!) &aPlayer {player} was successfully removed from commands table.'
+
+  usage-error: '&4(!) &cUsage error! Use "/newbieguard help" to see help message'
+
+  help: |-
+    &4(!) &cUssage:
+    &8- &e/newbieguard reload &f- reload the plugin
+    &8- &e/newbieguard removemessages <player> &f- remove player from messages table
+    &8- &e/newbieguard removecommands <player> &f- remove player from commands table
+    &8- &e/newbieguard cleardb &f- clear database &7(console only)
 
   time:
     days: 'd '

@@ -51,7 +51,7 @@ public final class ColumnCommandsListener implements Listener {
     }
 
     private void send(final Player player) {
-        final String message = this.configValues.getColumnCommandUseDenyMessages();
+        final String message = this.configValues.getColumnCommandUseDenyMessage();
         if (!message.isEmpty()) {
             final String formattedMessage = PlaceholdersUtil.parse(player, message);
             player.sendMessage(formattedMessage);

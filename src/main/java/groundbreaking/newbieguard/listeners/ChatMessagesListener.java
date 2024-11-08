@@ -56,7 +56,7 @@ public final class ChatMessagesListener implements Listener {
         } else {
             MESSAGES.remove(player.getName());
             this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
-                this.database.addPlayerChatDatabase(player)
+                this.database.addPlayerToChatTable(player.getName())
             );
         }
     }
@@ -64,7 +64,7 @@ public final class ChatMessagesListener implements Listener {
     private void send(final Player player, final long time) {
         final String formattedTime = this.timeFormatter.getTime(time);
 
-        final String message = this.configValues.getMessageSendCooldownMessages();
+        final String message = this.configValues.getMessageSendCooldownMessage();
         if (!message.isEmpty()) {
             final String formattedMessage = PlaceholdersUtil.parse(player, message.replace("%time%", formattedTime));
             player.sendMessage(formattedMessage);
@@ -88,7 +88,7 @@ public final class ChatMessagesListener implements Listener {
             player.playSound(playerLocation, sound, volume, pitch);
         }
     }
-    
+
     public static void setTimeCounter(final NewbieGuard plugin) {
         final boolean countFromFirstJoin = plugin.getConfig().getBoolean("settings.messages-send.count-time-from-first-join");
         timeCounter = countFromFirstJoin ? new FirstEntryCounter() : new OnlineCounter();
