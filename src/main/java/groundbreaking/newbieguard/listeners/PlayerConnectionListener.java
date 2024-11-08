@@ -33,7 +33,7 @@ public class PlayerConnectionListener implements Listener {
     @EventHandler
     public void onQuit(final PlayerQuitEvent event) {
         final String playerName = event.getPlayer().getName();
-        NewbieGuard.MESSAGES.add(playerName);
-        NewbieGuard.MESSAGES.add(playerName);
+        NewbieGuard.MESSAGES.remove(playerName);
+        NewbieGuard.COMMANDS.remove(playerName);
     }
 }
