@@ -28,7 +28,7 @@ public final class ChatMessagesListener implements Listener {
 
     public ChatMessagesListener(NewbieGuard plugin) {
         this.configValues = plugin.getConfigValues();
-        this.database = plugin.getConnectionHandler();
+        this.database = plugin.getDatabaseHandler();
 
         setTimeCounter(plugin);
     }

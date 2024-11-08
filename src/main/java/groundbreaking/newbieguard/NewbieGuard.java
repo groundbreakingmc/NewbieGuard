@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 @Getter
 public final class NewbieGuard extends JavaPlugin {
 
-    @Setter private DatabaseHandler connectionHandler = null;
+    @Setter private DatabaseHandler databaseHandler = null;
 
     private ConfigValues configValues;
 
@@ -72,7 +72,7 @@ public final class NewbieGuard extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        this.connectionHandler.close();
+        this.databaseHandler.close();
     }
 
     private void logPaperWarning() {
@@ -94,7 +94,7 @@ public final class NewbieGuard extends JavaPlugin {
 
     public void setupConnection() {
         try {
-            this.connectionHandler.createConnection();
+            this.databaseHandler.createConnection();
         } catch (final SQLException ex) {
             this.myLogger.warning("An error coursed while trying to open database connection.");
             ex.printStackTrace();
@@ -119,7 +119,7 @@ public final class NewbieGuard extends JavaPlugin {
                 return true;
             }
 
-            this.connectionHandler.close();
+            this.databaseHandler.close();
             this.reload();
 
             final long reloadFinishTime = System.currentTimeMillis();

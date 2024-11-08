@@ -118,7 +118,7 @@ public final class ConfigValues {
                 final File dbFile = new File(this.plugin.getDataFolder() + File.separator + "database.db");
                 final String url = "jdbc:sqlite:" + dbFile;
                 final DatabaseHandler connectionHandler = new SQLite(url);
-                this.plugin.setConnectionHandler(connectionHandler);
+                this.plugin.setDatabaseHandler(connectionHandler);
             } else if (type.equalsIgnoreCase("mariadb")) {
                 final ConfigurationSection mariaDb = database.getConfigurationSection("maria-db");
                 if (mariaDb != null) {
@@ -130,7 +130,7 @@ public final class ConfigValues {
 
                     final String url = host + ":" + port + "/" + dbName;
                     final DatabaseHandler connectionHandler = new MariaDB(url, user, pass);
-                    this.plugin.setConnectionHandler(connectionHandler);
+                    this.plugin.setDatabaseHandler(connectionHandler);
                 }
             } else {
                 throw new UnsupportedOperationException("Please choose SQLite or MariaDB as database!");

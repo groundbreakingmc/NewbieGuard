@@ -34,7 +34,7 @@ public final class CommandsListeners implements Listener {
 
     public CommandsListeners(final NewbieGuard plugin) {
         this.configValues = plugin.getConfigValues();
-        this.database = plugin.getConnectionHandler();
+        this.database = plugin.getDatabaseHandler();
 
         setTimeCounter(plugin);
         setMode(plugin);
