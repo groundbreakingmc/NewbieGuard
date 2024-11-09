@@ -6,14 +6,18 @@ public final class CommandCheckerUtil {
 
     }
 
-    public static boolean isBlocked(final String sentCommand, final String blockedCommand) {
+    public static boolean matchesBlockedCommand(final String sentCommand, final String blockedCommand) {
         if (sentCommand.equalsIgnoreCase(blockedCommand)) {
             return true;
         }
 
-        final int length = Math.min(sentCommand.length(), blockedCommand.length());
+        final int sentCommandSpaceIndex = sentCommand.indexOf(' ');
+        final int blockedCommandLength = blockedCommand.length();
+        if (sentCommandSpaceIndex == -1 || sentCommandSpaceIndex != blockedCommandLength) {
+            return false;
+        }
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i <= blockedCommandLength; i++) {
             final char currentChar = sentCommand.charAt(i);
             if (currentChar == ' ') {
                 return true;
