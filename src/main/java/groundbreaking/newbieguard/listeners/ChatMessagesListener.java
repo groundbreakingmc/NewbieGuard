@@ -3,7 +3,7 @@ package groundbreaking.newbieguard.listeners;
 import groundbreaking.newbieguard.NewbieGuard;
 import groundbreaking.newbieguard.database.DatabaseHandler;
 import groundbreaking.newbieguard.utils.PlaceholdersUtil;
-import groundbreaking.newbieguard.utils.TimeFormatter;
+import groundbreaking.newbieguard.utils.TimeFormatterUtil;
 import groundbreaking.newbieguard.utils.config.ConfigValues;
 import groundbreaking.newbieguard.utils.time.FirstEntryCounter;
 import groundbreaking.newbieguard.utils.time.ITimeCounter;
@@ -29,7 +29,6 @@ public final class ChatMessagesListener implements Listener {
     private boolean isRegistered = false;
 
     public static final List<String> MESSAGES = new ObjectArrayList<>();
-    private final TimeFormatter timeFormatter = new TimeFormatter();
     private static ITimeCounter timeCounter;
 
     public ChatMessagesListener(final NewbieGuard plugin) {
@@ -62,7 +61,7 @@ public final class ChatMessagesListener implements Listener {
     }
 
     private void send(final Player player, final long time) {
-        final String formattedTime = this.timeFormatter.getTime(time);
+        final String formattedTime = TimeFormatterUtil.getTime(time);
 
         final String message = this.configValues.getMessageSendCooldownMessage();
         if (!message.isEmpty()) {

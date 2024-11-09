@@ -3,7 +3,7 @@ package groundbreaking.newbieguard.listeners;
 import groundbreaking.newbieguard.NewbieGuard;
 import groundbreaking.newbieguard.database.DatabaseHandler;
 import groundbreaking.newbieguard.utils.PlaceholdersUtil;
-import groundbreaking.newbieguard.utils.TimeFormatter;
+import groundbreaking.newbieguard.utils.TimeFormatterUtil;
 import groundbreaking.newbieguard.utils.commands.BlackList;
 import groundbreaking.newbieguard.utils.commands.IMode;
 import groundbreaking.newbieguard.utils.commands.WhiteList;
@@ -32,7 +32,6 @@ public final class CommandsListeners implements Listener {
     private boolean isRegistered = false;
 
     public static final List<String> COMMANDS = new ObjectArrayList<>();
-    private final TimeFormatter timeFormatter = new TimeFormatter();
     private static ITimeCounter timeCounter;
     private static IMode mode;
 
@@ -74,7 +73,7 @@ public final class CommandsListeners implements Listener {
     }
 
     private void send(final Player player, final long time) {
-        final String formattedTime = this.timeFormatter.getTime(time);
+        final String formattedTime = TimeFormatterUtil.getTime(time);
 
         final String message = configValues.getCommandUseCooldownMessage();
         if (!message.isEmpty()) {
