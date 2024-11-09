@@ -3,7 +3,6 @@ package groundbreaking.newbieguard;
 import groundbreaking.newbieguard.command.CommandHandler;
 import groundbreaking.newbieguard.database.DatabaseHandler;
 import groundbreaking.newbieguard.listeners.*;
-import groundbreaking.newbieguard.utils.PlaceholdersUtil;
 import groundbreaking.newbieguard.utils.ServerInfo;
 import groundbreaking.newbieguard.utils.UpdatesChecker;
 import groundbreaking.newbieguard.utils.config.ConfigValues;
@@ -50,8 +49,10 @@ public final class NewbieGuard extends JavaPlugin {
         this.setupLogger(serverInfo);
         this.logLoggerType();
 
+        this.loadClassesAndEvents();
+
         this.configValues = new ConfigValues(this);
-        this.configValues.setValues();
+        this.configValues.setupValues();
 
         this.setupConnection();
 
@@ -65,8 +66,6 @@ public final class NewbieGuard extends JavaPlugin {
         final PluginManager pluginManager = server.getPluginManager();
         pluginManager.registerEvents(new UpdatesNotify(this), this);
         pluginManager.registerEvents(new PlayerConnectionListener(this), this);
-
-        this.loadClassesAndEvents();
 
         this.myLogger.info("Plugin was successfully started in: " + (System.currentTimeMillis() - startTime) + "ms.");
     }
@@ -125,10 +124,7 @@ public final class NewbieGuard extends JavaPlugin {
     }
 
     public void reload() {
-        this.configValues.setValues();
-        ChatMessagesListener.setTimeCounter(this);
-        CommandsListeners.setTimeCounter(this);
-        CommandsListeners.setMode(this);
+        this.configValues.setupValues();
     }
 
     public EventPriority getEventPriority(final String priority, final String sectionName) {

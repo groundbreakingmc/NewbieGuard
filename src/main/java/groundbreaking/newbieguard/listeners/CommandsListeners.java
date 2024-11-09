@@ -29,19 +29,17 @@ public final class CommandsListeners implements Listener {
     private final ConfigValues configValues;
     private final DatabaseHandler database;
 
-    private boolean isRegistered = false;
-
     public static final List<String> COMMANDS = new ObjectArrayList<>();
-    private static ITimeCounter timeCounter;
-    private static IMode mode;
+
+    private ITimeCounter timeCounter;
+    private IMode mode;
+
+    private boolean isRegistered = false;
 
     public CommandsListeners(final NewbieGuard plugin) {
         this.plugin = plugin;
         this.configValues = plugin.getConfigValues();
         this.database = plugin.getDatabaseHandler();
-
-        setTimeCounter(plugin);
-        setMode(plugin);
     }
 
     @EventHandler
@@ -101,13 +99,11 @@ public final class CommandsListeners implements Listener {
         }
     }
 
-    public static void setTimeCounter(final NewbieGuard plugin) {
-        final boolean countFromFirstJoin = plugin.getConfig().getBoolean("settings.commands-use.count-time-from-first-join");
-        timeCounter = countFromFirstJoin ? new FirstEntryCounter() : new OnlineCounter();
+    public void setTimeCounter(final boolean countFromFirstJoin) {
+        this.timeCounter = countFromFirstJoin ? new FirstEntryCounter() : new OnlineCounter();
     }
 
-    public static void setMode(final NewbieGuard plugin) {
-        final boolean useWhiteList = plugin.getConfig().getBoolean("settings.commands-use.use-whitelist");
-        mode = useWhiteList ? new WhiteList() : new BlackList();
+    public void setMode(final boolean useWhiteList) {
+        this.mode = useWhiteList ? new WhiteList() : new BlackList();
     }
 }

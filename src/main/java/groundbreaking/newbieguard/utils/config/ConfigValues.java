@@ -97,7 +97,7 @@ public final class ConfigValues {
         this.logger = plugin.getMyLogger();
     }
 
-    public void setValues() {
+    public void setupValues() {
         final FileConfiguration config = new ConfigLoader(this.plugin).loadAndGet("config", 1.0);
         final IColorizer colorizer = this.getColorizer(config);
 
@@ -152,6 +152,9 @@ public final class ConfigValues {
                 final String listenerPriorityString = messagesSend.getString("listener-priority").toUpperCase();
                 final boolean ignoreCancelled = messagesSend.getBoolean("ignore-cancelled");
 
+                final boolean countFromFirstJoin = messagesSend.getBoolean("count-time-from-first-join");
+                this.plugin.getChatListener().setTimeCounter(countFromFirstJoin);
+
                 this.needTimePlayedToSendMessages = messagesSend.getInt("need-time-played");
 
                 this.messageSendCooldownMessage = this.getMessage(messagesSend, "cooldown", "messages-send.cooldown", colorizer);
@@ -183,6 +186,12 @@ public final class ConfigValues {
             if (this.messageSendCheckEnabled) {
                 final String listenerPriorityString = commandUse.getString("listener-priority").toUpperCase();
                 final boolean ignoreCancelled = commandUse.getBoolean("ignore-cancelled");
+
+                final boolean countFromFirstJoin = commandUse.getBoolean("count-time-from-first-join");
+                this.plugin.getCommandsListener().setTimeCounter(countFromFirstJoin);
+
+                final boolean useWhiteList = commandUse.getBoolean("use-whitelist");
+                this.plugin.getCommandsListener().setMode(countFromFirstJoin);
 
                 this.needTimePlayedToUseCommands = commandUse.getInt("need-time-played");
 

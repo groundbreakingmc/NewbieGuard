@@ -26,17 +26,16 @@ public final class ChatMessagesListener implements Listener {
     private final ConfigValues configValues;
     private final DatabaseHandler database;
 
-    private boolean isRegistered = false;
-
     public static final List<String> MESSAGES = new ObjectArrayList<>();
-    private static ITimeCounter timeCounter;
+
+    private ITimeCounter timeCounter;
+
+    private boolean isRegistered = false;
 
     public ChatMessagesListener(final NewbieGuard plugin) {
         this.plugin = plugin;
         this.configValues = plugin.getConfigValues();
         this.database = plugin.getDatabaseHandler();
-
-        setTimeCounter(plugin);
     }
 
     @EventHandler
@@ -88,8 +87,7 @@ public final class ChatMessagesListener implements Listener {
         }
     }
 
-    public static void setTimeCounter(final NewbieGuard plugin) {
-        final boolean countFromFirstJoin = plugin.getConfig().getBoolean("settings.messages-send.count-time-from-first-join");
-        timeCounter = countFromFirstJoin ? new FirstEntryCounter() : new OnlineCounter();
+    public void setTimeCounter(final boolean countFromFirstJoin) {
+        this.timeCounter = countFromFirstJoin ? new FirstEntryCounter() : new OnlineCounter();
     }
 }
