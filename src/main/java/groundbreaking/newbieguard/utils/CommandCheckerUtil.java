@@ -1,6 +1,10 @@
 package groundbreaking.newbieguard.utils;
 
-public final class CommandChecker {
+public final class CommandCheckerUtil {
+
+    private CommandCheckerUtil() {
+
+    }
 
     public static boolean isBlocked(final String sentCommand, final String blockedCommand) {
         if (sentCommand.equalsIgnoreCase(blockedCommand)) {
