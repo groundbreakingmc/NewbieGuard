@@ -163,7 +163,7 @@ public final class ConfigValues {
                 this.blockedWordsForChat.addAll(messagesSend.getStringList("blocked-words"));
 
                 final EventExecutor eventExecutor = (listener, event) -> chatMessagesListener.onEvent((AsyncPlayerChatEvent) event);
-                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString);
+                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString, "messages-send");
                 RegisterUtil.register(this.plugin, chatMessagesListener, AsyncPlayerChatEvent.class, eventPriority, ignoreCancelled, eventExecutor);
             } else {
                 RegisterUtil.unregister(chatMessagesListener);
@@ -195,7 +195,7 @@ public final class ConfigValues {
                 this.blockedCommands.addAll(commandUse.getStringList("list"));
 
                 final EventExecutor eventExecutor = (listener, event) -> commandsListeners.onEvent((PlayerCommandPreprocessEvent) event);
-                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString);
+                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString, "commands-use");
                 RegisterUtil.register(this.plugin, commandsListeners, PlayerCommandPreprocessEvent.class, eventPriority, ignoreCancelled, eventExecutor);
             } else {
                 RegisterUtil.unregister(commandsListeners);
@@ -222,7 +222,7 @@ public final class ConfigValues {
                 this.setColumnCommandUseDenyTitle(columnCommandUse, colorizer);
 
                 final EventExecutor eventExecutor = (listener, event) -> columnCommandsListener.onEvent((PlayerCommandPreprocessEvent) event);
-                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString);
+                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString, "column-commands-use");
                 RegisterUtil.register(this.plugin, columnCommandsListener, PlayerCommandPreprocessEvent.class, eventPriority, ignoreCancelled, eventExecutor);
             } else {
                 RegisterUtil.unregister(columnCommandsListener);

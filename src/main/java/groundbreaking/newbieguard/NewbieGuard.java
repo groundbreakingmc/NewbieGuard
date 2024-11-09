@@ -131,7 +131,7 @@ public final class NewbieGuard extends JavaPlugin {
         CommandsListeners.setMode(this);
     }
 
-    public EventPriority getEventPriority(final String priority) {
+    public EventPriority getEventPriority(final String priority, final String sectionName) {
         return switch (priority) {
             case "LOWEST" -> EventPriority.LOWEST;
             case "LOW" -> EventPriority.LOW;
@@ -139,7 +139,7 @@ public final class NewbieGuard extends JavaPlugin {
             case "HIGH" -> EventPriority.HIGH;
             case "HIGHEST" -> EventPriority.HIGHEST;
             default -> {
-                this.myLogger.warning("Failed to parse value from \"settings.listener-priority\" from config file. Please check your configuration file, or delete it and restart your server!");
+                this.myLogger.warning("Failed to parse value from \"" + sectionName +".listener-priority\" from config file. Please check your configuration file, or delete it and restart your server!");
                 this.myLogger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/GigaChat/issues");
                 throw new IllegalArgumentException("Failed to get event priority, please check your configuration files!");
             }
