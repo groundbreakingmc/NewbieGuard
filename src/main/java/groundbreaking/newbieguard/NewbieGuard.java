@@ -11,6 +11,7 @@ import groundbreaking.newbieguard.utils.logging.ILogger;
 import groundbreaking.newbieguard.utils.logging.PaperLogger;
 import lombok.Getter;
 import lombok.Setter;
+import me.clip.placeholderapi.metrics.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.command.PluginCommand;
@@ -45,6 +46,8 @@ public final class NewbieGuard extends JavaPlugin {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
+
+        new Metrics(this, 23872);
 
         this.setupLogger(serverInfo);
         this.logLoggerType();
