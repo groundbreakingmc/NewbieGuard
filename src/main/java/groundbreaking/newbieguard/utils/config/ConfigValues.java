@@ -254,18 +254,18 @@ public final class ConfigValues {
             this.usageErrorMessage = this.getMessage(pluginMessages, "usage-error", "plugin-messages.usage-error", colorizer);
             this.helpMessage = this.getMessage(pluginMessages, "help", "plugin-messages.help", colorizer);
 
-            final ConfigurationSection time = config.getConfigurationSection("time");
+            final ConfigurationSection time = pluginMessages.getConfigurationSection("time");
             if (time != null) {
-                final String timeDaysString = time.getString("days", "&cError, check \"messages.time.days\"");
+                final String timeDaysString = time.getString("days", "&cError, check \"plugin-messages.time.days\"");
                 timeDays = colorizer.colorize(timeDaysString);
 
-                final String timeHoursString = time.getString("hours", "&cError, check \"messages.time.hours\"");
+                final String timeHoursString = time.getString("hours", "&cError, check \"plugin-messages.time.hours\"");
                 timeHours = colorizer.colorize(timeHoursString);
 
-                final String timeMinutesString = time.getString("minutes", "&cError, check \"messages.time.minutes\"");
+                final String timeMinutesString = time.getString("minutes", "&cError, check \"plugin-messages.time.minutes\"");
                 timeMinutes = colorizer.colorize(timeMinutesString);
 
-                final String timeSecondsString = time.getString("seconds", "&cError, check \"messages.time.seconds\"");
+                final String timeSecondsString = time.getString("seconds", "&cError, check \"plugin-messages.time.seconds\"");
                 timeSeconds = colorizer.colorize(timeSecondsString);
             } else {
                 this.logger.warning("Failed to load section \"plugin-messages.time\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
