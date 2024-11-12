@@ -27,65 +27,36 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-
-        if (args.length > 1) {
+        if (args.length < 1) {
             this.usageError(sender);
             return true;
         }
 
         final String input = args[0].toLowerCase();
-
-        if (!sender.hasPermission("newbieguard." + input)) {
-            final String message = this.configValues.getNoPermMessage();
-            final String formattedMessage = PlaceholdersUtil.parse(sender, message);
-            sender.sendMessage(formattedMessage);
+        if (!this.hasAnyPermission(sender)) {
+            this.noPermission((Player) sender);
             return true;
         }
 
-        switch(input) {
+        return switch (input) {
             case "help" -> this.help(sender);
             case "reload" -> this.reload(sender);
             case "removemessages" -> this.removeMessages(sender, args);
             case "removecommands" -> this.removeCommands(sender, args);
-            case "cleardb" -> {
-                if (sender instanceof ConsoleCommandSender) {
-                    sender.sendMessage("[NewbieGuard] §c=================================================================");
-                    sender.sendMessage("[NewbieGuard] §c| Are you sure you want to clear the database of verified players");
-                    sender.sendMessage("[NewbieGuard] §c| This action is irreversible!");
-                    sender.sendMessage("[NewbieGuard] §c|");
-                    sender.sendMessage("[NewbieGuard] §c| If yes, execute \"/newbieguard\"");
-                    this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () ->
-                            this.waitConfirm = false, 300L);
-                }
-                else if (this.hasAnyPermission(sender)) {
-                    sender.sendMessage("§cThis command can be executed only from console!");
-                }
-            }
-            case "confirm" -> {
-                if (sender instanceof ConsoleCommandSender) {
-                    if (!this.waitConfirm) {
-                        sender.sendMessage("§c[NewbieGuard] First you have to execute \"/newbieguard cleardb\"!");
-                    }
-                    this.plugin.getDatabaseHandler().clear();
-                    for (final Player player : Bukkit.getOnlinePlayers()) {
-                        final String playerName = player.getName();
-                        ChatMessagesListener.MESSAGES.add(playerName);
-                        CommandsListeners.COMMANDS.add(playerName);
-                    }
-                    sender.sendMessage("§c[NewbieGuard] Database cleared.");
-                    this.waitConfirm = false;
-                }
-                else if (this.hasAnyPermission(sender)) {
-                    sender.sendMessage("§cThis command can be executed only from console!");
-                }
-            }
+            case "cleardb" -> this.deletedb(sender);
+            case "confirm" -> this.confirm(sender);
             default -> this.usageError(sender);
-        }
+        };
+    }
 
+    private boolean noPermission(final Player sender) {
+        final String message = this.configValues.getNoPermMessage();
+        final String formattedMessage = PlaceholdersUtil.parse(sender, message);
+        sender.sendMessage(formattedMessage);
         return true;
     }
 
-    public void reload(final CommandSender sender) {
+    public boolean reload(final CommandSender sender) {
         final long reloadStartTime = System.currentTimeMillis();
 
         this.plugin.getDatabaseHandler().close();
@@ -96,18 +67,20 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         final String message = this.configValues.getReloadMessage().replace("%time%", timeLeft);
         final String formattedMessage = PlaceholdersUtil.parse(sender, message);
         sender.sendMessage(formattedMessage);
+        return true;
     }
 
-    public void help(final CommandSender sender) {
+    public boolean help(final CommandSender sender) {
         final String message = this.configValues.getHelpMessage();
         final String formattedMessage = PlaceholdersUtil.parse(sender, message);
         sender.sendMessage(formattedMessage);
+        return true;
     }
 
-    public void removeMessages(final CommandSender sender, final String[] args) {
+    public boolean removeMessages(final CommandSender sender, final String[] args) {
         if (args.length < 2) {
             this.usageError(sender);
-            return;
+            return true;
         }
 
         final Player target = this.plugin.getServer().getPlayer(args[1]);
@@ -115,7 +88,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
             final String message = this.configValues.getPlayerNotFound().replace("{player}", args[1]);
             final String formattedMessage = PlaceholdersUtil.parse(sender, message);
             sender.sendMessage(formattedMessage);
-            return;
+            return true;
         }
 
         ChatMessagesListener.MESSAGES.add(args[1]);
@@ -126,12 +99,13 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         final String message = this.configValues.getRemovedFromMessagesMessage().replace("{player}", args[1]);
         final String formattedMessage = PlaceholdersUtil.parse(sender, message);
         sender.sendMessage(formattedMessage);
+        return true;
     }
 
-    public void removeCommands(final CommandSender sender, final String[] args) {
+    public boolean removeCommands(final CommandSender sender, final String[] args) {
         if (args.length < 2) {
             this.usageError(sender);
-            return;
+            return true;
         }
 
         final Player target = this.plugin.getServer().getPlayer(args[1]);
@@ -139,7 +113,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
             final String message = this.configValues.getPlayerNotFound().replace("{player}", args[1]);
             final String formattedMessage = PlaceholdersUtil.parse(sender, message);
             sender.sendMessage(formattedMessage);
-            return;
+            return true;
         }
 
         CommandsListeners.COMMANDS.add(args[1]);
@@ -150,28 +124,76 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         final String message = this.configValues.getRemovedFromCommandsMessage().replace("{player}", args[1]);
         final String formattedMessage = PlaceholdersUtil.parse(sender, message);
         sender.sendMessage(formattedMessage);
+        return true;
     }
 
-    public void usageError(final CommandSender sender) {
-        if (this.hasAnyPermission(sender)) {
-            final String message = this.configValues.getUsageErrorMessage();
-            final String formattedMessage = PlaceholdersUtil.parse(sender, message);
-            sender.sendMessage(formattedMessage);
-        } else {
-            final String message = this.configValues.getNoPermMessage();
-            final String formattedMessage = PlaceholdersUtil.parse(sender, message);
-            sender.sendMessage(formattedMessage);
+    private boolean deletedb(final CommandSender sender) {
+        if (!(sender instanceof ConsoleCommandSender)) {
+            if (this.hasAnyPermission(sender)) {
+                sender.sendMessage("§4[NewbieGuard] §cThis command can be executed only from console!");
+            } else {
+                this.noPermission((Player) sender);
+            }
         }
-    }
 
-    private boolean hasAnyPermission(final CommandSender sender) {
-        if (sender instanceof ConsoleCommandSender) {
+        if (waitConfirm) {
+            sender.sendMessage("§4[NewbieGuard] §cYou have already executed this command! Use: \"§4/newbieguard confirm§c\" to confirm remove!");
             return true;
         }
 
-        return sender.hasPermission("newbieguard.command.reload")
+        sender.sendMessage("§4[NewbieGuard] §c=================================================================");
+        sender.sendMessage("§4[NewbieGuard] §c| Are you sure you want to clear the database of verified players");
+        sender.sendMessage("§4[NewbieGuard] §c| This action is irreversible!");
+        sender.sendMessage("§4[NewbieGuard] §c|");
+        sender.sendMessage("§4[NewbieGuard] §c| If yes, execute \"§4/newbieguard confirm§c\"");
+
+        this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () ->
+                        this.waitConfirm = false,
+                400L
+        );
+
+        return true;
+    }
+
+    private boolean confirm(final CommandSender sender) {
+        if (!(sender instanceof ConsoleCommandSender)) {
+            if (this.hasAnyPermission(sender)) {
+                sender.sendMessage("§4[NewbieGuard] §cThis command can be executed only from console!");
+            } else {
+                this.noPermission((Player) sender);
+            }
+        }
+
+        if (!this.waitConfirm) {
+            sender.sendMessage("§4[NewbieGuard] &cFirst you have to execute \"§4/newbieguard cleardb§c\"!");
+            return true;
+        }
+
+        this.plugin.getDatabaseHandler().clear();
+
+        for (final Player player : Bukkit.getOnlinePlayers()) {
+            final String playerName = player.getName();
+            ChatMessagesListener.MESSAGES.add(playerName);
+            CommandsListeners.COMMANDS.add(playerName);
+        }
+        this.waitConfirm = false;
+
+        sender.sendMessage("§4[NewbieGuard] §cDatabase cleared successfully.");
+        return true;
+    }
+
+    public boolean usageError(final CommandSender sender) {
+        final String message = this.configValues.getUsageErrorMessage();
+        final String formattedMessage = PlaceholdersUtil.parse(sender, message);
+        sender.sendMessage(formattedMessage);
+        return true;
+    }
+
+    private boolean hasAnyPermission(final CommandSender sender) {
+        return sender instanceof ConsoleCommandSender
+                || sender.hasPermission("newbieguard.command.reload")
                 || sender.hasPermission("newbieguard.command.help")
-                || sender.hasPermission("newbieguard.command.removechat")
+                || sender.hasPermission("newbieguard.command.removemessages")
                 || sender.hasPermission("newbieguard.command.removecommands");
     }
 
