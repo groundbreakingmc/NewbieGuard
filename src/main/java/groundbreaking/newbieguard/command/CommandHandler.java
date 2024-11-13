@@ -202,11 +202,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         final List<String> list = new ArrayList<>();
 
         if (sender instanceof ConsoleCommandSender) {
-            if (this.waitConfirm) {
-                list.add("cleardb");
-            } else {
-                list.add("confirm");
-            }
+            list.add(this.waitConfirm ? "confirm" : "cleardb");
         }
 
         if (sender.hasPermission("newbieguard.command.reload")) {
