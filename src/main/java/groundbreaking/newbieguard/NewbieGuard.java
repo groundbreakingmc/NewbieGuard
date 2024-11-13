@@ -54,7 +54,6 @@ public final class NewbieGuard extends JavaPlugin {
 
         this.loadClassesAndEvents();
 
-        this.configValues = new ConfigValues(this);
         this.configValues.setupValues();
 
         this.setupConnection();
@@ -121,9 +120,10 @@ public final class NewbieGuard extends JavaPlugin {
     }
 
     public void loadClassesAndEvents() {
-        chatListener = new ChatMessagesListener(this);
-        commandsListener = new CommandsListeners(this);
-        columnCommandsListener = new ColumnCommandsListener(this);
+        this.configValues = new ConfigValues(this);
+        this.chatListener = new ChatMessagesListener(this);
+        this.commandsListener = new CommandsListeners(this);
+        this.columnCommandsListener = new ColumnCommandsListener(this);
     }
 
     public void reload() {
