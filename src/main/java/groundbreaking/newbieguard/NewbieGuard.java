@@ -60,9 +60,7 @@ public final class NewbieGuard extends JavaPlugin {
 
         this.setupCommand();
 
-        final PluginManager pluginManager = super.getServer().getPluginManager();
-        pluginManager.registerEvents(new UpdatesNotify(this), this);
-        pluginManager.registerEvents(new PlayerConnectionListener(this), this);
+        super.getServer().getPluginManager().registerEvents(new PlayerConnectionListener(this), this);
 
         this.myLogger.info("Plugin was successfully started in: " + (System.currentTimeMillis() - startTime) + "ms.");
     }

@@ -2,8 +2,7 @@ package groundbreaking.newbieguard.database.types;
 
 import groundbreaking.newbieguard.database.DatabaseHandler;
 
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.UUID;
 
 public final class SQLite extends DatabaseHandler {
 
@@ -11,27 +10,19 @@ public final class SQLite extends DatabaseHandler {
         super(url, null, null);
     }
 
-    @Override
-    public void createConnection() throws SQLException {
-        final String chatTable = "CREATE TABLE IF NOT EXISTS chat (username TEXT NOT NULL UNIQUE)";
-        final String commandsTable = "CREATE TABLE IF NOT EXISTS commands (username TEXT NOT NULL UNIQUE)";
-        try (final Statement statement = getConnection().createStatement()) {
-            statement.execute(chatTable);
-            statement.execute(commandsTable);
-        }
+    public void addPlayerToChatTable(final UUID playerUUID) {
+        final String addToChat = "INSERT OR IGNORE INTO chat (username) VALUES (?);";
+        super.addPlayerToChatTable(playerUUID, addToChat);
     }
 
-    @Override
+    public void addPlayerToCommandsDatabase(final UUID playerUUID) {
+        final String addToCommands = "INSERT OR IGNORE INTO commands (username) VALUES (?);";
+        super.addPlayerToCommandsDatabase(playerUUID, addToCommands);
+    }
+
     public void clear() {
-        try {
-            final String chatTable = "DELETE FROM chat";
-            final String commandsTable = "DELETE FROM commands";
-            try (final Statement statement = getConnection().createStatement()) {
-                statement.execute(chatTable);
-                statement.execute(commandsTable);
-            }
-        } catch(final SQLException ex) {
-            ex.printStackTrace();
-        }
+        final String clearChat = "DELETE FROM chat";
+        final String clearCommands = "DELETE FROM commands";
+        super.clear(clearChat, clearCommands);
     }
 }

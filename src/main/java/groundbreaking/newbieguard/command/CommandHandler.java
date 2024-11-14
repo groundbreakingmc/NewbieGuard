@@ -13,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public final class CommandHandler implements CommandExecutor, TabCompleter {
 
@@ -35,8 +36,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
 
         final String input = args[0].toLowerCase();
         if (!this.hasAnyPermission(sender)) {
-            this.noPermission((Player) sender);
-            return true;
+            return noPermission((Player) sender);
         }
 
         return switch (input) {
@@ -93,9 +93,10 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        ChatMessagesListener.MESSAGES.add(args[1]);
+        final UUID targetUUID = target.getUniqueId();
+        ChatMessagesListener.MESSAGES.add(targetUUID);
         this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
-                this.plugin.getDatabaseHandler().removePlayerFromChatTable(args[1])
+                this.plugin.getDatabaseHandler().removePlayerFromChatTable(targetUUID)
         );
 
         final String message = this.configValues.getRemovedFromMessagesMessage().replace("{player}", args[1]);
@@ -118,9 +119,10 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        CommandsListeners.COMMANDS.add(args[1]);
+        final UUID targetUUID = target.getUniqueId();
+        CommandsListeners.COMMANDS.add(targetUUID);
         this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
-                this.plugin.getDatabaseHandler().removePlayerFromCommandsTable(args[1])
+                this.plugin.getDatabaseHandler().removePlayerFromCommandsTable(targetUUID)
         );
 
         final String message = this.configValues.getRemovedFromCommandsMessage().replace("{player}", args[1]);
@@ -174,9 +176,9 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         this.plugin.getDatabaseHandler().clear();
 
         for (final Player player : Bukkit.getOnlinePlayers()) {
-            final String playerName = player.getName();
-            ChatMessagesListener.MESSAGES.add(playerName);
-            CommandsListeners.COMMANDS.add(playerName);
+            final UUID playerUUID = player.getUniqueId();
+            ChatMessagesListener.MESSAGES.add(playerUUID);
+            CommandsListeners.COMMANDS.add(playerUUID);
         }
         this.waitConfirm = false;
 

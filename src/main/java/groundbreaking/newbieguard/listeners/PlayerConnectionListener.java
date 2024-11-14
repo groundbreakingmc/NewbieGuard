@@ -7,6 +7,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.UUID;
+
 public final class PlayerConnectionListener implements Listener {
 
     private final NewbieGuard plugin;
@@ -19,13 +21,13 @@ public final class PlayerConnectionListener implements Listener {
 
     @EventHandler
     public void onJoin(final PlayerJoinEvent event) {
-        final String playerName = event.getPlayer().getName();
+        final UUID playerUUID = event.getPlayer().getUniqueId();
         this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
-           if (!this.database.chatDatabaseHasPlayer(playerName)) {
-               ChatMessagesListener.MESSAGES.add(playerName);
+           if (!this.database.chatDatabaseHasPlayer(playerUUID)) {
+               ChatMessagesListener.MESSAGES.add(playerUUID);
            }
-           if (!this.database.commandsDatabaseHasPlayer(playerName)) {
-               CommandsListeners.COMMANDS.add(playerName);
+           if (!this.database.commandsDatabaseHasPlayer(playerUUID)) {
+               CommandsListeners.COMMANDS.add(playerUUID);
            }
         });
     }

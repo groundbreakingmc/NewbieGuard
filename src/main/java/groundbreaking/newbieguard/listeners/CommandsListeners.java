@@ -22,6 +22,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.util.List;
+import java.util.UUID;
 
 public final class CommandsListeners implements Listener {
 
@@ -29,7 +30,7 @@ public final class CommandsListeners implements Listener {
     private final ConfigValues configValues;
     private final DatabaseHandler database;
 
-    public static final List<String> COMMANDS = new ObjectArrayList<>();
+    public static final List<UUID> COMMANDS = new ObjectArrayList<>();
 
     private ITimeCounter timeCounter;
     private IMode mode;
@@ -65,7 +66,7 @@ public final class CommandsListeners implements Listener {
         } else {
             COMMANDS.remove(player.getName());
             this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
-                    this.database.addPlayerCommandsDatabase(player.getName())
+                    this.database.addPlayerToCommandsDatabase(player.getUniqueId())
             );
         }
     }

@@ -19,6 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.List;
+import java.util.UUID;
 
 public final class ChatMessagesListener implements Listener {
 
@@ -26,7 +27,7 @@ public final class ChatMessagesListener implements Listener {
     private final ConfigValues configValues;
     private final DatabaseHandler database;
 
-    public static final List<String> MESSAGES = new ObjectArrayList<>();
+    public static final List<UUID> MESSAGES = new ObjectArrayList<>();
 
     private ITimeCounter timeCounter;
 
@@ -54,7 +55,7 @@ public final class ChatMessagesListener implements Listener {
         } else {
             MESSAGES.remove(player.getName());
             this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
-                this.database.addPlayerToChatTable(player.getName())
+                this.database.addPlayerToChatTable(player.getUniqueId())
             );
         }
     }
