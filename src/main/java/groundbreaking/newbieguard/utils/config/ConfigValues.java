@@ -222,7 +222,7 @@ public final class ConfigValues {
                 this.plugin.getCommandsListener().setTimeCounter(countFromFirstJoin);
 
                 final boolean useWhiteList = commandUse.getBoolean("use-whitelist");
-                this.plugin.getCommandsListener().setMode(countFromFirstJoin);
+                this.plugin.getCommandsListener().setMode(useWhiteList);
 
                 this.needTimePlayedToUseCommands = commandUse.getInt("need-time-played");
 
