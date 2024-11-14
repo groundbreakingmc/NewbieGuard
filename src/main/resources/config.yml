@@ -23,9 +23,12 @@ settings:
   # VANILLA - дефолтное форматирование через &
   serializer-for-formats: LEGACY
 
-  # Does plugin need to check for new updates after server starts? (Async)
-  # Author doesn't recommend disabling it.
-  check-updates: true
+  updates:
+    # Does plugin need to check for new updates after server starts? (Async)
+    # Author doesn't recommend disabling it.
+    check: true
+    # Does plugin need to automatically download update? (Can be also downloaded with "/newbieguard update")
+    auto-update: false
 
   database:
     type: SQLite

@@ -4,6 +4,7 @@ import groundbreaking.newbieguard.NewbieGuard;
 import groundbreaking.newbieguard.listeners.ChatMessagesListener;
 import groundbreaking.newbieguard.listeners.CommandsListeners;
 import groundbreaking.newbieguard.utils.PlaceholdersUtil;
+import groundbreaking.newbieguard.utils.UpdatesChecker;
 import groundbreaking.newbieguard.utils.config.ConfigValues;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
@@ -45,6 +46,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
             case "removecommands" -> this.removeCommands(sender, args);
             case "cleardb" -> this.deletedb(sender);
             case "confirm" -> this.confirm(sender);
+            case "update" -> this.update(sender);
             default -> this.usageError(sender);
         };
     }
@@ -182,6 +184,21 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    public boolean update(final CommandSender sender) {
+        if (!(sender instanceof ConsoleCommandSender)) {
+            sender.sendMessage("§4[NewbieGuard] §cThis command can only be executed only by the console!");
+            return true;
+        }
+
+        if (!UpdatesChecker.hasUpdate()) {
+            sender.sendMessage("§4[NewbieGuard] §cNothing to update!");
+            return true;
+        }
+
+        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> new UpdatesChecker(plugin).downloadJar());
+        return true;
+    }
+
     public boolean usageError(final CommandSender sender) {
         final String message = this.configValues.getUsageErrorMessage();
         final String formattedMessage = PlaceholdersUtil.parse(sender, message);
@@ -203,6 +220,9 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
 
         if (sender instanceof ConsoleCommandSender) {
             list.add(this.waitConfirm ? "confirm" : "cleardb");
+            if (UpdatesChecker.hasUpdate()) {
+                list.add("update");
+            }
         }
 
         if (sender.hasPermission("newbieguard.command.reload")) {
@@ -211,8 +231,8 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         if (sender.hasPermission("newbieguard.command.help")) {
             list.add("help");
         }
-        if (sender.hasPermission("newbieguard.command.removechat")) {
-            list.add("removechat");
+        if (sender.hasPermission("newbieguard.command.removemessages")) {
+            list.add("removemessages");
         }
         if (sender.hasPermission("newbieguard.command.removecommands")) {
             list.add("removecommands");

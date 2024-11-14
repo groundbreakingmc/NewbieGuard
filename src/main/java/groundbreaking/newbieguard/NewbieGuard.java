@@ -52,20 +52,15 @@ public final class NewbieGuard extends JavaPlugin {
         this.setupLogger(serverInfo);
         this.logLoggerType();
 
+        this.setupConnection();
+
         this.loadClassesAndEvents();
 
         this.configValues.setupValues();
 
-        this.setupConnection();
-
         this.setupCommand();
 
-        final Server server = super.getServer();
-
-        final UpdatesChecker updatesChecker = new UpdatesChecker(this);
-        server.getScheduler().runTaskAsynchronously(this, updatesChecker::startCheck);
-
-        final PluginManager pluginManager = server.getPluginManager();
+        final PluginManager pluginManager = super.getServer().getPluginManager();
         pluginManager.registerEvents(new UpdatesNotify(this), this);
         pluginManager.registerEvents(new PlayerConnectionListener(this), this);
 

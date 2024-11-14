@@ -8,6 +8,7 @@ import groundbreaking.newbieguard.listeners.ChatMessagesListener;
 import groundbreaking.newbieguard.listeners.ColumnCommandsListener;
 import groundbreaking.newbieguard.listeners.CommandsListeners;
 import groundbreaking.newbieguard.listeners.RegisterUtil;
+import groundbreaking.newbieguard.utils.UpdatesChecker;
 import groundbreaking.newbieguard.utils.colorizer.*;
 import groundbreaking.newbieguard.utils.logging.ILogger;
 import lombok.Getter;
@@ -108,24 +109,51 @@ public final class ConfigValues {
             return;
         }
 
-        this.setupDatabaseHandler(config);
+        this.setupSettings(config);
         this.setupMessagesSend(config, colorizer);
         this.setupCommandsUseValues(config, colorizer);
         this.setupColumnCommandsUseValues(config, colorizer);
         this.setupMessages(config, colorizer);
     }
 
-    private void setupDatabaseHandler(final FileConfiguration config) {
-        final ConfigurationSection database = config.getConfigurationSection("settings.database");
-        if (database != null) {
-            final String type = database.getString("type");
+    private void setupSettings(final FileConfiguration config) {
+        final ConfigurationSection settingsSection = config.getConfigurationSection("settings");
+        if (settingsSection != null) {
+            this.setupUpdates(settingsSection);
+            this.setupDatabaseHandler(settingsSection);
+        } else {
+            this.logger.warning("Failed to load section \"settings\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+        }
+    }
+
+    private void setupUpdates(final ConfigurationSection settings) {
+        final ConfigurationSection updatesSection = settings.getConfigurationSection("updates");
+        if (updatesSection != null) {
+            final boolean checkForUpdates = updatesSection.getBoolean("check");
+            final boolean downloadUpdate = updatesSection.getBoolean("auto-update");
+
+            final UpdatesChecker updatesChecker = new UpdatesChecker(this.plugin);
+            this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
+                    updatesChecker.check(checkForUpdates, downloadUpdate)
+            );
+        } else {
+            this.logger.warning("Failed to load section \"settings.updates\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+        }
+    }
+
+    private void setupDatabaseHandler(final ConfigurationSection settings) {
+        final ConfigurationSection databaseSection = settings.getConfigurationSection("database");
+        if (databaseSection != null) {
+            final String type = databaseSection.getString("type");
             if (type.equalsIgnoreCase("sqlite")) {
                 final File dbFile = new File(this.plugin.getDataFolder() + File.separator + "database.db");
                 final String url = "jdbc:sqlite:" + dbFile;
                 final DatabaseHandler connectionHandler = new SQLite(url);
                 this.plugin.setDatabaseHandler(connectionHandler);
             } else if (type.equalsIgnoreCase("mariadb")) {
-                final ConfigurationSection mariaDb = database.getConfigurationSection("maria-db");
+                final ConfigurationSection mariaDb = databaseSection.getConfigurationSection("maria-db");
                 if (mariaDb != null) {
                     final String host = mariaDb.getString("host");
                     final String port = mariaDb.getString("port");
@@ -140,6 +168,9 @@ public final class ConfigValues {
             } else {
                 throw new UnsupportedOperationException("Please choose SQLite or MariaDB as database!");
             }
+        } else {
+            this.logger.warning("Failed to load section \"settings.database\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
         }
     }
 
@@ -212,7 +243,6 @@ public final class ConfigValues {
         } else {
             this.logger.warning("Failed to load section \"commands-use\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
             this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
-            Bukkit.getPluginManager().disablePlugin(this.plugin);
         }
     }
 
@@ -239,7 +269,6 @@ public final class ConfigValues {
         } else {
             this.logger.warning("Failed to load section \"column-commands-use\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
             this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
-            Bukkit.getPluginManager().disablePlugin(this.plugin);
         }
     }
 
@@ -450,8 +479,8 @@ public final class ConfigValues {
                 denySubtitleText = "&fCheck \"commands-use.dent-title.subtitle-text\"";
             }
 
-            final Component titleText = Component.text( colorizer.colorize(denyTitleText) );
-            final Component subtitleText = Component.text( colorizer.colorize(denySubtitleText) );
+            final Component titleText = Component.text(colorizer.colorize(denyTitleText));
+            final Component subtitleText = Component.text(colorizer.colorize(denySubtitleText));
 
             this.columnCommandUseDenyTitle = Title.title(titleText, subtitleText, titleTimes);
 
