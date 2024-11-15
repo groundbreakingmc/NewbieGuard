@@ -49,14 +49,15 @@ messages-send:
   listener-priority: LOWEST
 
   # May be useful if some other plugins can block messages send for any reason
-  ignore-cancelled: false
+  ignore-cancelled: true
 
   # If 'false' only time spent online will be count
   # If 'true' will be count the time from the player's first server entry
   count-time-from-first-join: false
 
-  # How much time does a player need to play to get access to write in the chat
-  need-time-played: 300
+  # How much time does a player need to play to get access to write in the chat (in seconds)
+  # Default: 900s (15m)
+  need-time-played: 900
 
   # Sound that plays if command was denied
   # (soundName;volume;pitch)
@@ -89,14 +90,15 @@ commands-use:
   listener-priority: LOWEST
 
   # May be useful if some other plugins can block commands send for any reason
-  ignore-cancelled: false
+  ignore-cancelled: true
 
   # If 'false' only time spent online will be count
   # If 'true' will be count the time from the player's first server entry
   count-time-from-first-join: false
     
-  # How much time does a player need to play to get access to write commands
-  need-time-played: 300
+  # How much time does a player need to play to get access to write commands (in seconds)
+  # Default: 900s (15m)
+  need-time-played: 900
     
   # If true, then a player will be allowed to write only command from list until he plays enough time
   use-whitelist: false
