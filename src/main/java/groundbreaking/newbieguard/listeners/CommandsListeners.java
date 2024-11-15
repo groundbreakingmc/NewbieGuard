@@ -106,7 +106,7 @@ public final class CommandsListeners implements Listener {
         this.timeCounter = countFromFirstJoin ? new FirstEntryCounter() : new OnlineCounter();
     }
 
-    public void setMode(final boolean useWhiteList) {
-        this.mode = useWhiteList ? new WhiteList() : new BlackList();
+    public void setMode(final boolean useBlackList) {
+        this.mode = useBlackList ? new BlackList() : new WhiteList();
     }
 }

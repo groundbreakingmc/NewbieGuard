@@ -99,9 +99,9 @@ commands-use:
   # How much time does a player need to play to get access to write commands (in seconds)
   # Default: 900s (15m)
   need-time-played: 900
-    
-  # If true, then a player will be allowed to write only command from list until he plays enough time
-  use-whitelist: false
+
+  # If true, then a player will be not allowed to write command from "list" until he plays enough time
+  use-blacklist: true
     
   # Sound that plays if command was denied
   # (soundName;volume;pitch)

@@ -223,8 +223,8 @@ public final class ConfigValues {
                 final boolean countFromFirstJoin = commandUse.getBoolean("count-time-from-first-join");
                 this.plugin.getCommandsListener().setTimeCounter(countFromFirstJoin);
 
-                final boolean useWhiteList = commandUse.getBoolean("use-whitelist");
-                this.plugin.getCommandsListener().setMode(useWhiteList);
+                final boolean useBlackList = commandUse.getBoolean("use-blacklist");
+                this.plugin.getCommandsListener().setMode(useBlackList);
 
                 this.needTimePlayedToUseCommands = commandUse.getInt("need-time-played");
 
