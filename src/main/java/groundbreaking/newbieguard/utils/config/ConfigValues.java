@@ -147,26 +147,28 @@ public final class ConfigValues {
         final ConfigurationSection databaseSection = settings.getConfigurationSection("database");
         if (databaseSection != null) {
             final String type = databaseSection.getString("type");
-            if (type.equalsIgnoreCase("sqlite")) {
-                final File dbFile = new File(this.plugin.getDataFolder() + File.separator + "database.db");
-                final String url = "jdbc:sqlite:" + dbFile;
-                final DatabaseHandler connectionHandler = new SQLite(url);
-                this.plugin.setDatabaseHandler(connectionHandler);
-            } else if (type.equalsIgnoreCase("mariadb")) {
-                final ConfigurationSection mariaDb = databaseSection.getConfigurationSection("maria-db");
-                if (mariaDb != null) {
-                    final String host = mariaDb.getString("host");
-                    final String port = mariaDb.getString("port");
-                    final String dbName = mariaDb.getString("database-name");
-                    final String user = mariaDb.getString("username");
-                    final String pass = mariaDb.getString("password");
-
-                    final String url = host + ":" + port + "/" + dbName;
-                    final DatabaseHandler connectionHandler = new MariaDB(url, user, pass);
+            switch (type.toLowerCase()) {
+                case "sqlite" -> {
+                    final File dbFile = new File(this.plugin.getDataFolder() + File.separator + "database.db");
+                    final String url = "jdbc:sqlite:" + dbFile;
+                    final DatabaseHandler connectionHandler = new SQLite(url);
                     this.plugin.setDatabaseHandler(connectionHandler);
                 }
-            } else {
-                throw new UnsupportedOperationException("Please choose SQLite or MariaDB as database!");
+                case "mariadb" -> {
+                    final ConfigurationSection mariaDb = databaseSection.getConfigurationSection("maria-db");
+                    if (mariaDb != null) {
+                        final String host = mariaDb.getString("host");
+                        final String port = mariaDb.getString("port");
+                        final String dbName = mariaDb.getString("database-name");
+                        final String user = mariaDb.getString("username");
+                        final String pass = mariaDb.getString("password");
+
+                        final String url = host + ":" + port + "/" + dbName;
+                        final DatabaseHandler connectionHandler = new MariaDB(url, user, pass);
+                        this.plugin.setDatabaseHandler(connectionHandler);
+                    }
+                }
+                default -> throw new UnsupportedOperationException("Please choose SQLite or MariaDB as database!");
             }
         } else {
             this.logger.warning("Failed to load section \"settings.database\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
