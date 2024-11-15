@@ -1,12 +1,9 @@
 package groundbreaking.newbieguard.utils;
 
 import groundbreaking.newbieguard.NewbieGuard;
-import groundbreaking.newbieguard.utils.config.ConfigValues;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,7 +15,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Logger;
 
 public final class UpdatesChecker {
 

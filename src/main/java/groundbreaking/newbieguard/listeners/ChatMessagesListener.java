@@ -42,7 +42,8 @@ public final class ChatMessagesListener implements Listener {
     @EventHandler
     public void onEvent(final AsyncPlayerChatEvent event) {
         final Player player = event.getPlayer();
-        if (player.hasPermission("newbieguard.bypass.chat") || !MESSAGES.contains(player.getUniqueId())) {
+        final UUID playerUUID = player.getUniqueId();
+        if (player.hasPermission("newbieguard.bypass.chat") || !MESSAGES.contains(playerUUID)) {
             return;
         }
         
@@ -54,9 +55,10 @@ public final class ChatMessagesListener implements Listener {
             this.send(player, leftTime);
         } else {
             MESSAGES.remove(player.getUniqueId());
-            this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
-                this.database.addPlayerToChatTable(player.getUniqueId())
-            );
+            this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
+                final DatabaseHandler databaseHandler = this.plugin.getDatabaseHandler();
+                databaseHandler.executeUpdateQuery(playerUUID, databaseHandler.getAddPlayerToChat());
+            });
         }
     }
 

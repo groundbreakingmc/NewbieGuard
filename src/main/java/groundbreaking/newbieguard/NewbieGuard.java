@@ -2,9 +2,11 @@ package groundbreaking.newbieguard;
 
 import groundbreaking.newbieguard.command.CommandHandler;
 import groundbreaking.newbieguard.database.DatabaseHandler;
-import groundbreaking.newbieguard.listeners.*;
+import groundbreaking.newbieguard.listeners.ChatMessagesListener;
+import groundbreaking.newbieguard.listeners.ColumnCommandsListener;
+import groundbreaking.newbieguard.listeners.CommandsListeners;
+import groundbreaking.newbieguard.listeners.PlayerConnectionListener;
 import groundbreaking.newbieguard.utils.ServerInfo;
-import groundbreaking.newbieguard.utils.UpdatesChecker;
 import groundbreaking.newbieguard.utils.config.ConfigValues;
 import groundbreaking.newbieguard.utils.logging.BukkitLogger;
 import groundbreaking.newbieguard.utils.logging.ILogger;
@@ -13,10 +15,8 @@ import lombok.Getter;
 import lombok.Setter;
 import me.clip.placeholderapi.metrics.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.Server;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.EventPriority;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.sql.SQLException;
@@ -52,11 +52,11 @@ public final class NewbieGuard extends JavaPlugin {
         this.setupLogger(serverInfo);
         this.logLoggerType();
 
-        this.setupConnection();
-
         this.loadClassesAndEvents();
 
         this.configValues.setupValues();
+
+        this.setupConnection();
 
         this.setupCommand();
 
@@ -89,7 +89,7 @@ public final class NewbieGuard extends JavaPlugin {
 
     public void setupConnection() {
         try {
-            this.databaseHandler.createConnection();
+            this.databaseHandler.createTables();
         } catch (final SQLException ex) {
             this.myLogger.warning("An error coursed while trying to open database connection.");
             ex.printStackTrace();

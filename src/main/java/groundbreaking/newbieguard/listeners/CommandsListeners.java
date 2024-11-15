@@ -46,7 +46,8 @@ public final class CommandsListeners implements Listener {
     @EventHandler
     public void onEvent(final PlayerCommandPreprocessEvent event) {
         final Player player = event.getPlayer();
-        if (player.hasPermission("newbieguard.bypass.commands") || !COMMANDS.contains(player.getUniqueId())) {
+        final UUID playerUUID = player.getUniqueId();
+        if (player.hasPermission("newbieguard.bypass.commands") || !COMMANDS.contains(playerUUID)) {
             return;
         }
 
@@ -65,9 +66,10 @@ public final class CommandsListeners implements Listener {
             }
         } else {
             COMMANDS.remove(player.getUniqueId());
-            this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
-                    this.database.addPlayerToCommandsDatabase(player.getUniqueId())
-            );
+            this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
+                final DatabaseHandler databaseHandler = this.plugin.getDatabaseHandler();
+                databaseHandler.executeUpdateQuery(playerUUID, databaseHandler.getAddPlayerToCommands());
+            });
         }
     }
 

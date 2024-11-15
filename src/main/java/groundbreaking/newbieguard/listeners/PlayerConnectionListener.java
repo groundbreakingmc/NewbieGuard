@@ -7,6 +7,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.UUID;
 
 public final class PlayerConnectionListener implements Listener {
@@ -23,12 +25,16 @@ public final class PlayerConnectionListener implements Listener {
     public void onJoin(final PlayerJoinEvent event) {
         final UUID playerUUID = event.getPlayer().getUniqueId();
         this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
-           if (!this.database.chatDatabaseHasPlayer(playerUUID)) {
-               ChatMessagesListener.MESSAGES.add(playerUUID);
-           }
-           if (!this.database.commandsDatabaseHasPlayer(playerUUID)) {
-               CommandsListeners.COMMANDS.add(playerUUID);
-           }
+            try(final Connection connection = this.database.getConnection()) {
+                if (!this.database.containsPlayerInTable(connection, playerUUID, DatabaseHandler.CHECK_IF_PLAYER_IN_CHAT_TABLE)) {
+                    ChatMessagesListener.MESSAGES.add(playerUUID);
+                }
+                if (!this.database.containsPlayerInTable(connection, playerUUID, DatabaseHandler.CHECK_IF_PLAYER_IN_COMMANDS_TABLE)) {
+                    CommandsListeners.COMMANDS.add(playerUUID);
+                }
+            } catch(final SQLException ex) {
+                ex.printStackTrace();
+            }
         });
     }
 

@@ -1,6 +1,7 @@
 package groundbreaking.newbieguard.command;
 
 import groundbreaking.newbieguard.NewbieGuard;
+import groundbreaking.newbieguard.database.DatabaseHandler;
 import groundbreaking.newbieguard.listeners.ChatMessagesListener;
 import groundbreaking.newbieguard.listeners.CommandsListeners;
 import groundbreaking.newbieguard.utils.PlaceholdersUtil;
@@ -44,7 +45,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
             case "reload" -> this.reload(sender);
             case "removemessages" -> this.removeMessages(sender, args);
             case "removecommands" -> this.removeCommands(sender, args);
-            case "cleardb" -> this.deletedb(sender);
+            case "cleardb" -> this.clearDb(sender);
             case "confirm" -> this.confirm(sender);
             case "update" -> this.update(sender);
             default -> this.usageError(sender);
@@ -95,9 +96,10 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
 
         final UUID targetUUID = target.getUniqueId();
         ChatMessagesListener.MESSAGES.add(targetUUID);
-        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
-                this.plugin.getDatabaseHandler().removePlayerFromChatTable(targetUUID)
-        );
+        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
+            final DatabaseHandler databaseHandler = this.plugin.getDatabaseHandler();
+            databaseHandler.executeUpdateQuery(targetUUID, DatabaseHandler.REMOVE_PLAYER_FROM_CHAT);
+        });
 
         final String message = this.configValues.getRemovedFromMessagesMessage().replace("{player}", args[1]);
         final String formattedMessage = PlaceholdersUtil.parse(sender, message);
@@ -121,9 +123,10 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
 
         final UUID targetUUID = target.getUniqueId();
         CommandsListeners.COMMANDS.add(targetUUID);
-        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
-                this.plugin.getDatabaseHandler().removePlayerFromCommandsTable(targetUUID)
-        );
+        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
+            final DatabaseHandler databaseHandler = this.plugin.getDatabaseHandler();
+            databaseHandler.executeUpdateQuery(targetUUID, DatabaseHandler.REMOVE_PLAYER_FROM_COMMANDS);
+        });
 
         final String message = this.configValues.getRemovedFromCommandsMessage().replace("{player}", args[1]);
         final String formattedMessage = PlaceholdersUtil.parse(sender, message);
@@ -131,7 +134,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    private boolean deletedb(final CommandSender sender) {
+    private boolean clearDb(final CommandSender sender) {
         if (!(sender instanceof ConsoleCommandSender)) {
             if (this.hasAnyPermission(sender)) {
                 sender.sendMessage("§4[NewbieGuard] §cThis command can be executed only from console!");
@@ -173,7 +176,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        this.plugin.getDatabaseHandler().clear();
+        this.plugin.getDatabaseHandler().clearTables();
 
         for (final Player player : Bukkit.getOnlinePlayers()) {
             final UUID playerUUID = player.getUniqueId();
