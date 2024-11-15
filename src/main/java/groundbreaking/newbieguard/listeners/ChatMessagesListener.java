@@ -42,7 +42,7 @@ public final class ChatMessagesListener implements Listener {
     @EventHandler
     public void onEvent(final AsyncPlayerChatEvent event) {
         final Player player = event.getPlayer();
-        if (player.hasPermission("newbieguard.bypass.chat") || !MESSAGES.contains(player.getName())) {
+        if (player.hasPermission("newbieguard.bypass.chat") || !MESSAGES.contains(player.getUniqueId())) {
             return;
         }
         
@@ -53,7 +53,7 @@ public final class ChatMessagesListener implements Listener {
             final long leftTime = requiredTime - playedTime;
             this.send(player, leftTime);
         } else {
-            MESSAGES.remove(player.getName());
+            MESSAGES.remove(player.getUniqueId());
             this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
                 this.database.addPlayerToChatTable(player.getUniqueId())
             );

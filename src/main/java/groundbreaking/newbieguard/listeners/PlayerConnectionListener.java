@@ -34,8 +34,8 @@ public final class PlayerConnectionListener implements Listener {
 
     @EventHandler
     public void onQuit(final PlayerQuitEvent event) {
-        final String playerName = event.getPlayer().getName();
-        ChatMessagesListener.MESSAGES.remove(playerName);
-        CommandsListeners.COMMANDS.remove(playerName);
+        final UUID playerUUID = event.getPlayer().getUniqueId();
+        ChatMessagesListener.MESSAGES.remove(playerUUID);
+        CommandsListeners.COMMANDS.remove(playerUUID);
     }
 }
