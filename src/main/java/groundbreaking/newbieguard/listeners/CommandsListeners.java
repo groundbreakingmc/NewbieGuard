@@ -52,7 +52,7 @@ public final class CommandsListeners implements Listener {
         final long playedTime = this.timeCounter.count(player);
         final long requiredTime = this.configValues.getNeedTimePlayedToUseCommands();
         if (playedTime <= requiredTime) {
-            final String sentCommand = event.getMessage();
+            final String sentCommand = event.getMessage().substring(1);
             final List<String> blockedCommands = this.configValues.getBlockedCommands();
             for (int i = 0; i < blockedCommands.size(); i++) {
                 final String blockedCommand = blockedCommands.get(i);
