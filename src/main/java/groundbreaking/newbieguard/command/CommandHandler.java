@@ -43,8 +43,8 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         return switch (input) {
             case "help" -> this.help(sender);
             case "reload" -> this.reload(sender);
-            case "removemessages" -> this.removeMessages(sender, args);
-            case "removecommands" -> this.removeCommands(sender, args);
+            case "removemessages" -> this.removeFromMessages(sender, args);
+            case "removecommands" -> this.removeFromCommands(sender, args);
             case "cleardb" -> this.clearDb(sender);
             case "confirm" -> this.confirm(sender);
             case "update" -> this.update(sender);
@@ -80,7 +80,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    public boolean removeMessages(final CommandSender sender, final String[] args) {
+    public boolean removeFromMessages(final CommandSender sender, final String[] args) {
         if (args.length < 2) {
             this.usageError(sender);
             return true;
@@ -107,7 +107,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    public boolean removeCommands(final CommandSender sender, final String[] args) {
+    public boolean removeFromCommands(final CommandSender sender, final String[] args) {
         if (args.length < 2) {
             this.usageError(sender);
             return true;
@@ -143,8 +143,8 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
             }
         }
 
-        if (waitConfirm) {
-            sender.sendMessage("§4[NewbieGuard] §cYou have already executed this command! Use: \"§4/newbieguard confirm§c\" to confirm remove!");
+        if (this.waitConfirm) {
+            sender.sendMessage("§4[NewbieGuard] §cYou have already executed this command! Use: \"§4newbieguard confirm§c\" to confirm remove!");
             return true;
         }
 
@@ -152,7 +152,9 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         sender.sendMessage("§4[NewbieGuard] §c| Are you sure you want to clear the database of verified players");
         sender.sendMessage("§4[NewbieGuard] §c| This action is irreversible!");
         sender.sendMessage("§4[NewbieGuard] §c|");
-        sender.sendMessage("§4[NewbieGuard] §c| If yes, execute \"§4/newbieguard confirm§c\"");
+        sender.sendMessage("§4[NewbieGuard] §c| If yes, execute \"§4newbieguard confirm§c\"");
+
+        this.waitConfirm = true;
 
         this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () ->
                         this.waitConfirm = false,
@@ -172,7 +174,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         }
 
         if (!this.waitConfirm) {
-            sender.sendMessage("§4[NewbieGuard] &cFirst you have to execute \"§4/newbieguard cleardb§c\"!");
+            sender.sendMessage("§4[NewbieGuard] §cFirst you have to execute \"§4newbieguard cleardb§c\"!");
             return true;
         }
 
