@@ -119,10 +119,6 @@ public final class NewbieGuard extends JavaPlugin {
         this.columnCommandsListener = new ColumnCommandsListener(this);
     }
 
-    public void reload() {
-        this.configValues.setupValues();
-    }
-
     public EventPriority getEventPriority(final String priority, final String sectionName) {
         return switch (priority) {
             case "LOWEST" -> EventPriority.LOWEST;

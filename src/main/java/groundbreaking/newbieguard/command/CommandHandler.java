@@ -64,7 +64,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         final long reloadStartTime = System.currentTimeMillis();
 
         this.plugin.getDatabaseHandler().close();
-        this.plugin.reload();
+        this.configValues.setupValues();
 
         final long reloadFinishTime = System.currentTimeMillis();
         final String timeLeft = String.valueOf(reloadFinishTime - reloadStartTime);
