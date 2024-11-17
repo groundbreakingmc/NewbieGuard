@@ -28,7 +28,6 @@ public final class CommandsListeners implements Listener {
 
     private final NewbieGuard plugin;
     private final ConfigValues configValues;
-    private final DatabaseHandler database;
 
     public static final List<UUID> COMMANDS = new ObjectArrayList<>();
 
@@ -40,7 +39,6 @@ public final class CommandsListeners implements Listener {
     public CommandsListeners(final NewbieGuard plugin) {
         this.plugin = plugin;
         this.configValues = plugin.getConfigValues();
-        this.database = plugin.getDatabaseHandler();
     }
 
     @EventHandler
@@ -51,7 +49,7 @@ public final class CommandsListeners implements Listener {
             return;
         }
 
-        final long playedTime = timeCounter.count(player);
+        final long playedTime = this.timeCounter.count(player);
         final long requiredTime = this.configValues.getNeedTimePlayedToUseCommands();
         if (playedTime <= requiredTime) {
             final String sentCommand = event.getMessage();
@@ -76,7 +74,7 @@ public final class CommandsListeners implements Listener {
     private void send(final Player player, final long time) {
         final String formattedTime = TimeFormatterUtil.getTime(time);
 
-        final String message = configValues.getCommandUseCooldownMessage();
+        final String message = this.configValues.getCommandUseCooldownMessage();
         if (!message.isEmpty()) {
             final String formattedMessage = PlaceholdersUtil.parse(player, message.replace("%time%", formattedTime));
             player.sendMessage(formattedMessage);

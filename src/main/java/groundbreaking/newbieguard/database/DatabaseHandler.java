@@ -32,9 +32,9 @@ public abstract class DatabaseHandler {
         if (password != null) {
             config.setPassword(password);
         }
-        config.setMinimumIdle(4);
-        config.setMaximumPoolSize(12);
-        config.setConnectionTimeout(30000);
+        config.setMinimumIdle(2);
+        config.setMaximumPoolSize(10);
+        config.setConnectionTimeout(10000);
         config.setIdleTimeout(600000);
         config.setMaxLifetime(1800000);
 
@@ -93,12 +93,8 @@ public abstract class DatabaseHandler {
     }
 
     public final void close() {
-        try {
-            if (this.dataSource != null && dataSource.getConnection() != null) {
-                dataSource.close();
-            }
-        } catch (final SQLException ex) {
-            ex.printStackTrace();
+        if (dataSource != null) {
+            dataSource.close();
         }
     }
 }

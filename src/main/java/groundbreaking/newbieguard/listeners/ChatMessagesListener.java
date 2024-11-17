@@ -25,7 +25,6 @@ public final class ChatMessagesListener implements Listener {
 
     private final NewbieGuard plugin;
     private final ConfigValues configValues;
-    private final DatabaseHandler database;
 
     public static final List<UUID> MESSAGES = new ObjectArrayList<>();
 
@@ -36,7 +35,6 @@ public final class ChatMessagesListener implements Listener {
     public ChatMessagesListener(final NewbieGuard plugin) {
         this.plugin = plugin;
         this.configValues = plugin.getConfigValues();
-        this.database = plugin.getDatabaseHandler();
     }
 
     @EventHandler
@@ -47,7 +45,7 @@ public final class ChatMessagesListener implements Listener {
             return;
         }
         
-        final long playedTime = timeCounter.count(player);
+        final long playedTime = this.timeCounter.count(player);
         final long requiredTime = this.configValues.getNeedTimePlayedToSendMessages();
         if (playedTime <= requiredTime) {
             event.setCancelled(true);
