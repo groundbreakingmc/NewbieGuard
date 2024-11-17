@@ -48,6 +48,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
             case "cleardb" -> this.clearDb(sender);
             case "confirm" -> this.confirm(sender);
             case "update" -> this.update(sender);
+            case "checkupdate" -> this.checkUpdate(sender);
             default -> this.usageError(sender);
         };
     }
@@ -206,6 +207,16 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    public boolean checkUpdate(final CommandSender sender) {
+        if (!(sender instanceof ConsoleCommandSender)) {
+            sender.sendMessage("§4[NewbieGuard] §cThis command can only be executed only by the console!");
+            return true;
+        }
+
+        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> new UpdatesChecker(plugin).check(true, false));
+        return true;
+    }
+
     public boolean usageError(final CommandSender sender) {
         final String message = this.configValues.getUsageErrorMessage();
         final String formattedMessage = PlaceholdersUtil.parse(sender, message);
@@ -227,9 +238,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
 
         if (sender instanceof ConsoleCommandSender) {
             list.add(this.waitConfirm ? "confirm" : "cleardb");
-            if (UpdatesChecker.hasUpdate()) {
-                list.add("update");
-            }
+            list.add(UpdatesChecker.hasUpdate() ? "update" : "checkupdate");
         }
 
         if (sender.hasPermission("newbieguard.command.reload")) {
