@@ -31,23 +31,14 @@ public final class ColumnCommandsListener implements Listener {
         final String sentCommand = event.getMessage();
         if (this.isBlocked(sentCommand)) {
             event.setCancelled(true);
-
             this.send(player);
         }
     }
 
     private boolean isBlocked(final String sentCommand) {
-        final char[] chars = sentCommand.toCharArray();
-        for (int i = 0; i < chars.length; i++) {
-            char currentChar = chars[i];
-            if (currentChar == ' ') {
-                return false;
-            } else if (currentChar == ':') {
-                return true;
-            }
-        }
-
-        return false;
+        final int spaceIndex = sentCommand.indexOf(' ');
+        final int columnIndex = sentCommand.indexOf(':');
+        return columnIndex != -1 && spaceIndex > columnIndex || spaceIndex == -1 && columnIndex != -1;
     }
 
     private void send(final Player player) {
