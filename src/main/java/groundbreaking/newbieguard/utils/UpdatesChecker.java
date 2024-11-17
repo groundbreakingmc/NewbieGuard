@@ -49,7 +49,7 @@ public final class UpdatesChecker {
                     hasUpdate = true;
                     this.plugin.getMyLogger().info(body[1]);
                     downloadLink = versionInfo[1];
-                    if (downloadUpdate) {
+                    if (downloadUpdate && downloadLink != null) {
                         this.downloadJar();
                     }
                     return;
@@ -72,8 +72,7 @@ public final class UpdatesChecker {
 
     public void downloadJar() {
         if (downloadLink == null) {
-            this.plugin.getMyLogger().warning("No link to download update were found!");
-            this.plugin.getMyLogger().warning("Enable \"updates.check\" in \"config.yml\" and restart your server!");
+            this.check(true, true);
             return;
         } else if (downloadLink.isEmpty()) {
             this.plugin.getMyLogger().warning("\u001b[31mDownload link for new version of the plugin is empty!.\u001b[0m");
