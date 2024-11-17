@@ -27,7 +27,7 @@ permissions:
   newbieguard.bypass.commands:
     default: op
 
-  newbieguard.bypass.columncommands:
+  newbieguard.bypass.coloncommands:
     default: op
 
   newbieguard.updates:

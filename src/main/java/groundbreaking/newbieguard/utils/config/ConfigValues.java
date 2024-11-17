@@ -5,7 +5,7 @@ import groundbreaking.newbieguard.database.DatabaseHandler;
 import groundbreaking.newbieguard.database.types.MariaDB;
 import groundbreaking.newbieguard.database.types.SQLite;
 import groundbreaking.newbieguard.listeners.ChatMessagesListener;
-import groundbreaking.newbieguard.listeners.ColumnCommandsListener;
+import groundbreaking.newbieguard.listeners.ColonCommandsListener;
 import groundbreaking.newbieguard.listeners.CommandsListeners;
 import groundbreaking.newbieguard.listeners.RegisterUtil;
 import groundbreaking.newbieguard.utils.UpdatesChecker;
@@ -36,19 +36,19 @@ public final class ConfigValues {
 
     private boolean messageSendCheckEnabled;
     private boolean commandsSendCheckEnabled;
-    private boolean columnCommandsSendCheckEnabled;
+    private boolean colonCommandsSendCheckEnabled;
 
     private boolean isMessageSendDenySoundEnabled;
     private boolean isCommandUseDenySoundEnabled;
-    private boolean isColumnCommandUseDenySoundEnabled;
+    private boolean isColonCommandUseDenySoundEnabled;
 
     private boolean isMessageSendDenyTitleEnabled;
     private boolean isCommandUseDenyTitleEnabled;
-    private boolean isColumnCommandUseDenyTitleEnabled;
+    private boolean isColonCommandUseDenyTitleEnabled;
 
     private Sound messageSendDenySound;
     private Sound commandUseDenySound;
-    private Sound columnCommandUseDenySound;
+    private Sound colonCommandUseDenySound;
 
     private float messageSendSoundVolume;
     private float commandUseSoundVolume;
@@ -56,17 +56,16 @@ public final class ConfigValues {
     private float messageSendSoundPitch;
     private float commandUseSoundPitch;
 
-    private float columnCommandUseSoundVolume;
-    private float columnCommandUseSoundPitch;
+    private float colonCommandUseSoundVolume;
+    private float colonCommandUseSoundPitch;
 
     private Title.Times messageSendTitleTimes;
     private Title.Times commandUseTitleTimes;
 
-    private Title columnCommandUseDenyTitle;
+    private Title colonCommandUseDenyTitle;
 
     private final List<String> blockedWordsForChat = new ArrayList<>();
     private final List<String> blockedCommands = new ArrayList<>();
-    private final List<String> blockedCommandsWithColumns = new ArrayList<>();
 
     private String noPermMessage;
     private String reloadMessage;
@@ -77,7 +76,7 @@ public final class ConfigValues {
     private String helpMessage;
     private String messageSendCooldownMessage;
     private String commandUseCooldownMessage;
-    private String columnCommandUseDenyMessage;
+    private String colonCommandUseDenyMessage;
 
     private String messageSendDenyTitle;
     private String messageSendDenySubtitle;
@@ -112,7 +111,7 @@ public final class ConfigValues {
         this.setupSettings(config);
         this.setupMessagesSend(config, colorizer);
         this.setupCommandsUseValues(config, colorizer);
-        this.setupColumnCommandsUseValues(config, colorizer);
+        this.setupColonCommandsUseValues(config, colorizer);
         this.setupMessages(config, colorizer);
     }
 
@@ -248,28 +247,28 @@ public final class ConfigValues {
         }
     }
 
-    private void setupColumnCommandsUseValues(final FileConfiguration config, final IColorizer colorizer) {
-        final ConfigurationSection columnCommandUse = config.getConfigurationSection("column-commands-use");
-        if (columnCommandUse != null) {
-            this.columnCommandsSendCheckEnabled = columnCommandUse.getBoolean("enable");
-            final ColumnCommandsListener columnCommandsListener = this.plugin.getColumnCommandsListener();
-            if (columnCommandsSendCheckEnabled) {
-                final String listenerPriorityString = columnCommandUse.getString("listener-priority").toUpperCase();
-                final boolean ignoreCancelled = columnCommandUse.getBoolean("ignore-cancelled");
+    private void setupColonCommandsUseValues(final FileConfiguration config, final IColorizer colorizer) {
+        final ConfigurationSection colonCommandUse = config.getConfigurationSection("colon-commands-use");
+        if (colonCommandUse != null) {
+            this.colonCommandsSendCheckEnabled = colonCommandUse.getBoolean("enable");
+            final ColonCommandsListener colonCommandsListener = this.plugin.getColonCommandsListener();
+            if (colonCommandsSendCheckEnabled) {
+                final String listenerPriorityString = colonCommandUse.getString("listener-priority").toUpperCase();
+                final boolean ignoreCancelled = colonCommandUse.getBoolean("ignore-cancelled");
 
-                this.columnCommandUseDenyMessage = this.getMessage(columnCommandUse, "deny-message", "column-commands-use.deny-message", colorizer);
+                this.colonCommandUseDenyMessage = this.getMessage(colonCommandUse, "deny-message", "colon-commands-use.deny-message", colorizer);
 
-                this.setColumnCommandUseDenySound(columnCommandUse);
-                this.setColumnCommandUseDenyTitle(columnCommandUse, colorizer);
+                this.setColonCommandUseDenySound(colonCommandUse);
+                this.setColonCommandUseDenyTitle(colonCommandUse, colorizer);
 
-                final EventExecutor eventExecutor = (listener, event) -> columnCommandsListener.onEvent((PlayerCommandPreprocessEvent) event);
-                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString, "column-commands-use");
-                RegisterUtil.register(this.plugin, columnCommandsListener, PlayerCommandPreprocessEvent.class, eventPriority, ignoreCancelled, eventExecutor);
+                final EventExecutor eventExecutor = (listener, event) -> colonCommandsListener.onEvent((PlayerCommandPreprocessEvent) event);
+                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString, "colon-commands-use");
+                RegisterUtil.register(this.plugin, colonCommandsListener, PlayerCommandPreprocessEvent.class, eventPriority, ignoreCancelled, eventExecutor);
             } else {
-                RegisterUtil.unregister(columnCommandsListener);
+                RegisterUtil.unregister(colonCommandsListener);
             }
         } else {
-            this.logger.warning("Failed to load section \"column-commands-use\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("Failed to load section \"colon-commands-use\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
             this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
         }
     }
@@ -348,22 +347,22 @@ public final class ConfigValues {
         }
     }
 
-    private void setColumnCommandUseDenySound(final ConfigurationSection section) {
+    private void setColonCommandUseDenySound(final ConfigurationSection section) {
         final String soundString = section.getString("deny-sound");
         if (soundString == null) {
-            this.logger.warning("Failed to load sound \"column-commands-use.deny-sound\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("Failed to load sound \"colon-commands-use.deny-sound\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
             this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
 
-            this.isColumnCommandUseDenySoundEnabled = false;
+            this.isColonCommandUseDenySoundEnabled = false;
         } else if (soundString.equalsIgnoreCase("disabled")) {
-            this.isColumnCommandUseDenySoundEnabled = false;
+            this.isColonCommandUseDenySoundEnabled = false;
         } else {
             final String[] params = soundString.split(";");
-            this.columnCommandUseDenySound = params.length >= 1 ? Sound.valueOf(params[0].toUpperCase()) : Sound.ITEM_SHIELD_BREAK;
-            this.columnCommandUseSoundVolume = params.length >= 2 ? Float.parseFloat(params[1]) : 1.0f;
-            this.columnCommandUseSoundPitch = params.length >= 3 ? Float.parseFloat(params[2]) : 1.0f;
+            this.colonCommandUseDenySound = params.length >= 1 ? Sound.valueOf(params[0].toUpperCase()) : Sound.ITEM_SHIELD_BREAK;
+            this.colonCommandUseSoundVolume = params.length >= 2 ? Float.parseFloat(params[1]) : 1.0f;
+            this.colonCommandUseSoundPitch = params.length >= 3 ? Float.parseFloat(params[2]) : 1.0f;
 
-            this.isColumnCommandUseDenySoundEnabled = true;
+            this.isColonCommandUseDenySoundEnabled = true;
         }
     }
 
@@ -451,7 +450,7 @@ public final class ConfigValues {
         }
     }
 
-    private void setColumnCommandUseDenyTitle(final ConfigurationSection section, final IColorizer colorizer) {
+    private void setColonCommandUseDenyTitle(final ConfigurationSection section, final IColorizer colorizer) {
         final ConfigurationSection denyTitle = section.getConfigurationSection("deny-title");
         if (denyTitle != null) {
             final String durationString = denyTitle.getString("duration");
@@ -484,14 +483,14 @@ public final class ConfigValues {
             final Component titleText = Component.text(colorizer.colorize(denyTitleText));
             final Component subtitleText = Component.text(colorizer.colorize(denySubtitleText));
 
-            this.columnCommandUseDenyTitle = Title.title(titleText, subtitleText, titleTimes);
+            this.colonCommandUseDenyTitle = Title.title(titleText, subtitleText, titleTimes);
 
-            this.isColumnCommandUseDenyTitleEnabled = true;
+            this.isColonCommandUseDenyTitleEnabled = true;
         } else {
             this.logger.warning("Failed to load title \"commands-use.deny-title\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
             this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
 
-            this.isColumnCommandUseDenyTitleEnabled = false;
+            this.isColonCommandUseDenyTitleEnabled = false;
         }
     }
 

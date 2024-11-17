@@ -3,7 +3,7 @@ package groundbreaking.newbieguard;
 import groundbreaking.newbieguard.command.CommandHandler;
 import groundbreaking.newbieguard.database.DatabaseHandler;
 import groundbreaking.newbieguard.listeners.ChatMessagesListener;
-import groundbreaking.newbieguard.listeners.ColumnCommandsListener;
+import groundbreaking.newbieguard.listeners.ColonCommandsListener;
 import groundbreaking.newbieguard.listeners.CommandsListeners;
 import groundbreaking.newbieguard.listeners.PlayerConnectionListener;
 import groundbreaking.newbieguard.utils.ServerInfo;
@@ -34,7 +34,7 @@ public final class NewbieGuard extends JavaPlugin {
 
     private ChatMessagesListener chatListener;
     private CommandsListeners commandsListener;
-    private ColumnCommandsListener columnCommandsListener;
+    private ColonCommandsListener colonCommandsListener;
 
     @Override
     public void onEnable() {
@@ -116,7 +116,7 @@ public final class NewbieGuard extends JavaPlugin {
         this.configValues = new ConfigValues(this);
         this.chatListener = new ChatMessagesListener(this);
         this.commandsListener = new CommandsListeners(this);
-        this.columnCommandsListener = new ColumnCommandsListener(this);
+        this.colonCommandsListener = new ColonCommandsListener(this);
     }
 
     public EventPriority getEventPriority(final String priority, final String sectionName) {

@@ -9,7 +9,7 @@
 # /newbieguard - the command reloads the plugin (Usage permission: newbieguard.reload) (default: op)
 # newbieguard.bypass.chat - allows bypass newbie chat protection (default: op)
 # newbieguard.bypass.commands - allows bypass newbie commands protection (default: op)
-# newbieguard.bypass.columncommands - allows bypass column commands protection (default: op)
+# newbieguard.bypass.coloncommands - allows bypass colon commands protection (default: op)
 # newbieguard.updates - allows to see updates notifies on join (default: op)
 #
 settings:
@@ -124,8 +124,8 @@ commands-use:
   list:
     - 'kit'
 
-column-commands-use:
-  # Is the column commands sending check enabled?
+colon-commands-use:
+  # Is the colon commands sending check enabled?
   enable: true
 
   # Available: LOWEST / LOW / NORMAL / HIGH / HIGHEST
