@@ -455,7 +455,7 @@ public final class ConfigValues {
         if (denyTitle != null) {
             final String durationString = denyTitle.getString("duration");
             if (durationString.equalsIgnoreCase("disabled")) {
-                this.isCommandUseDenyTitleEnabled = false;
+                this.isColonCommandUseDenyTitleEnabled = false;
                 return;
             }
 
