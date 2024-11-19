@@ -235,25 +235,56 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         final List<String> list = new ArrayList<>();
+        final String input = args[args.length - 1];
 
-        if (sender instanceof ConsoleCommandSender) {
-            list.add(this.waitConfirm ? "confirm" : "cleardb");
-            list.add(UpdatesChecker.hasUpdate() ? "update" : "checkupdate");
-        }
+        if (args.length == 1) {
+            if (sender instanceof ConsoleCommandSender) {
+                this.addConsoleTabCompletions(input, list);
+            }
 
-        if (sender.hasPermission("newbieguard.command.reload")) {
-            list.add("reload");
+            if ("reload".startsWith(input) && sender.hasPermission("newbieguard.command.reload")) {
+                list.add("reload");
+            }
+            if ("help".startsWith(input) && sender.hasPermission("newbieguard.command.help")) {
+                list.add("help");
+            }
+            if ("removemessages".startsWith(input) && sender.hasPermission("newbieguard.command.removemessages")) {
+                list.add("removemessages");
+            }
+            if ("removecommands".startsWith(input) && sender.hasPermission("newbieguard.command.removecommands")) {
+                list.add("removecommands");
+            }
         }
-        if (sender.hasPermission("newbieguard.command.help")) {
-            list.add("help");
-        }
-        if (sender.hasPermission("newbieguard.command.removemessages")) {
-            list.add("removemessages");
-        }
-        if (sender.hasPermission("newbieguard.command.removecommands")) {
-            list.add("removecommands");
+        else if (args.length == 2 && (args[0].equalsIgnoreCase("removemessages") || args[0].equalsIgnoreCase("removecommands"))) {
+                this.addPlayerNamesToTabCompletions(sender, input, list);
         }
 
         return list;
+    }
+
+    private void addConsoleTabCompletions(final String input, final List<String> list) {
+        if (this.waitConfirm && "confirm".startsWith(input)) {
+            list.add("confirm");
+        } else if (!this.waitConfirm && "cleardb".startsWith(input)) {
+            list.add("cleardb");
+        }
+
+        if (UpdatesChecker.hasUpdate() && "update".startsWith(input)) {
+            list.add("update");
+        } else if (!UpdatesChecker.hasUpdate() && "checkupdate".startsWith(input)) {
+            list.add("checkupdate");
+        }
+    }
+
+    private void addPlayerNamesToTabCompletions(final CommandSender sender, final String input, final List<String> list) {
+        if (sender.hasPermission("newbieguard.command.removemessages") || sender.hasPermission("newbieguard.command.removecommands")) {
+
+            for (final Player player : Bukkit.getOnlinePlayers()) {
+                final String playerName = player.getName();
+                if (playerName.startsWith(input)) {
+                    list.add(playerName);
+                }
+            }
+        }
     }
 }
