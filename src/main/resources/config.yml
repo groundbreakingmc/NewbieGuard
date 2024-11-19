@@ -150,7 +150,7 @@ colon-commands-use:
   deny-title:
     duration: 10;40;20
     title-text: '&cDenied'
-    subtitle-text: '&fLeft to play for %time% more'
+    subtitle-text: '&fYou dow''t have access to commands with colon'
 
 # To send empty message use &f, to disable message just let it be empty
 #
