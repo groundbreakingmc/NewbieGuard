@@ -182,7 +182,7 @@ public final class ConfigValues {
             final boolean commandsSendCheckEnabled = commandUse.getBoolean("enable");
             if (commandsSendCheckEnabled) {
 
-                final ConfigurationSection groupSection = config.getConfigurationSection("groups");
+                final ConfigurationSection groupSection = commandUse.getConfigurationSection("groups");
                 if (groupSection != null) {
 
                     final Set<String> groupKeys = groupSection.getKeys(false);
