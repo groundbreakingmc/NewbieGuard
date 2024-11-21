@@ -69,7 +69,7 @@ public final class ChatMessagesListener implements Listener {
             player.sendMessage(formattedMessage);
         }
 
-        if (!this.configValues.isMessageSendDenyTitleEnabled()) {
+        if (this.configValues.isMessageSendDenyTitleEnabled()) {
             final Component titleText = Component.text(this.configValues.getMessageSendDenyTitle().replace("%time%", formattedTime));
             final Component subtitleText = Component.text(this.configValues.getMessageSendDenySubtitle().replace("%time%", formattedTime));
             final Title.Times titleTimes = this.configValues.getMessageSendTitleTimes();
@@ -78,7 +78,7 @@ public final class ChatMessagesListener implements Listener {
             player.showTitle(title);
         }
 
-        if (!this.configValues.isMessageSendDenySoundEnabled()) {
+        if (this.configValues.isMessageSendDenySoundEnabled()) {
             final Location playerLocation = player.getLocation();
             final Sound sound = this.configValues.getMessageSendDenySound();
             final float volume = this.configValues.getMessageSendSoundVolume();

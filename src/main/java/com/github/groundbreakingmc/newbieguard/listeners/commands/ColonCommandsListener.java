@@ -48,12 +48,12 @@ public final class ColonCommandsListener implements Listener {
             player.sendMessage(formattedMessage);
         }
 
-        if (!this.configValues.isColonCommandUseDenyTitleEnabled()) {
+        if (this.configValues.isColonCommandUseDenyTitleEnabled()) {
             final Title title = this.configValues.getColonCommandUseDenyTitle();
             player.showTitle(title);
         }
 
-        if (!this.configValues.isColonCommandUseDenySoundEnabled()) {
+        if (this.configValues.isColonCommandUseDenySoundEnabled()) {
             final Location playerLocation = player.getLocation();
             final Sound sound = this.configValues.getColonCommandUseDenySound();
             final float volume = this.configValues.getColonCommandUseSoundVolume();
