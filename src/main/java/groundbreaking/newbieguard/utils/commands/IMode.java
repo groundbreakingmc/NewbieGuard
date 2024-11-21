@@ -1,6 +1,8 @@
 package groundbreaking.newbieguard.utils.commands;
 
+import groundbreaking.newbieguard.constructors.CommandGroup;
+
 public interface IMode {
 
-    boolean check(String sentCommand, String blockedCommand);
+    boolean check(final CommandGroup commandGroup);
 }

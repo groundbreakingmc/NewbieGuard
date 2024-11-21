@@ -1,11 +1,11 @@
 package groundbreaking.newbieguard.utils.commands;
 
-import groundbreaking.newbieguard.utils.CommandChecker;
+import groundbreaking.newbieguard.constructors.CommandGroup;
 
 public final class BlackList implements IMode {
 
     @Override
-    public boolean check(String sentCommand, String blockedCommand) {
-        return !CommandChecker.isBlocked(sentCommand, blockedCommand);
+    public boolean check(final CommandGroup commandGroup) {
+        return commandGroup == null;
     }
 }

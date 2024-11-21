@@ -2,9 +2,13 @@ package groundbreaking.newbieguard.utils;
 
 import groundbreaking.newbieguard.utils.config.ConfigValues;
 
-public final class TimeFormatter {
+public final class TimeFormatterUtil {
 
-    public String getTime(long totalSeconds) {
+    private TimeFormatterUtil() {
+
+    }
+
+    public static String getTime(long totalSeconds) {
         final long days = totalSeconds / 86400;
         final long hours = (totalSeconds / 3600) % 24;
         final long minutes = (totalSeconds / 60) % 60;

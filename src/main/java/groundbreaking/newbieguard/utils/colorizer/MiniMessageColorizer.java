@@ -4,7 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-public final class MiniMessagesColorizer implements IColorizer {
+public final class MiniMessageColorizer implements IColorizer {
 
     @Override
     public String colorize(String message) {
