@@ -1,11 +1,11 @@
 package groundbreaking.newbieguard.utils.commands;
 
-import groundbreaking.newbieguard.utils.CommandCheckerUtil;
+import java.util.Set;
 
 public final class WhiteList implements IMode {
 
     @Override
-    public boolean check(String sentCommand, String blockedCommand) {
-        return !CommandCheckerUtil.matchesBlockedCommand(sentCommand, blockedCommand);
+    public boolean check(final Set<String> blockedCommands, final String sentCommand) {
+        return !blockedCommands.contains(sentCommand);
     }
 }

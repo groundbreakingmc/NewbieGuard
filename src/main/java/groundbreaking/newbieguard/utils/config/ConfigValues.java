@@ -25,8 +25,8 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.EventExecutor;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 public final class ConfigValues {
@@ -64,8 +64,7 @@ public final class ConfigValues {
 
     private Title colonCommandUseDenyTitle;
 
-    private final List<String> blockedWordsForChat = new ArrayList<>();
-    private final List<String> blockedCommands = new ArrayList<>();
+    private final Set<String> blockedCommands = new HashSet<>();
 
     private String noPermMessage;
     private String reloadMessage;
@@ -193,9 +192,6 @@ public final class ConfigValues {
 
                 this.setMessageSendDenySound(messagesSend);
                 this.setMessageSendDenyTitle(messagesSend, colorizer);
-
-                this.blockedWordsForChat.clear();
-                this.blockedWordsForChat.addAll(messagesSend.getStringList("blocked-words"));
 
                 final EventExecutor eventExecutor = (listener, event) -> chatMessagesListener.onEvent((AsyncPlayerChatEvent) event);
                 final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString, "messages-send");

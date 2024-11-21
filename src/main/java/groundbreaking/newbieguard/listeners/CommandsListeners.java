@@ -22,6 +22,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public final class CommandsListeners implements Listener {
@@ -52,15 +53,13 @@ public final class CommandsListeners implements Listener {
         final long playedTime = this.timeCounter.count(player);
         final long requiredTime = this.configValues.getNeedTimePlayedToUseCommands();
         if (playedTime <= requiredTime) {
-            final String sentCommand = event.getMessage().substring(1);
-            final List<String> blockedCommands = this.configValues.getBlockedCommands();
-            for (int i = 0; i < blockedCommands.size(); i++) {
-                final String blockedCommand = blockedCommands.get(i);
-                if (mode.check(sentCommand, blockedCommand)) {
-                    event.setCancelled(true);
-                    final long leftTime = requiredTime - playedTime;
-                    this.send(player, leftTime);
-                }
+            final String fullSentCommand = event.getMessage();
+            final String sentCommand = fullSentCommand.substring(1, fullSentCommand.indexOf(' '));
+            final Set<String> blockedCommands = this.configValues.getBlockedCommands();
+            if (this.mode.check(blockedCommands, sentCommand)) {
+                event.setCancelled(true);
+                final long leftTime = requiredTime - playedTime;
+                this.send(player, leftTime);
             }
         } else {
             COMMANDS.remove(player.getUniqueId());
