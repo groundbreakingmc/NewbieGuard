@@ -1,4 +1,4 @@
-package groundbreaking.newbieguard.listeners;
+package groundbreaking.newbieguard.listeners.commands;
 
 import groundbreaking.newbieguard.NewbieGuard;
 import groundbreaking.newbieguard.utils.PlaceholdersUtil;

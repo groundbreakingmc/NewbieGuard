@@ -1,32 +1,26 @@
 package groundbreaking.newbieguard;
 
 import groundbreaking.newbieguard.command.CommandHandler;
-import groundbreaking.newbieguard.database.DatabaseHandler;
-import groundbreaking.newbieguard.listeners.ChatMessagesListener;
-import groundbreaking.newbieguard.listeners.ColonCommandsListener;
-import groundbreaking.newbieguard.listeners.CommandsListeners;
-import groundbreaking.newbieguard.listeners.PlayerConnectionListener;
+import groundbreaking.newbieguard.listeners.messages.ChatMessagesListener;
+import groundbreaking.newbieguard.listeners.commands.ColonCommandsListener;
+import groundbreaking.newbieguard.listeners.commands.CommandsListeners;
+import groundbreaking.newbieguard.listeners.connection.PlayerJoinListener;
 import groundbreaking.newbieguard.utils.ServerInfo;
 import groundbreaking.newbieguard.utils.config.ConfigValues;
 import groundbreaking.newbieguard.utils.logging.BukkitLogger;
 import groundbreaking.newbieguard.utils.logging.ILogger;
 import groundbreaking.newbieguard.utils.logging.PaperLogger;
 import lombok.Getter;
-import lombok.Setter;
 import me.clip.placeholderapi.metrics.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.EventPriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.sql.SQLException;
 import java.util.logging.Logger;
 
 @Getter
 public final class NewbieGuard extends JavaPlugin {
-
-    @Setter
-    private DatabaseHandler databaseHandler = null;
 
     private ConfigValues configValues;
 
@@ -56,18 +50,11 @@ public final class NewbieGuard extends JavaPlugin {
 
         this.configValues.setupValues();
 
-        this.setupConnection();
-
         this.setupCommand();
 
-        super.getServer().getPluginManager().registerEvents(new PlayerConnectionListener(this), this);
+        super.getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
 
         this.myLogger.info("Plugin was successfully started in: " + (System.currentTimeMillis() - startTime) + "ms.");
-    }
-
-    @Override
-    public void onDisable() {
-        this.databaseHandler.close();
     }
 
     private void logPaperWarning() {
@@ -84,16 +71,6 @@ public final class NewbieGuard extends JavaPlugin {
             this.myLogger.info("Plugin will use new ComponentLogger for logging.");
         } else {
             this.myLogger.info("Plugin will use default old BukkitLogger for logging. Because your server version is under 19!");
-        }
-    }
-
-    public void setupConnection() {
-        try {
-            this.databaseHandler.createTables();
-        } catch (final SQLException ex) {
-            this.myLogger.warning("An error coursed while trying to open database connection.");
-            ex.printStackTrace();
-            Bukkit.getPluginManager().disablePlugin(this);
         }
     }
 
@@ -127,7 +104,7 @@ public final class NewbieGuard extends JavaPlugin {
             case "HIGH" -> EventPriority.HIGH;
             case "HIGHEST" -> EventPriority.HIGHEST;
             default -> {
-                this.myLogger.warning("Failed to parse value from \"" + sectionName +".listener-priority\" from config file. Please check your configuration file, or delete it and restart your server!");
+                this.myLogger.warning("Failed to parse value from \"" + sectionName + ".listener-priority\" from config file. Please check your configuration file, or delete it and restart your server!");
                 this.myLogger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/GigaChat/issues");
                 throw new IllegalArgumentException("Failed to get event priority, please check your configuration files!");
             }

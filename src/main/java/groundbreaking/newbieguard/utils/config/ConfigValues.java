@@ -1,16 +1,19 @@
 package groundbreaking.newbieguard.utils.config;
 
 import groundbreaking.newbieguard.NewbieGuard;
-import groundbreaking.newbieguard.database.DatabaseHandler;
-import groundbreaking.newbieguard.database.types.MariaDB;
-import groundbreaking.newbieguard.database.types.SQLite;
-import groundbreaking.newbieguard.listeners.ChatMessagesListener;
-import groundbreaking.newbieguard.listeners.ColonCommandsListener;
-import groundbreaking.newbieguard.listeners.CommandsListeners;
+import groundbreaking.newbieguard.constructors.CommandGroup;
 import groundbreaking.newbieguard.listeners.RegisterUtil;
+import groundbreaking.newbieguard.listeners.commands.ColonCommandsListener;
+import groundbreaking.newbieguard.listeners.commands.CommandsListeners;
+import groundbreaking.newbieguard.listeners.messages.ChatMessagesListener;
 import groundbreaking.newbieguard.utils.UpdatesChecker;
 import groundbreaking.newbieguard.utils.colorizer.*;
+import groundbreaking.newbieguard.utils.commands.BlackList;
+import groundbreaking.newbieguard.utils.commands.WhiteList;
 import groundbreaking.newbieguard.utils.logging.ILogger;
+import groundbreaking.newbieguard.utils.time.FirstEntryCounter;
+import groundbreaking.newbieguard.utils.time.ITimeCounter;
+import groundbreaking.newbieguard.utils.time.OnlineCounter;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
@@ -24,47 +27,42 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.plugin.EventExecutor;
 
-import java.io.File;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
 public final class ConfigValues {
 
-    private int needTimePlayedToSendMessages;
-    private int needTimePlayedToUseCommands;
+    private ITimeCounter messagesSendTimeCounter;
+
+    private int requiredTimeToSendMessages;
 
     private boolean messageSendCheckEnabled;
-    private boolean commandsSendCheckEnabled;
     private boolean colonCommandsSendCheckEnabled;
 
     private boolean isMessageSendDenySoundEnabled;
-    private boolean isCommandUseDenySoundEnabled;
     private boolean isColonCommandUseDenySoundEnabled;
 
     private boolean isMessageSendDenyTitleEnabled;
-    private boolean isCommandUseDenyTitleEnabled;
     private boolean isColonCommandUseDenyTitleEnabled;
 
     private Sound messageSendDenySound;
-    private Sound commandUseDenySound;
     private Sound colonCommandUseDenySound;
 
     private float messageSendSoundVolume;
-    private float commandUseSoundVolume;
 
     private float messageSendSoundPitch;
-    private float commandUseSoundPitch;
 
     private float colonCommandUseSoundVolume;
     private float colonCommandUseSoundPitch;
 
     private Title.Times messageSendTitleTimes;
-    private Title.Times commandUseTitleTimes;
 
     private Title colonCommandUseDenyTitle;
 
-    private final Set<String> blockedCommands = new HashSet<>();
+    private final Map<String, CommandGroup> blockedCommands = new HashMap();
 
     private String noPermMessage;
     private String reloadMessage;
@@ -74,7 +72,6 @@ public final class ConfigValues {
     private String usageErrorMessage;
     private String helpMessage;
     private String messageSendCooldownMessage;
-    private String commandUseCooldownMessage;
     private String colonCommandUseDenyMessage;
 
     private String messageSendDenyTitle;
@@ -83,10 +80,14 @@ public final class ConfigValues {
     private String commandUseDenyTitle;
     private String commandUseDenySubtitle;
 
-    @Getter private static String timeDays;
-    @Getter private static String timeHours;
-    @Getter private static String timeMinutes;
-    @Getter private static String timeSeconds;
+    @Getter
+    private static String timeDays;
+    @Getter
+    private static String timeHours;
+    @Getter
+    private static String timeMinutes;
+    @Getter
+    private static String timeSeconds;
 
     private final NewbieGuard plugin;
     private final ILogger logger;
@@ -118,7 +119,6 @@ public final class ConfigValues {
         final ConfigurationSection settingsSection = config.getConfigurationSection("settings");
         if (settingsSection != null) {
             this.setupUpdates(settingsSection);
-            this.setupDatabaseHandler(settingsSection);
         } else {
             this.logger.warning("Failed to load section \"settings\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
             this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
@@ -141,39 +141,6 @@ public final class ConfigValues {
         }
     }
 
-    private void setupDatabaseHandler(final ConfigurationSection settings) {
-        final ConfigurationSection databaseSection = settings.getConfigurationSection("database");
-        if (databaseSection != null) {
-            final String type = databaseSection.getString("type");
-            switch (type.toLowerCase()) {
-                case "sqlite" -> {
-                    final File dbFile = new File(this.plugin.getDataFolder() + File.separator + "database.db");
-                    final String url = "jdbc:sqlite:" + dbFile;
-                    final DatabaseHandler connectionHandler = new SQLite(url);
-                    this.plugin.setDatabaseHandler(connectionHandler);
-                }
-                case "mariadb" -> {
-                    final ConfigurationSection mariaDb = databaseSection.getConfigurationSection("maria-db");
-                    if (mariaDb != null) {
-                        final String host = mariaDb.getString("host");
-                        final String port = mariaDb.getString("port");
-                        final String dbName = mariaDb.getString("database-name");
-                        final String user = mariaDb.getString("username");
-                        final String pass = mariaDb.getString("password");
-
-                        final String url = host + ":" + port + "/" + dbName;
-                        final DatabaseHandler connectionHandler = new MariaDB(url, user, pass);
-                        this.plugin.setDatabaseHandler(connectionHandler);
-                    }
-                }
-                default -> throw new UnsupportedOperationException("Please choose SQLite or MariaDB as database!");
-            }
-        } else {
-            this.logger.warning("Failed to load section \"settings.database\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
-            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
-        }
-    }
-
     private void setupMessagesSend(final FileConfiguration config, final IColorizer colorizer) {
         final ConfigurationSection messagesSend = config.getConfigurationSection("messages-send");
         if (messagesSend != null) {
@@ -184,9 +151,9 @@ public final class ConfigValues {
                 final boolean ignoreCancelled = messagesSend.getBoolean("ignore-cancelled");
 
                 final boolean countFromFirstJoin = messagesSend.getBoolean("count-time-from-first-join");
-                this.plugin.getChatListener().setTimeCounter(countFromFirstJoin);
+                this.messagesSendTimeCounter = countFromFirstJoin ? new FirstEntryCounter() : new OnlineCounter();
 
-                this.needTimePlayedToSendMessages = messagesSend.getInt("need-time-played");
+                this.requiredTimeToSendMessages = messagesSend.getInt("need-time-played");
 
                 this.messageSendCooldownMessage = this.getMessage(messagesSend, "cooldown", "messages-send.cooldown", colorizer);
 
@@ -207,40 +174,73 @@ public final class ConfigValues {
     }
 
     private void setupCommandsUseValues(final FileConfiguration config, final IColorizer colorizer) {
+        final CommandsListeners commandsListeners = this.plugin.getCommandsListener();
+
         final ConfigurationSection commandUse = config.getConfigurationSection("commands-use");
         if (commandUse != null) {
-            this.commandsSendCheckEnabled = commandUse.getBoolean("enable");
-            final CommandsListeners commandsListeners = this.plugin.getCommandsListener();
-            if (this.messageSendCheckEnabled) {
-                final String listenerPriorityString = commandUse.getString("listener-priority").toUpperCase();
-                final boolean ignoreCancelled = commandUse.getBoolean("ignore-cancelled");
 
-                final boolean countFromFirstJoin = commandUse.getBoolean("count-time-from-first-join");
-                this.plugin.getCommandsListener().setTimeCounter(countFromFirstJoin);
+            final boolean commandsSendCheckEnabled = commandUse.getBoolean("enable");
+            if (commandsSendCheckEnabled) {
 
-                final boolean useBlackList = commandUse.getBoolean("use-blacklist");
-                this.plugin.getCommandsListener().setMode(useBlackList);
+                final ConfigurationSection groupSection = config.getConfigurationSection("groups");
+                if (groupSection != null) {
 
-                this.needTimePlayedToUseCommands = commandUse.getInt("need-time-played");
+                    final Set<String> groupKeys = groupSection.getKeys(false);
 
-                this.commandUseCooldownMessage = this.getMessage(commandUse, "cooldown", "commands-use.cooldown", colorizer);
+                    for (final String key : groupKeys) {
+                        final ConfigurationSection keySection = groupSection.getConfigurationSection(key);
+                        final CommandGroup commandGroup = this.getGroup(keySection, colorizer);
 
-                this.setupCommandUseDenySound(commandUse);
-                this.setCommandUseDenyTitle(commandUse, colorizer);
+                        final List<String> list = keySection.getStringList("list");
+                        for (int i = 0; i < list.size(); i++) {
+                            this.blockedCommands.put(list.get(i), commandGroup);
+                        }
+                    }
 
-                this.blockedCommands.clear();
-                this.blockedCommands.addAll(commandUse.getStringList("list"));
 
-                final EventExecutor eventExecutor = (listener, event) -> commandsListeners.onEvent((PlayerCommandPreprocessEvent) event);
-                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString, "commands-use");
-                RegisterUtil.register(this.plugin, commandsListeners, PlayerCommandPreprocessEvent.class, eventPriority, ignoreCancelled, eventExecutor);
-            } else {
-                RegisterUtil.unregister(commandsListeners);
+                    final String listenerPriorityString = commandUse.getString("listener-priority").toUpperCase();
+                    final boolean ignoreCancelled = commandUse.getBoolean("ignore-cancelled");
+
+                    final EventExecutor eventExecutor = (listener, event) -> commandsListeners.onEvent((PlayerCommandPreprocessEvent) event);
+                    final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString, "commands-use");
+
+                    RegisterUtil.register(this.plugin, commandsListeners, PlayerCommandPreprocessEvent.class, eventPriority, ignoreCancelled, eventExecutor);
+
+                    return;
+                } else {
+                    this.logger.warning("Failed to load section \"commands-use.groups\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+                    this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+                }
             }
         } else {
             this.logger.warning("Failed to load section \"commands-use\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
             this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
         }
+
+        RegisterUtil.unregister(commandsListeners);
+    }
+
+    private CommandGroup getGroup(final ConfigurationSection keySection, final IColorizer colorizer) {
+        final CommandGroup.CommandGroupBuilder commandGroup = CommandGroup.builder();
+
+        commandGroup.sectionName(keySection.getName());
+
+        final boolean countFromFirstJoin = keySection.getBoolean("count-time-from-first-join");
+        commandGroup.timeCounter(countFromFirstJoin ? new FirstEntryCounter() : new OnlineCounter());
+
+        final boolean useBlackList = keySection.getBoolean("use-blacklist");
+        commandGroup.mode(useBlackList ? new BlackList() : new WhiteList());
+
+        final int requiredTime = keySection.getInt("need-time-played");
+        commandGroup.requiredTime(requiredTime);
+
+        final String cooldownMessage = this.getMessage(keySection, "cooldown", "commands-use.cooldown", colorizer);
+        commandGroup.cooldownMessage(cooldownMessage);
+
+        this.setupCommandUseDenySound(keySection, commandGroup);
+        this.setCommandUseDenyTitle(keySection, commandGroup, colorizer);
+
+        return commandGroup.build();
     }
 
     private void setupColonCommandsUseValues(final FileConfiguration config, final IColorizer colorizer) {
@@ -324,22 +324,21 @@ public final class ConfigValues {
         }
     }
 
-    private void setupCommandUseDenySound(final ConfigurationSection section) {
+    private void setupCommandUseDenySound(final ConfigurationSection section, final CommandGroup.CommandGroupBuilder builder) {
         final String soundString = section.getString("deny-sound");
         if (soundString == null) {
-            this.logger.warning("Failed to load sound \"commands-use.deny-sound\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("Failed to load sound \"commands-use." + section.getName() + ".deny-sound\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
             this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
 
-            this.isCommandUseDenySoundEnabled = false;
+            builder.isDenySoundEnabled(false);
         } else if (soundString.equalsIgnoreCase("disabled")) {
-            this.isCommandUseDenySoundEnabled = false;
+            builder.isDenySoundEnabled(false);
         } else {
             final String[] params = soundString.split(";");
-            this.commandUseDenySound = params.length >= 1 ? Sound.valueOf(params[0].toUpperCase()) : Sound.ITEM_SHIELD_BREAK;
-            this.commandUseSoundVolume = params.length >= 2 ? Float.parseFloat(params[1]) : 1.0f;
-            this.commandUseSoundPitch = params.length >= 3 ? Float.parseFloat(params[2]) : 1.0f;
-
-            this.isCommandUseDenySoundEnabled = true;
+            builder.denySound(params.length >= 1 ? Sound.valueOf(params[0].toUpperCase()) : Sound.ITEM_SHIELD_BREAK);
+            builder.denySoundVolume(params.length >= 2 ? Float.parseFloat(params[1]) : 1.0f);
+            builder.denySoundPitch(params.length >= 3 ? Float.parseFloat(params[2]) : 1.0f);
+            builder.isDenySoundEnabled(true);
         }
     }
 
@@ -404,12 +403,17 @@ public final class ConfigValues {
         }
     }
 
-    private void setCommandUseDenyTitle(final ConfigurationSection section, final IColorizer colorizer) {
+    private void setCommandUseDenyTitle(final ConfigurationSection section, final CommandGroup.CommandGroupBuilder builder, final IColorizer colorizer) {
         final ConfigurationSection denyTitle = section.getConfigurationSection("deny-title");
-        if (denyTitle != null) {
+        if (denyTitle == null) {
+            this.logger.warning("Failed to load title \"commands-use." + section.getName() + ".deny-title\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
+            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
+
+            builder.isDenyTitleEnabled(false);
+        } else {
             final String durationString = denyTitle.getString("duration");
-            if (durationString.equalsIgnoreCase("disabled")) {
-                this.isCommandUseDenyTitleEnabled = false;
+            if (durationString == null || durationString.equalsIgnoreCase("disabled")) {
+                builder.isDenyTitleEnabled(false);
                 return;
             }
 
@@ -418,31 +422,27 @@ public final class ConfigValues {
             final int stay = params.length >= 2 ? Integer.parseInt(params[1]) : 40;
             final int fadeOut = params.length >= 3 ? Integer.parseInt(params[2]) : 20;
 
-            this.commandUseTitleTimes = Title.Times.of(
-                    Ticks.duration(fadeIn),
-                    Ticks.duration(stay),
-                    Ticks.duration(fadeOut)
+            builder.denyTitleTimes(
+                    Title.Times.of(
+                            Ticks.duration(fadeIn),
+                            Ticks.duration(stay),
+                            Ticks.duration(fadeOut)
+                    )
             );
 
             String denyTitleText = section.getString("title-text");
             String denySubtitleText = section.getString("subtitle-text");
             if (denyTitleText == null) {
                 denyTitleText = "&cError";
-                denySubtitleText = "&fCheck \"commands-use.dent-title.title-text\"";
+                denySubtitleText = "&fCheck \"commands-use.deny-title.title-text\"";
             } else if (denySubtitleText == null) {
                 denyTitleText = "&cError";
-                denySubtitleText = "&fCheck \"commands-use.dent-title.subtitle-text\"";
+                denySubtitleText = "&fCheck \"commands-use.deny-title.subtitle-text\"";
             }
 
-            this.commandUseDenyTitle = colorizer.colorize(denyTitleText);
-            this.commandUseDenySubtitle = colorizer.colorize(denySubtitleText);
-
-            this.isCommandUseDenyTitleEnabled = true;
-        } else {
-            this.logger.warning("Failed to load title \"commands-use.deny-title\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
-            this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
-
-            this.isCommandUseDenyTitleEnabled = false;
+            builder.denyTitle(Component.text(colorizer.colorize(denyTitleText)));
+            builder.denySubtitle(Component.text(colorizer.colorize(denySubtitleText)));
+            builder.isDenyTitleEnabled(true);
         }
     }
 

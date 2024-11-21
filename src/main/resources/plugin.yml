@@ -6,7 +6,7 @@ author: Groundbreaking
 description: '${project.description}'
 website: https://github.com/groundbreakingmc
 
-softdepend: [PlaceholderAPI]
+softdepend: [ LuckPerms, PlaceholderAPI ]
 
 libraries:
   - com.zaxxer:HikariCP:5.1.0

@@ -1,14 +1,10 @@
-package groundbreaking.newbieguard.listeners;
+package groundbreaking.newbieguard.listeners.messages;
 
 import groundbreaking.newbieguard.NewbieGuard;
-import groundbreaking.newbieguard.database.DatabaseHandler;
+import groundbreaking.newbieguard.utils.PermissionUtil;
 import groundbreaking.newbieguard.utils.PlaceholdersUtil;
 import groundbreaking.newbieguard.utils.TimeFormatterUtil;
 import groundbreaking.newbieguard.utils.config.ConfigValues;
-import groundbreaking.newbieguard.utils.time.FirstEntryCounter;
-import groundbreaking.newbieguard.utils.time.ITimeCounter;
-import groundbreaking.newbieguard.utils.time.OnlineCounter;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
@@ -18,17 +14,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public final class ChatMessagesListener implements Listener {
 
     private final NewbieGuard plugin;
     private final ConfigValues configValues;
 
-    public static final List<UUID> MESSAGES = new ObjectArrayList<>();
-
-    private ITimeCounter timeCounter;
+    public static final Map<UUID, Long> PLAYERS = new HashMap<>();
 
     private boolean isRegistered = false;
 
@@ -41,22 +37,26 @@ public final class ChatMessagesListener implements Listener {
     public void onEvent(final AsyncPlayerChatEvent event) {
         final Player player = event.getPlayer();
         final UUID playerUUID = player.getUniqueId();
-        if (player.hasPermission("newbieguard.bypass.chat") || !MESSAGES.contains(playerUUID)) {
+        if (player.hasPermission("newbieguard.bypass.messages")) {
             return;
         }
-        
-        final long playedTime = this.timeCounter.count(player);
-        final long requiredTime = this.configValues.getNeedTimePlayedToSendMessages();
-        if (playedTime <= requiredTime) {
+
+        final Long endTime = PLAYERS.get(playerUUID);
+        if (endTime == null) {
+            return;
+        }
+
+        final long currentTime = System.currentTimeMillis();
+
+        final long leftTime = endTime - currentTime;
+
+        if (leftTime > 0) {
+            final long leftTimeSeconds = TimeUnit.MILLISECONDS.toSeconds(leftTime);
             event.setCancelled(true);
-            final long leftTime = requiredTime - playedTime;
-            this.send(player, leftTime);
+            this.send(player, leftTimeSeconds);
         } else {
-            MESSAGES.remove(player.getUniqueId());
-            this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> {
-                final DatabaseHandler databaseHandler = this.plugin.getDatabaseHandler();
-                databaseHandler.executeUpdateQuery(playerUUID, databaseHandler.getAddPlayerToChat());
-            });
+            PLAYERS.remove(playerUUID);
+            PermissionUtil.givePermission(playerUUID, "newbieguard.bypass.messages");
         }
     }
 
@@ -86,9 +86,5 @@ public final class ChatMessagesListener implements Listener {
 
             player.playSound(playerLocation, sound, volume, pitch);
         }
-    }
-
-    public void setTimeCounter(final boolean countFromFirstJoin) {
-        this.timeCounter = countFromFirstJoin ? new FirstEntryCounter() : new OnlineCounter();
     }
 }

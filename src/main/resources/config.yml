@@ -30,15 +30,6 @@ settings:
     # Does plugin need to automatically download update? (Can be also downloaded with "/newbieguard update")
     auto-update: false
 
-  database:
-    type: SQLite
-    maria-db:
-      host: localhost
-      port: 12345
-      database-name: NewbieGuard
-      username: groundbreakingmc
-      password: ''
-
 # Messages writing settings
 messages-send:
   # Is the message sending check enabled?
@@ -76,10 +67,6 @@ messages-send:
     title-text: '&cDenied'
     subtitle-text: '&fLeft to play for %time% more'
 
-  # Doesn't work now
-  blocked-words:
-    - 'Писька'
-
 # Commands writing settings
 commands-use:
   # Is the commands sending check enabled?
@@ -92,37 +79,40 @@ commands-use:
   # May be useful if some other plugins can block commands send for any reason
   ignore-cancelled: true
 
-  # If 'false' only time spent online will be count
-  # If 'true' will be count the time from the player's first server entry
-  count-time-from-first-join: false
-    
-  # How much time does a player need to play to get access to write commands (in seconds)
-  # Default: 900s (15m)
-  need-time-played: 900
+  groups:
+    # bypass permission: newbieguard.bypass.commands.example
+    example:
+      # If 'false' only time spent online will be count
+      # If 'true' will be count the time from the player's first server entry
+      count-time-from-first-join: false
 
-  # If true, then a player will be not allowed to write command from "list" until he plays enough time
-  use-blacklist: true
-    
-  # Sound that plays if command was denied
-  # (soundName;volume;pitch)
-  # write "disabled" to disable (like this: "deny-sound: disabled")
-  deny-sound: ITEM_SHIELD_BREAK;1.0;1.0
+      # How much time does a player need to play to get access to write commands (in seconds)
+      # Default: 900s (15m)
+      need-time-played: 900
 
-  # Deny message if player has not played enough time
-  # Leave empty to disable
-  cooldown: '&4(!) &cYou gotta to play for %time% more to use this command.'
-    
-  # Display Title settings that are displayed if entered command was denied
-  # (fade-in;stay;fade-out)
-  # write "disabled" to disable (like this: "duration: disabled")
-  deny-title:
-    duration: 10;40;20
-    title-text: '&cDenied'
-    subtitle-text: '&fUse /help to view allowed commands'
-    
-  # list of command that will be blacklisted/whitelisted
-  list:
-    - 'kit'
+      # If true, then a player will be not allowed to write command from "list" until he plays enough time
+      use-blacklist: true
+
+      # Sound that plays if command was denied
+      # (soundName;volume;pitch)
+      # write "disabled" to disable (like this: "deny-sound: disabled")
+      deny-sound: ITEM_SHIELD_BREAK;1.0;1.0
+
+      # Deny message if player has not played enough time
+      # Leave empty to disable
+      cooldown: '&4(!) &cYou gotta to play for %time% more to use this command.'
+
+      # Display Title settings that are displayed if entered command was denied
+      # (fade-in;stay;fade-out)
+      # write "disabled" to disable (like this: "duration: disabled")
+      deny-title:
+        duration: 10;40;20
+        title-text: '&cDenied'
+        subtitle-text: '&fLeft to play for %time% more'
+
+      # list of command that will be blacklisted/whitelisted
+      list:
+        - 'kit'
 
 colon-commands-use:
   # Is the colon commands sending check enabled?
