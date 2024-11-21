@@ -1,4 +1,4 @@
-# NewbieGuard
+# NewbieGuard [![CodeFactor](https://www.codefactor.io/repository/github/groundbreakingmc/newbieguard/badge)](https://www.codefactor.io/repository/github/groundbreakingmc/newbieguard)
 A plugin to block new players from using commands or writing in the chat.
 
 ## Features
@@ -18,5 +18,5 @@ A plugin to block new players from using commands or writing in the chat.
 
 ## Permissions
 - newbieguard.bypass.messages - Bypass the chat blocker for new players
-- newbieguard.bypass.commands.<group> - Bypass the command blocker in specified group for new players
+- newbieguard.bypass.commands.<\group> - Bypass the command blocker in specified group for new players
 - newbieguard.bypass.coloncommands - Bypass the colon command blocker
