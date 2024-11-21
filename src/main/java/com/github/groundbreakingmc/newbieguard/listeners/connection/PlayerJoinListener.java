@@ -31,6 +31,10 @@ public class PlayerJoinListener implements Listener {
     }
 
     private void processMessagesSend(final Player player, final UUID playerUUID) {
+        if (player.hasPermission("newbie.bypass.messages")) {
+            return;
+        }
+
         final ITimeCounter timeCounter = this.configValues.getMessagesSendTimeCounter();
 
         final long playedTime = timeCounter.count(player);
@@ -45,14 +49,15 @@ public class PlayerJoinListener implements Listener {
 
     private void processCommands(final Player player, final UUID playerUUID) {
         this.configValues.getBlockedCommands().forEach((group, commandGroup) -> {
+            if (!player.hasPermission("newbie.bypass.commands." + group)) {
+                final long playedTime = commandGroup.getTimeCounter().count(player);
+                final long requiredTime = commandGroup.getRequiredTime();
 
-            final long playedTime = commandGroup.getTimeCounter().count(player);
-            final long requiredTime = commandGroup.getRequiredTime();
+                if (playedTime <= requiredTime) {
+                    final long leftTime = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(requiredTime - playedTime);
 
-            if (playedTime <= requiredTime) {
-                final long leftTime = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(requiredTime - playedTime);
-
-                commandGroup.players.put(playerUUID, leftTime);
+                    commandGroup.players.put(playerUUID, leftTime);
+                }
             }
         });
     }
