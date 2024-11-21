@@ -2,7 +2,7 @@ name: '${name}'
 version: '${project.version}'
 description: '${project.description}'
 
-main: groundbreaking.newbieguard.NewbieGuard
+main: com.github.groundbreakingmc.newbieguard.NewbieGuard
 api-version: 1.16
 
 author: Groundbreaking
