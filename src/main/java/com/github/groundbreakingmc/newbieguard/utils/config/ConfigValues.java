@@ -77,9 +77,6 @@ public final class ConfigValues {
     private String messageSendDenyTitle;
     private String messageSendDenySubtitle;
 
-    private String commandUseDenyTitle;
-    private String commandUseDenySubtitle;
-
     @Getter
     private static String timeDays;
     @Getter
