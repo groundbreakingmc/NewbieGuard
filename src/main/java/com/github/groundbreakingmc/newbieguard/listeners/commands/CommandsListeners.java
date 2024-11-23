@@ -39,7 +39,8 @@ public final class CommandsListeners implements Listener {
 
         final CommandGroup commandGroup = this.configValues.getBlockedCommands().get(sentCommand);
 
-        if (player.hasPermission("newbieguard.bypass.commands." + commandGroup.getSectionName())) {
+        if (commandGroup == null
+                || player.hasPermission("newbieguard.bypass.commands." + commandGroup.getSectionName())) {
             return;
         }
 
