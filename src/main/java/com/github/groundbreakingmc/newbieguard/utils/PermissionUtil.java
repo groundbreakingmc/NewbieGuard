@@ -7,7 +7,7 @@ import net.luckperms.api.node.types.PermissionNode;
 
 import java.util.UUID;
 
-public class PermissionUtil {
+public final class PermissionUtil {
 
     @Setter
     private static LuckPerms luckPerms;

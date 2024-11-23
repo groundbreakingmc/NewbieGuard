@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-public class PlayerJoinListener implements Listener {
+public final class PlayerJoinListener implements Listener {
 
     private final ConfigValues configValues;
 

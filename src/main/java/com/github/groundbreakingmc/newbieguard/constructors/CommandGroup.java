@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @AllArgsConstructor @Getter @Builder
-public class CommandGroup {
+public final class CommandGroup {
     private final String sectionName;
     private final ITimeCounter timeCounter;
     private final IMode mode;

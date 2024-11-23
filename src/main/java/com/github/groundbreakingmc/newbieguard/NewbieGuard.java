@@ -4,6 +4,7 @@ import com.github.groundbreakingmc.newbieguard.command.CommandHandler;
 import com.github.groundbreakingmc.newbieguard.listeners.commands.ColonCommandsListener;
 import com.github.groundbreakingmc.newbieguard.listeners.commands.CommandsListeners;
 import com.github.groundbreakingmc.newbieguard.listeners.connection.PlayerJoinListener;
+import com.github.groundbreakingmc.newbieguard.listeners.connection.PlayerQuitListener;
 import com.github.groundbreakingmc.newbieguard.listeners.messages.ChatMessagesListener;
 import com.github.groundbreakingmc.newbieguard.utils.ServerInfo;
 import com.github.groundbreakingmc.newbieguard.utils.config.ConfigValues;
@@ -15,6 +16,7 @@ import me.clip.placeholderapi.metrics.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.event.EventPriority;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Logger;
@@ -51,8 +53,6 @@ public final class NewbieGuard extends JavaPlugin {
         this.configValues.setupValues();
 
         this.setupCommand();
-
-        super.getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
 
         this.myLogger.info("Plugin was successfully started in: " + (System.currentTimeMillis() - startTime) + "ms.");
     }
@@ -94,6 +94,10 @@ public final class NewbieGuard extends JavaPlugin {
         this.chatListener = new ChatMessagesListener(this);
         this.commandsListener = new CommandsListeners(this);
         this.colonCommandsListener = new ColonCommandsListener(this);
+
+        final PluginManager pluginManager = super.getServer().getPluginManager();
+        pluginManager.registerEvents(new PlayerJoinListener(this), this);
+        pluginManager.registerEvents(new PlayerQuitListener(this), this);
     }
 
     public EventPriority getEventPriority(final String priority, final String sectionName) {

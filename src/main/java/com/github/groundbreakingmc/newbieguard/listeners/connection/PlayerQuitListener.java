@@ -4,11 +4,12 @@ import com.github.groundbreakingmc.newbieguard.NewbieGuard;
 import com.github.groundbreakingmc.newbieguard.listeners.messages.ChatMessagesListener;
 import com.github.groundbreakingmc.newbieguard.utils.config.ConfigValues;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.UUID;
 
-public class PlayerQuitListener {
+public final class PlayerQuitListener implements Listener {
 
     private final ConfigValues configValues;
 
