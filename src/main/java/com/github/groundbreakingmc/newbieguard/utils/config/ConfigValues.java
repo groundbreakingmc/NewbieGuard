@@ -39,9 +39,6 @@ public final class ConfigValues {
 
     private int requiredTimeToSendMessages;
 
-    private boolean messageSendCheckEnabled;
-    private boolean colonCommandsSendCheckEnabled;
-
     private boolean isMessageSendDenySoundEnabled;
     private boolean isColonCommandUseDenySoundEnabled;
 
@@ -52,7 +49,6 @@ public final class ConfigValues {
     private Sound colonCommandUseDenySound;
 
     private float messageSendSoundVolume;
-
     private float messageSendSoundPitch;
 
     private float colonCommandUseSoundVolume;
@@ -139,14 +135,13 @@ public final class ConfigValues {
     }
 
     private void setupMessagesSend(final FileConfiguration config, final IColorizer colorizer) {
+        final ChatMessagesListener chatMessagesListener = this.plugin.getChatListener();
+
         final ConfigurationSection messagesSend = config.getConfigurationSection("messages-send");
         if (messagesSend != null) {
-            this.messageSendCheckEnabled = messagesSend.getBoolean("enable");
-            final ChatMessagesListener chatMessagesListener = this.plugin.getChatListener();
-            if (this.messageSendCheckEnabled) {
-                final String listenerPriorityString = messagesSend.getString("listener-priority").toUpperCase();
-                final boolean ignoreCancelled = messagesSend.getBoolean("ignore-cancelled");
 
+            final boolean checkEnabled = messagesSend.getBoolean("enable");
+            if (checkEnabled) {
                 final boolean countFromFirstJoin = messagesSend.getBoolean("count-time-from-first-join");
                 this.messagesSendTimeCounter = countFromFirstJoin ? new FirstEntryCounter() : new OnlineCounter();
 
@@ -158,16 +153,17 @@ public final class ConfigValues {
                 this.setMessageSendDenyTitle(messagesSend, colorizer);
 
                 final EventExecutor eventExecutor = (listener, event) -> chatMessagesListener.onEvent((AsyncPlayerChatEvent) event);
-                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString, "messages-send");
+                final EventPriority eventPriority = this.plugin.getEventPriority(messagesSend);
+                final boolean ignoreCancelled = messagesSend.getBoolean("ignore-cancelled");
+
                 RegisterUtil.register(this.plugin, chatMessagesListener, AsyncPlayerChatEvent.class, eventPriority, ignoreCancelled, eventExecutor);
-            } else {
-                RegisterUtil.unregister(chatMessagesListener);
             }
         } else {
             this.logger.warning("Failed to load section \"messages-send\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
             this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
-            Bukkit.getPluginManager().disablePlugin(this.plugin);
         }
+
+        RegisterUtil.unregister(chatMessagesListener);
     }
 
     private void setupCommandsUseValues(final FileConfiguration config, final IColorizer colorizer) {
@@ -176,8 +172,8 @@ public final class ConfigValues {
         final ConfigurationSection commandUse = config.getConfigurationSection("commands-use");
         if (commandUse != null) {
 
-            final boolean commandsSendCheckEnabled = commandUse.getBoolean("enable");
-            if (commandsSendCheckEnabled) {
+            final boolean checkEnabled = commandUse.getBoolean("enable");
+            if (checkEnabled) {
 
                 final ConfigurationSection groupSection = commandUse.getConfigurationSection("groups");
                 if (groupSection != null) {
@@ -194,15 +190,11 @@ public final class ConfigValues {
                         }
                     }
 
-
-                    final String listenerPriorityString = commandUse.getString("listener-priority").toUpperCase();
+                    final EventExecutor eventExecutor = (listener, event) -> commandsListeners.onEvent((PlayerCommandPreprocessEvent) event);
+                    final EventPriority eventPriority = this.plugin.getEventPriority(commandUse);
                     final boolean ignoreCancelled = commandUse.getBoolean("ignore-cancelled");
 
-                    final EventExecutor eventExecutor = (listener, event) -> commandsListeners.onEvent((PlayerCommandPreprocessEvent) event);
-                    final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString, "commands-use");
-
                     RegisterUtil.register(this.plugin, commandsListeners, PlayerCommandPreprocessEvent.class, eventPriority, ignoreCancelled, eventExecutor);
-
                     return;
                 } else {
                     this.logger.warning("Failed to load section \"commands-use.groups\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
@@ -241,12 +233,14 @@ public final class ConfigValues {
     }
 
     private void setupColonCommandsUseValues(final FileConfiguration config, final IColorizer colorizer) {
+        final ColonCommandsListener colonCommandsListener = this.plugin.getColonCommandsListener();
+
         final ConfigurationSection colonCommandUse = config.getConfigurationSection("colon-commands-use");
+
         if (colonCommandUse != null) {
-            this.colonCommandsSendCheckEnabled = colonCommandUse.getBoolean("enable");
-            final ColonCommandsListener colonCommandsListener = this.plugin.getColonCommandsListener();
-            if (colonCommandsSendCheckEnabled) {
-                final String listenerPriorityString = colonCommandUse.getString("listener-priority").toUpperCase();
+
+            final boolean checkEnabled = colonCommandUse.getBoolean("enable");
+            if (checkEnabled) {
                 final boolean ignoreCancelled = colonCommandUse.getBoolean("ignore-cancelled");
 
                 this.colonCommandUseDenyMessage = this.getMessage(colonCommandUse, "deny-message", "colon-commands-use.deny-message", colorizer);
@@ -255,15 +249,16 @@ public final class ConfigValues {
                 this.setColonCommandUseDenyTitle(colonCommandUse, colorizer);
 
                 final EventExecutor eventExecutor = (listener, event) -> colonCommandsListener.onEvent((PlayerCommandPreprocessEvent) event);
-                final EventPriority eventPriority = this.plugin.getEventPriority(listenerPriorityString, "colon-commands-use");
+                final EventPriority eventPriority = this.plugin.getEventPriority(colonCommandUse);
                 RegisterUtil.register(this.plugin, colonCommandsListener, PlayerCommandPreprocessEvent.class, eventPriority, ignoreCancelled, eventExecutor);
-            } else {
-                RegisterUtil.unregister(colonCommandsListener);
+                return;
             }
         } else {
             this.logger.warning("Failed to load section \"colon-commands-use\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
             this.logger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/NewbieGuard/issues");
         }
+
+        RegisterUtil.unregister(colonCommandsListener);
     }
 
     private void setupMessages(final FileConfiguration config, final IColorizer colorizer) {

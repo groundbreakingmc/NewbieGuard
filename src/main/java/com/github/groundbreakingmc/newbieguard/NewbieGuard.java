@@ -15,6 +15,7 @@ import lombok.Getter;
 import me.clip.placeholderapi.metrics.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.EventPriority;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -100,7 +101,8 @@ public final class NewbieGuard extends JavaPlugin {
         pluginManager.registerEvents(new PlayerQuitListener(this), this);
     }
 
-    public EventPriority getEventPriority(final String priority, final String sectionName) {
+    public EventPriority getEventPriority(final ConfigurationSection section) {
+        final String priority = section.getString("listener-priority").toUpperCase();
         return switch (priority) {
             case "LOWEST" -> EventPriority.LOWEST;
             case "LOW" -> EventPriority.LOW;
@@ -108,7 +110,7 @@ public final class NewbieGuard extends JavaPlugin {
             case "HIGH" -> EventPriority.HIGH;
             case "HIGHEST" -> EventPriority.HIGHEST;
             default -> {
-                this.myLogger.warning("Failed to parse value from \"" + sectionName + ".listener-priority\" from config file. Please check your configuration file, or delete it and restart your server!");
+                this.myLogger.warning("Failed to parse value from \"" + section.getName() + ".listener-priority\" from config file. Please check your configuration file, or delete it and restart your server!");
                 this.myLogger.warning("If you think this is a plugin error, leave a issue on the https://github.com/grounbreakingmc/GigaChat/issues");
                 throw new IllegalArgumentException("Failed to get event priority, please check your configuration files!");
             }
