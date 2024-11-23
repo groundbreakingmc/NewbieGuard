@@ -15,16 +15,17 @@ public final class TimeFormatterUtil {
         final long seconds = totalSeconds % 60;
 
         final StringBuilder formattedTime = new StringBuilder();
+
         if (days > 0) {
             formattedTime.append(days).append(ConfigValues.getTimeDays());
         }
 
-        boolean lengthMoreThenZero = formattedTime.length() > 0;
-        if (hours > 0 || lengthMoreThenZero) {
+        boolean lengthMoreThanZero = formattedTime.length() > 0;
+        if (hours > 0 || lengthMoreThanZero) {
             formattedTime.append(hours).append(ConfigValues.getTimeHours());
         }
 
-        if (minutes > 0 || lengthMoreThenZero) {
+        if (minutes > 0 || lengthMoreThanZero) {
             formattedTime.append(minutes).append(ConfigValues.getTimeMinutes());
         }
 
