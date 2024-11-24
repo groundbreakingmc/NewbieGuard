@@ -12,7 +12,7 @@ import com.github.groundbreakingmc.newbieguard.utils.logging.BukkitLogger;
 import com.github.groundbreakingmc.newbieguard.utils.logging.ILogger;
 import com.github.groundbreakingmc.newbieguard.utils.logging.PaperLogger;
 import lombok.Getter;
-import me.clip.placeholderapi.metrics.bukkit.Metrics;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
