@@ -39,8 +39,9 @@ public final class CommandsListeners implements Listener {
 
         final CommandGroup commandGroup = this.configValues.getBlockedCommands().get(sentCommand);
 
+        final String bypassPermission;
         if (commandGroup == null
-                || player.hasPermission("newbieguard.bypass.commands." + commandGroup.getSectionName())) {
+                || player.hasPermission(bypassPermission = "newbieguard.bypass.commands." + commandGroup.getSectionName())) {
             return;
         }
 
@@ -59,7 +60,7 @@ public final class CommandsListeners implements Listener {
             this.send(player, commandGroup, leftTimeSeconds);
         } else {
             commandGroup.players.remove(playerUUID);
-            PermissionUtil.givePermission(playerUUID, "newbieguard.bypass.messages");
+            PermissionUtil.givePermission(playerUUID, bypassPermission);
         }
     }
 
