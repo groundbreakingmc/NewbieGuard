@@ -80,7 +80,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> new UpdatesChecker(plugin).downloadJar());
+        this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () -> new UpdatesChecker(plugin).downloadJar(true));
         return true;
     }
 

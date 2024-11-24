@@ -28,30 +28,29 @@ public final class UpdatesChecker {
         this.plugin = plugin;
     }
 
-    public void check(final boolean checkForUpdates, final boolean downloadUpdate) {
-        if (!checkForUpdates) {
-            this.plugin.getMyLogger().warning("Updates checker was disabled, but it's not recommend by the author to do it!");
-            return;
-        }
-
+    public void check(final boolean downloadUpdate, final boolean commandCall) {
         final HttpClient httpClient = HttpClient.newHttpClient();
         final HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(URI.create("https://raw.githubusercontent.com/groundbreakingmc/NewbieGuard/main/version.txt"))
+                .uri(URI.create("https://raw.githubusercontent.com/groundbreakingmc/NewbieGuard/main/version"))
                 .build();
 
         final CompletableFuture<HttpResponse<String>> responseFuture = httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());
 
         responseFuture.thenAccept(response -> {
             if (response.statusCode() == 200) {
+
                 final String[] body = response.body().split("\n", 2);
                 final String[] versionInfo = body[0].split("->");
-                if (this.isHigher(versionInfo[0])) {
-                    hasUpdate = true;
-                    this.plugin.getMyLogger().info(body[1]);
-                    downloadLink = versionInfo[1];
-                    if (downloadUpdate && downloadLink != null) {
-                        this.downloadJar();
+
+                if (hasUpdate = this.isHigher(versionInfo[0])) {
+                    if (!commandCall) {
+                        this.logUpdate(body[1].split("\n"), versionInfo[0], downloadUpdate);
                     }
+
+                    if (downloadUpdate && (downloadLink = versionInfo[1]) != null) {
+                        this.downloadJar(false);
+                    }
+
                     return;
                 }
 
@@ -70,9 +69,9 @@ public final class UpdatesChecker {
         return currentVersionNum < newVersionNum;
     }
 
-    public void downloadJar() {
+    public void downloadJar(final boolean commandCall) {
         if (downloadLink == null) {
-            this.check(true, true);
+            this.check(true, commandCall);
             return;
         } else if (downloadLink.isEmpty()) {
             this.plugin.getMyLogger().warning("\u001b[31mDownload link for new version of the plugin is empty!.\u001b[0m");
@@ -124,6 +123,25 @@ public final class UpdatesChecker {
             }
         } catch (final IOException | InterruptedException ex) {
             ex.printStackTrace();
+        }
+    }
+
+    private void logUpdate(final String[] body, final String newVersion, final boolean isAutoUpdateEnabled) {
+
+        this.plugin.getMyLogger().info("[UPDATE] ╓");
+        this.plugin.getMyLogger().info("[UPDATE] ╠ New version found - v" + newVersion);
+        this.plugin.getMyLogger().info("[UPDATE] ╚╗");
+
+        for (int i = 0; i < body.length; i++) {
+            this.plugin.getMyLogger().info("[UPDATE]  ╠ " + body[i]);
+        }
+
+        if (!isAutoUpdateEnabled) {
+            this.plugin.getMyLogger().info("[UPDATE] ╔╝");
+            this.plugin.getMyLogger().info("[UPDATE] ╠ Use 'voidfall update' to download");
+            this.plugin.getMyLogger().info("[UPDATE] ╙");
+        } else {
+            this.plugin.getMyLogger().info("[UPDATE] ─╜");
         }
     }
 }

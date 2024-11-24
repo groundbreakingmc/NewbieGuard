@@ -122,11 +122,16 @@ public final class ConfigValues {
         final ConfigurationSection updatesSection = settings.getConfigurationSection("updates");
         if (updatesSection != null) {
             final boolean checkForUpdates = updatesSection.getBoolean("check");
+            if (!checkForUpdates) {
+                this.plugin.getMyLogger().warning("Updates checker was disabled, but it's not recommend by the author to do it!");
+                return;
+            }
+
             final boolean downloadUpdate = updatesSection.getBoolean("auto-update");
 
             final UpdatesChecker updatesChecker = new UpdatesChecker(this.plugin);
             this.plugin.getServer().getScheduler().runTaskAsynchronously(this.plugin, () ->
-                    updatesChecker.check(checkForUpdates, downloadUpdate)
+                    updatesChecker.check(downloadUpdate, false)
             );
         } else {
             this.logger.warning("Failed to load section \"settings.updates\" from file \"config.yml\". Please check your configuration file, or delete it and restart your server!");
