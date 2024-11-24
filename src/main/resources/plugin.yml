@@ -5,7 +5,7 @@ description: '${project.description}'
 main: com.github.groundbreakingmc.newbieguard.NewbieGuard
 api-version: 1.16
 
-author: Groundbreaking
+author: '${author}'
 website: '${url}'
 
 softdepend: [ LuckPerms, PlaceholderAPI ]
@@ -13,7 +13,7 @@ softdepend: [ LuckPerms, PlaceholderAPI ]
 commands:
   newbieguard:
     aliases:
-      - ng
+      - nbguard
 
 permissions:
   newbieguard.reload:
