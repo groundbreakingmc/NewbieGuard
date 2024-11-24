@@ -4,19 +4,35 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>GroundbreakingMC</groupId>
-    <artifactId>NewbieGuard</artifactId>
+    <groupId>com.github.groundbreakingmc.newbieguard</groupId>
+    <artifactId>newbieguard</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
     <name>NewbieGuard</name>
-
     <description>Prevent new players from writing in the chat or executing commands</description>
+    <url>https://github.com/groundbreakingmc/NewbieGuard</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://github.com/groundbreakingmc/NewbieGuard/blob/main/LICENCE.md</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>groundbreakingmc</id>
+            <name>GroundbreakingMC</name>
+            <url>https://github.com/groundbreakingmc</url>
+        </developer>
+    </developers>
+
     <properties>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <url>https://github.com/groundbreakingmc</url>
 
     <build>
         <defaultGoal>clean package</defaultGoal>
