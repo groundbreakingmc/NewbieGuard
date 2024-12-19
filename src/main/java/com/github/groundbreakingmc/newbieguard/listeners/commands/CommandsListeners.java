@@ -34,19 +34,24 @@ public final class CommandsListeners implements Listener {
         final Player player = event.getPlayer();
         final UUID playerUUID = player.getUniqueId();
 
-        final String fullSentCommand = event.getMessage();
-        final String sentCommand = fullSentCommand.substring(1, fullSentCommand.indexOf(' '));
+        final String buffer = event.getMessage();
+        final String sentCommand = this.getSentCommand(buffer);
+        if (sentCommand.isEmpty()) {
+            return;
+        }
 
         final CommandGroup commandGroup = this.configValues.getBlockedCommands().get(sentCommand);
 
-        final String bypassPermission;
-        if (commandGroup == null
-                || player.hasPermission(bypassPermission = "newbieguard.bypass.commands." + commandGroup.getSectionName())) {
+        if (commandGroup == null || player.hasPermission(commandGroup.bypassPermission)) {
             return;
         }
 
         final Long endTime = commandGroup.players.get(playerUUID);
-        if (endTime == null || commandGroup.getMode().check(commandGroup)) {
+        if (endTime == null) {
+            return;
+        }
+
+        if (commandGroup.mode.check(commandGroup)) {
             return;
         }
 
@@ -60,39 +65,48 @@ public final class CommandsListeners implements Listener {
             this.send(player, commandGroup, leftTimeSeconds);
         } else {
             commandGroup.players.remove(playerUUID);
-            PermissionUtil.givePermission(playerUUID, bypassPermission);
+            PermissionUtil.givePermission(playerUUID, commandGroup.bypassPermission);
         }
+    }
+
+    private String getSentCommand(final String input) {
+        final int spaceIndex = input.indexOf(' ');
+        if (spaceIndex <= 0) {
+            return input.substring(1);
+        }
+
+        return input.substring(1, spaceIndex);
     }
 
     private void send(final Player player, final CommandGroup commandGroup, final long time) {
         final String formattedTime = TimeFormatterUtil.getTime(time);
 
-        final String message = commandGroup.getCooldownMessage();
+        final String message = commandGroup.cooldownMessage;
         if (!message.isEmpty()) {
             final String formattedMessage = PlaceholdersUtil.parse(player, message.replace("%time%", formattedTime));
             player.sendMessage(formattedMessage);
         }
 
-        if (commandGroup.isDenyTitleEnabled()) {
+        if (commandGroup.isDenyTitleEnabled) {
             final TextReplacementConfig replacement = TextReplacementConfig.builder()
                     .matchLiteral("%time%")
                     .replacement(formattedTime)
                     .build();
 
-            final Component titleText = commandGroup.getDenyTitle().replaceText(replacement);
-            final Component subtitleText = commandGroup.getDenySubtitle().replaceText(replacement);
-            final Title.Times titleTimes = commandGroup.getDenyTitleTimes();
+            final Component titleText = commandGroup.denyTitle.replaceText(replacement);
+            final Component subtitleText = commandGroup.denySubtitle.replaceText(replacement);
+            final Title.Times titleTimes = commandGroup.denyTitleTimes;
 
             final Title title = Title.title(titleText, subtitleText, titleTimes);
 
             player.showTitle(title);
         }
 
-        if (commandGroup.isDenySoundEnabled()) {
+        if (commandGroup.isDenySoundEnabled) {
             final Location playerLocation = player.getLocation();
-            final Sound sound = commandGroup.getDenySound();
-            final float volume = commandGroup.getDenySoundVolume();
-            final float pitch = commandGroup.getDenySoundPitch();
+            final Sound sound = commandGroup.denySound;
+            final float volume = commandGroup.denySoundVolume;
+            final float pitch = commandGroup.denySoundPitch;
 
             player.playSound(playerLocation, sound, volume, pitch);
         }

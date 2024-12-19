@@ -21,7 +21,7 @@ settings:
   # LEGACY_ADVANCED - улучшенный аналог legacy с поддержкой &## формата hex (&##123 = &#112233) (Работает только на: 1.16+)
   # MINIMESSAGE - цвет через <цвет></цвет> (Работает только на: 1.17+)
   # VANILLA - дефолтное форматирование через &
-  serializer-for-formats: LEGACY
+  serializer-for-formats: LEGACY_ADVANCED
 
   updates:
     # Does plugin need to check for new updates after server starts? (Async)

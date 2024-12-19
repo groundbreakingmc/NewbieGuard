@@ -2,6 +2,7 @@ package com.github.groundbreakingmc.newbieguard.listeners.connection;
 
 import com.github.groundbreakingmc.newbieguard.NewbieGuard;
 import com.github.groundbreakingmc.newbieguard.listeners.messages.ChatMessagesListener;
+import com.github.groundbreakingmc.newbieguard.utils.PermissionUtil;
 import com.github.groundbreakingmc.newbieguard.utils.config.ConfigValues;
 import com.github.groundbreakingmc.newbieguard.utils.time.ITimeCounter;
 import org.bukkit.entity.Player;
@@ -26,7 +27,6 @@ public final class PlayerJoinListener implements Listener {
         final UUID playerUUID = player.getUniqueId();
 
         this.processMessagesSend(player, playerUUID);
-
         this.processCommands(player, playerUUID);
     }
 
@@ -42,21 +42,21 @@ public final class PlayerJoinListener implements Listener {
 
         if (playedTime <= requiredTime) {
             final long leftTime = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(requiredTime - playedTime);
-
             ChatMessagesListener.PLAYERS.put(playerUUID, leftTime);
         }
     }
 
     private void processCommands(final Player player, final UUID playerUUID) {
         this.configValues.getBlockedCommands().forEach((group, commandGroup) -> {
-            if (!player.hasPermission("newbie.bypass.commands." + group)) {
-                final long playedTime = commandGroup.getTimeCounter().count(player);
-                final long requiredTime = commandGroup.getRequiredTime();
+            if (!player.hasPermission(commandGroup.bypassPermission)) {
+                final long playedTime = commandGroup.timeCounter.count(player);
+                final long requiredTime = commandGroup.requiredTime;
 
                 if (playedTime <= requiredTime) {
                     final long leftTime = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(requiredTime - playedTime);
-
                     commandGroup.players.put(playerUUID, leftTime);
+                } else {
+                    PermissionUtil.givePermission(playerUUID, commandGroup.bypassPermission);
                 }
             }
         });

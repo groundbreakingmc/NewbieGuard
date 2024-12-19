@@ -4,12 +4,13 @@ import lombok.Setter;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.node.Node;
 import net.luckperms.api.node.types.PermissionNode;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.util.UUID;
 
 public final class PermissionUtil {
 
-    @Setter
     private static LuckPerms luckPerms;
 
     private PermissionUtil() {
@@ -32,5 +33,12 @@ public final class PermissionUtil {
                 luckPerms.getUserManager().saveUser(user);
             }
         });
+    }
+
+    static {
+        final RegisteredServiceProvider<LuckPerms> registration = Bukkit.getServicesManager().getRegistration(LuckPerms.class);
+        if (registration != null) {
+            luckPerms = registration.getProvider();
+        }
     }
 }

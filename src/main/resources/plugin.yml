@@ -1,12 +1,12 @@
-name: '${name}'
-version: '${project.version}'
-description: '${project.description}'
+name: ${name}
+version: ${project.version}
+description: ${project.description}
 
 main: com.github.groundbreakingmc.newbieguard.NewbieGuard
 api-version: 1.16
 
-author: '${author}'
-website: '${url}'
+author: ${author}
+website: ${url}
 
 softdepend: [ LuckPerms, PlaceholderAPI ]
 
@@ -26,4 +26,7 @@ permissions:
     default: op
 
   newbieguard.bypass.coloncommands:
+    default: op
+
+  newbieguard.bypass.commands:
     default: op

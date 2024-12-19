@@ -25,6 +25,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.EventExecutor;
 
 import java.util.HashMap;
@@ -217,7 +218,7 @@ public final class ConfigValues {
     private CommandGroup getGroup(final ConfigurationSection keySection, final IColorizer colorizer) {
         final CommandGroup.CommandGroupBuilder commandGroup = CommandGroup.builder();
 
-        commandGroup.sectionName(keySection.getName());
+        commandGroup.bypassPermission("newbieguard.bypass.commands." + keySection.getName());
 
         final boolean countFromFirstJoin = keySection.getBoolean("count-time-from-first-join");
         commandGroup.timeCounter(countFromFirstJoin ? new FirstEntryCounter() : new OnlineCounter());
