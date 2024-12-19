@@ -16,11 +16,11 @@ settings:
   # Do not touch it!
   config-version: 1.0
 
-  # Форматирование текста.
-  # LEGACY - цвет через & и hex &# (Работает только на: 1.16+)
-  # LEGACY_ADVANCED - улучшенный аналог legacy с поддержкой &## формата hex (&##123 = &#112233) (Работает только на: 1.16+)
-  # MINIMESSAGE - цвет через <цвет></цвет> (Работает только на: 1.17+)
-  # VANILLA - дефолтное форматирование через &
+  # Text formatting.
+  # LEGACY - colors with & and hex &# (Works only on 1.16+)
+  # LEGACY_ADVANCED - better analogue LEGACY format with support &## hex text formatting (&##123 = &#112233) (Works only on 1.16+)
+  # MINIMESSAGE - color like <color></color> (Works only on 1.17+)
+  # VANILLA - default text formatting with &
   serializer-for-formats: LEGACY_ADVANCED
 
   updates:
@@ -57,7 +57,7 @@ messages-send:
 
   # Deny message if player has not played enough time
   # Leave empty to disable
-  cooldown: '&4(!) &cYou gotta to play for %time% more to use the chat.'
+  cooldown: '&4(!) &cYou gotta to play for {time} more to use the chat.'
 
   # Display Title settings that are displayed if entered command was denied
   # (fade-in;stay;fade-out)
@@ -65,7 +65,7 @@ messages-send:
   deny-title:
     duration: 10;40;20
     title-text: '&cDenied'
-    subtitle-text: '&fLeft to play for %time% more'
+    subtitle-text: '&fLeft to play for {time} more'
 
 # Commands writing settings
 commands-use:
@@ -100,7 +100,7 @@ commands-use:
 
       # Deny message if player has not played enough time
       # Leave empty to disable
-      cooldown: '&4(!) &cYou gotta to play for %time% more to use this command.'
+      cooldown: '&4(!) &cYou gotta to play for {time} more to use this command.'
 
       # Display Title settings that are displayed if entered command was denied
       # (fade-in;stay;fade-out)
@@ -108,7 +108,7 @@ commands-use:
       deny-title:
         duration: 10;40;20
         title-text: '&cDenied'
-        subtitle-text: '&fLeft to play for %time% more'
+        subtitle-text: '&fLeft to play for {time} more'
 
       # list of command that will be blacklisted/whitelisted
       list:
@@ -145,12 +145,12 @@ colon-commands-use:
 # To send empty message use &f, to disable message just let it be empty
 #
 # All messages also support placeholders from PlaceholderAPI
-# And also you can use %time% to display how more time left (Time will format to dd hh mm ss, and all zero values will not be displayed)
+# And also you can use {time} to display how more time left (Time will format to dd hh mm ss, and all zero values will not be displayed)
 #
 # Hex colors and minimessage(enable settings.use-minimessages, to use them) are supported by the plugin
 plugin-messages:
   no-permission: '&4(!) &cSorry, buy you don''t have permission to use this command!'
-  reload: '&2(!) &aPlugin was successfully reloaded in &2%time%ms&a!'
+  reload: '&2(!) &aPlugin was successfully reloaded in &2{time}ms&a!'
 
   player-not-found: '&4(!) &cPlayer {player} not found!'
 

@@ -83,13 +83,13 @@ public final class CommandsListeners implements Listener {
 
         final String message = commandGroup.cooldownMessage;
         if (!message.isEmpty()) {
-            final String formattedMessage = PlaceholdersUtil.parse(player, message.replace("%time%", formattedTime));
+            final String formattedMessage = PlaceholdersUtil.parse(player, message.replace("{time}", formattedTime));
             player.sendMessage(formattedMessage);
         }
 
         if (commandGroup.isDenyTitleEnabled) {
             final TextReplacementConfig replacement = TextReplacementConfig.builder()
-                    .matchLiteral("%time%")
+                    .matchLiteral("{time}")
                     .replacement(formattedTime)
                     .build();
 

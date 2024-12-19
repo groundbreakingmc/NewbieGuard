@@ -56,7 +56,7 @@ public final class CommandHandler implements CommandExecutor, TabCompleter {
 
         final long reloadFinishTime = System.currentTimeMillis();
         final String timeLeft = String.valueOf(reloadFinishTime - reloadStartTime);
-        final String message = this.configValues.getReloadMessage().replace("%time%", timeLeft);
+        final String message = this.configValues.getReloadMessage().replace("{time}", timeLeft);
         final String formattedMessage = PlaceholdersUtil.parse(sender, message);
         sender.sendMessage(formattedMessage);
         return true;

@@ -65,13 +65,13 @@ public final class ChatMessagesListener implements Listener {
 
         final String message = this.configValues.getMessageSendCooldownMessage();
         if (!message.isEmpty()) {
-            final String formattedMessage = PlaceholdersUtil.parse(player, message.replace("%time%", formattedTime));
+            final String formattedMessage = PlaceholdersUtil.parse(player, message.replace("{time}", formattedTime));
             player.sendMessage(formattedMessage);
         }
 
         if (this.configValues.isMessageSendDenyTitleEnabled()) {
-            final Component titleText = Component.text(this.configValues.getMessageSendDenyTitle().replace("%time%", formattedTime));
-            final Component subtitleText = Component.text(this.configValues.getMessageSendDenySubtitle().replace("%time%", formattedTime));
+            final Component titleText = Component.text(this.configValues.getMessageSendDenyTitle().replace("{time}", formattedTime));
+            final Component subtitleText = Component.text(this.configValues.getMessageSendDenySubtitle().replace("{time}", formattedTime));
             final Title.Times titleTimes = this.configValues.getMessageSendTitleTimes();
 
             final Title title = Title.title(titleText, subtitleText, titleTimes);
